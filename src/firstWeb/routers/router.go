@@ -3,6 +3,7 @@ package routers
 import (
 	"firstWeb/api"
 	"firstWeb/conf"
+	"firstWeb/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,10 @@ func InitRouter() *gin.Engine {
 
 	gin.SetMode(conf.Config.RunMode)
 
+	api.GetAuth(r)
+
 	groupRouter := r.Group("/api/v1")
+	groupRouter.Use(util.JWT())
 	{
 		api.GetArticles(groupRouter)
 	}
