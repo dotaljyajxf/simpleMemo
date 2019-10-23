@@ -1,10 +1,24 @@
 package routers
 
 import (
-	"firstWeb/controllers"
-	"github.com/astaxie/beego"
+	"firstWeb/api"
+	"firstWeb/conf"
+	"github.com/gin-gonic/gin"
 )
 
-func init() {
-    beego.Router("/", &controllers.MainController{})
+func InitRouter() *gin.Engine {
+	r := gin.New()
+
+	r.Use(gin.Logger())
+
+	r.Use(gin.Recovery())
+
+	gin.SetMode(conf.Config.RunMode)
+
+	groupRouter := r.Group("/api/v1")
+	{
+		api.GetArticles(groupRouter)
+	}
+
+	return r
 }

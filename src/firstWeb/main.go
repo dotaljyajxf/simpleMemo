@@ -1,11 +1,22 @@
 package main
 
 import (
-	_ "firstWeb/routers"
-	"github.com/astaxie/beego"
+	"firstWeb/conf"
+	"firstWeb/routers"
+	"fmt"
+	"net/http"
 )
 
 func main() {
-	beego.Run()
-}
+	r := routers.InitRouter()
 
+	s := &http.Server{
+		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),
+		Handler:        r,
+		ReadTimeout:    conf.Config.ReadTimeout,
+		WriteTimeout:   conf.Config.WriteTimeout,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	s.ListenAndServe()
+}
