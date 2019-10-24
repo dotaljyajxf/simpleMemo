@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var Config *ConfigIni
+var Config = &ConfigIni{}
 
 type ConfigIni struct {
 	RunMode      string        `ini:RUN_MODE`
@@ -36,4 +36,7 @@ func init() {
 			log.Fatal(2, "Fail to map config : %v", err)
 		}
 	}
+
+	Config.ReadTimeout = Config.ReadTimeout * time.Second
+	Config.WriteTimeout = Config.ReadTimeout * time.Second
 }
