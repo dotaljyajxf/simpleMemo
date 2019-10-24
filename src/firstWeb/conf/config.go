@@ -20,7 +20,7 @@ type ConfigIni struct {
 	DBUser       string        `ini:USER`
 	DBPassWord   string        `ini:PASSWORD`
 	DBHost       string        `ini:HOST`
-	DBName       string        `ini:NAME`
+	DBName       string        `ini:DB_NAME`
 	TablePrfix   string        `ini:TABLE_PREFIX`
 	LogPath      string        `ini:LOG_PATH`
 	LogLevel     int           `ini:LOG_LEVEL`

@@ -6,6 +6,7 @@ import (
 	"firstWeb/data"
 	"firstWeb/routers"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -21,7 +22,15 @@ func main() {
 		logrus.Fatal("server port must be a number between 1 and 65535")
 	}
 
-	r := routers.InitRouter()
+	r := gin.New()
+
+	r.Use(gin.Logger(), gin.Recovery())
+
+	gin.SetMode(conf.Config.RunMode)
+
+	r.LoadHTMLGlob("./views*")
+
+	r = routers.InitRouter(r)
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),
 		Handler:        r,
