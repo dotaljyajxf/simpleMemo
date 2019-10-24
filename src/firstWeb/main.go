@@ -28,7 +28,7 @@ func main() {
 
 	gin.SetMode(conf.Config.RunMode)
 
-	r.LoadHTMLGlob("./views*")
+	r.LoadHTMLGlob("./views/*")
 
 	r = routers.InitRouter(r)
 	s := &http.Server{
