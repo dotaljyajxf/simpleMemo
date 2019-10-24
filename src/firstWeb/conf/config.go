@@ -2,7 +2,9 @@ package conf
 
 import (
 	"github.com/go-ini/ini"
+	"github.com/sirupsen/logrus"
 	"log"
+	"os"
 	"time"
 )
 
@@ -20,9 +22,11 @@ type ConfigIni struct {
 	DBHost       string        `ini:HOST`
 	DBName       string        `ini:NAME`
 	TablePrfix   string        `ini:TABLE_PREFIX`
+	LogPath      string        `ini:LOG_PATH`
+	LogLevel     int           `ini:LOG_LEVEL`
 }
 
-func init() {
+func Init() {
 	Cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
 		log.Fatal(2, "Fail to parse 'conf/app.ini': %v", err)
@@ -34,9 +38,24 @@ func init() {
 		err = Cfg.Section(mode).MapTo(Config)
 		if err != nil {
 			log.Fatal(2, "Fail to map config : %v", err)
+			return
 		}
 	}
 
 	Config.ReadTimeout = Config.ReadTimeout * time.Second
 	Config.WriteTimeout = Config.ReadTimeout * time.Second
+
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: true,
+	})
+
+	logFile, err := os.OpenFile(Config.LogPath, os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal(2, "open LogFile error : %v", err)
+		return
+	}
+
+	logrus.SetOutput(logFile)
+	logrus.SetLevel(logrus.Level(Config.LogLevel))
 }

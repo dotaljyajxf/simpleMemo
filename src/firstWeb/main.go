@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"firstWeb/conf"
+	"firstWeb/data"
 	"firstWeb/routers"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +14,13 @@ import (
 )
 
 func main() {
+	conf.Init()
+	data.Init()
+
+	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
+		logrus.Fatal("server port must be a number between 1 and 65535")
+	}
+
 	r := routers.InitRouter()
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),
@@ -24,7 +32,7 @@ func main() {
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			log.Printf("Listen: %s\n", err)
+			logrus.Infof("Listen: %s\n", err)
 		}
 	}()
 
@@ -32,13 +40,13 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 
-	log.Println("Shutdown Server ...")
+	logrus.Info("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		logrus.Fatalf("Server Shutdown:%s\n", err)
 	}
-
-	log.Println("Server exiting")
+	data.CloseDB()
+	logrus.Info("Server exiting")
 }

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"firstWeb/models"
+	"firstWeb/models/auth"
 	"firstWeb/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,7 +12,7 @@ func GetAuth(c *gin.Engine) {
 		username := c.Param("username")
 		password := c.Param("password")
 
-		isOK := models.CheckAuth(username, password)
+		isOK := auth.CheckAuth(username, password)
 		if !isOK {
 			c.JSON(http.StatusOK, gin.H{"message": "authError"})
 		}
