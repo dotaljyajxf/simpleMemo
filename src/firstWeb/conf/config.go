@@ -33,15 +33,14 @@ func Init() {
 	}
 
 	mode := Cfg.Section("").Key("RUN_MODE").String()
-	log.Println(Cfg)
-	log.Println(Cfg.Section("").Key("RUN_MODE"))
-	log.Println(mode)
+	log.Println(Cfg.Section("debug").Body())
 	if mode == "debug" {
 		err = Cfg.Section(mode).MapTo(Config)
 		if err != nil {
 			log.Fatal(2, "Fail to map config : %v", err)
 			return
 		}
+		log.Println("finish map")
 	}
 
 	Config.ReadTimeout = Config.ReadTimeout * time.Second
