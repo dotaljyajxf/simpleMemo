@@ -27,13 +27,15 @@ type ConfigIni struct {
 }
 
 func Init() {
-	Cfg, err := ini.Load("conf/app.ini")
+	Cfg, err := ini.Load("./conf/app.ini")
 	if err != nil {
 		log.Fatal(2, "Fail to parse 'conf/app.ini': %v", err)
 	}
 
 	mode := Cfg.Section("").Key("RUN_MODE").String()
-
+	log.Println(Cfg)
+	log.Println(Cfg.Section("").Key("RUN_MODE"))
+	log.Println(mode)
 	if mode == "debug" {
 		err = Cfg.Section(mode).MapTo(Config)
 		if err != nil {
