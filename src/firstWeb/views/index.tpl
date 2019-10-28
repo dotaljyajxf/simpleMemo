@@ -83,9 +83,9 @@
   <footer>
     <div class="author">
       Official website:
-      <a href="http://http://106.12.16.96:8000/</a> /
+      <a href="http://106.12.16.96:8000/"</a> /
       Contact me:
-      <a class="email" href="mailto:542730772@qq.com</a>
+      <a class="email" href="542730772@qq.com"</a>
     </div>
   </footer>
   <div class="backdrop"></div>
