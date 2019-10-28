@@ -75,17 +75,17 @@
 
 <body>
   <header>
-    <h1 class="logo">Welcome to LittleCai</h1>
+    <h1 class="logo">Welcome</h1>
     <div class="description">
-      LittleCai is girl.
+      Hello World!
     </div>
   </header>
   <footer>
     <div class="author">
       Official website:
-      <a href="http://106.12.16.96:8000/"</a> /
+      <a href="http://{{.Website}}">{{.Website}}</a> /
       Contact me:
-      <a class="email" href="542730772@qq.com"</a>
+      <a class="email" href="mailto:{{.Email}}">{{.Email}}</a>
     </div>
   </footer>
   <div class="backdrop"></div>
