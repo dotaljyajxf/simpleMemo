@@ -23,10 +23,9 @@ func main() {
 		logrus.Fatal("server port must be a number between 1 and 65535")
 	}
 
-	r := gin.New()
-
-	r.Use(gin.Logger(), gin.Recovery())
 	gin.DefaultWriter = logrus.StandardLogger().Out
+
+	r := gin.Default()
 
 	gin.SetMode(conf.Config.RunMode)
 
