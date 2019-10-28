@@ -50,6 +50,8 @@ func Init() {
 		FullTimestamp: true,
 	})
 
+	log.Println(Config)
+
 	logFile, err := os.OpenFile(Config.LogPath, os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(2, " open LogFile error : %s,%v", Config.LogPath, err)
