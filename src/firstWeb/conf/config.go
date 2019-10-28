@@ -33,7 +33,8 @@ func Init() {
 	}
 
 	mode := Cfg.Section("").Key("RUN_MODE").String()
-	log.Println(Cfg.Section("debug").Body())
+	log.Println(Cfg.Section("debug"))
+	log.Println(Cfg.Section("").Body())
 	if mode == "debug" {
 		err = Cfg.Section(mode).MapTo(Config)
 		if err != nil {
