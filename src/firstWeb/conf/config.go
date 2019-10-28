@@ -52,7 +52,7 @@ func Init() {
 
 	logFile, err := os.OpenFile(Config.LogPath, os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		log.Fatal(2, " open LogFile error : %v", err)
+		log.Fatal(2, " open LogFile error : %s,%v", Config.LogPath, err)
 		return
 	}
 
