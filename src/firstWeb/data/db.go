@@ -30,7 +30,7 @@ func Init() {
 	Db.DB().SetMaxIdleConns(10)
 	Db.DB().SetMaxOpenConns(100)
 
-	Db.AutoMigrate(DbMap)
+	Db = Db.AutoMigrate(DbMap...)
 }
 
 func CloseDB() {
