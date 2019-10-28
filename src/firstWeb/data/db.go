@@ -17,7 +17,7 @@ func Init() {
 
 	Db, err := gorm.Open("mysql", dbSrc)
 	if err != nil {
-		logrus.Fatal("open db error src:%s", dbSrc)
+		logrus.Fatalf("open db error src %s,%s\n", dbSrc, err)
 		return
 	}
 
