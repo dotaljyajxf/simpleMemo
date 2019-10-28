@@ -16,7 +16,8 @@ func Init() {
 	dbSrc := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		conf.Config.DBUser, conf.Config.DBPassWord, conf.Config.DBHost, conf.Config.DBName)
 
-	Db, err := gorm.Open("mysql", dbSrc)
+	var err error
+	Db, err = gorm.Open("mysql", dbSrc)
 	if err != nil {
 		logrus.Fatalf("open db error src %s,%s\n", dbSrc, err)
 		return

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -25,6 +26,7 @@ func main() {
 	r := gin.New()
 
 	r.Use(gin.Logger(), gin.Recovery())
+	gin.DefaultWriter = logrus.StandardLogger().Out
 
 	gin.SetMode(conf.Config.RunMode)
 
@@ -46,7 +48,7 @@ func main() {
 	}()
 
 	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
 	logrus.Info("Shutdown Server ...")
