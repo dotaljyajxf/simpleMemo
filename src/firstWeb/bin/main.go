@@ -42,7 +42,7 @@ func main() {
 
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
-			logrus.Infof("Listen: %s\n", err)
+			logrus.Infof("Listen: %s", err)
 		}
 	}()
 
@@ -52,10 +52,10 @@ func main() {
 
 	logrus.Info("Shutdown Server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := s.Shutdown(ctx); err != nil {
-		logrus.Fatalf("Server Shutdown:%s\n", err)
+		logrus.Infof("Server Shutdown:%s", err)
 	}
 	data.CloseDB()
 	logrus.Info("Server exiting")
