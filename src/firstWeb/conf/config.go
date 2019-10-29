@@ -30,9 +30,9 @@ type ConfigIni struct {
 }
 
 func handleCmdFlag() {
-	flag.Parse()
 	flag.StringVar(&Config.ConfPath, "c", "./conf/app.ini", "set confFile path")
 	flag.StringVar(&Config.ViewPath, "v", "../views/", "set view path")
+	flag.Parse()
 }
 
 func Init() {
