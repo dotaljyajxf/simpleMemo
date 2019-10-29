@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"flag"
 	"github.com/go-ini/ini"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -24,10 +25,19 @@ type ConfigIni struct {
 	TablePrfix   string        `ini:"TABLE_PREFIX"`
 	LogPath      string        `ini:"LOG_PATH"`
 	LogLevel     int           `ini:"LOG_LEVEL"`
+	ConfPath     string        `ini:"-"`
+	ViewPath     string        `ini:"-"`
 }
 
-func Init(cfgPath string) {
-	Cfg, err := ini.Load(cfgPath)
+func handleCmdFlag() {
+	flag.Parse()
+	flag.StringVar(&Config.ConfPath, "c", "./conf/app.ini", "set confFile path")
+	flag.StringVar(&Config.ViewPath, "v", "../views/", "set view path")
+}
+
+func Init() {
+	handleCmdFlag()
+	Cfg, err := ini.Load(Config.ConfPath)
 	if err != nil {
 		log.Fatal(2, "Fail to parse 'conf/app.ini': %v", err)
 	}

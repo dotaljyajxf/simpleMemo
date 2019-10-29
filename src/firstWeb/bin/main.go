@@ -5,7 +5,6 @@ import (
 	"firstWeb/conf"
 	"firstWeb/data"
 	"firstWeb/routers"
-	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -18,11 +17,7 @@ import (
 
 func main() {
 
-	flag.Parse()
-	confPath := flag.String("c", "../conf/app.ini", "set confFile path")
-	viewPath := flag.String("v", "../views/", "set view path")
-
-	conf.Init(*confPath)
+	conf.Init()
 	data.Init()
 
 	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
@@ -35,7 +30,7 @@ func main() {
 
 	gin.SetMode(conf.Config.RunMode)
 
-	r.LoadHTMLGlob(*viewPath + "*")
+	r.LoadHTMLGlob(conf.Config.ViewPath + "*")
 
 	r = routers.InitRouter(r)
 	s := &http.Server{
