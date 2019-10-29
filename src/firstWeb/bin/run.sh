@@ -3,7 +3,7 @@
 
 function op_build()
 {
-    go build main.go -o web
+    go build -o web main.go
     echo "build ok!"
 }
 
