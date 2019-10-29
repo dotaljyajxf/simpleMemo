@@ -26,8 +26,8 @@ type ConfigIni struct {
 	LogLevel     int           `ini:"LOG_LEVEL"`
 }
 
-func Init() {
-	Cfg, err := ini.Load("./conf/app.ini")
+func Init(cfgPath string) {
+	Cfg, err := ini.Load(cfgPath)
 	if err != nil {
 		log.Fatal(2, "Fail to parse 'conf/app.ini': %v", err)
 	}

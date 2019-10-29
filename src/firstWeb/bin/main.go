@@ -5,6 +5,7 @@ import (
 	"firstWeb/conf"
 	"firstWeb/data"
 	"firstWeb/routers"
+	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -16,7 +17,12 @@ import (
 )
 
 func main() {
-	conf.Init()
+
+	flag.Parse()
+
+	confPath := flag.String("c", "../conf/app.ini", "set confFile path")
+
+	conf.Init(*confPath)
 	data.Init()
 
 	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
