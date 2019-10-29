@@ -19,8 +19,8 @@ import (
 func main() {
 
 	flag.Parse()
-
 	confPath := flag.String("c", "../conf/app.ini", "set confFile path")
+	viewPath := flag.String("v", "../views/", "set view path")
 
 	conf.Init(*confPath)
 	data.Init()
@@ -35,7 +35,7 @@ func main() {
 
 	gin.SetMode(conf.Config.RunMode)
 
-	r.LoadHTMLGlob("./views/*")
+	r.LoadHTMLGlob(*viewPath + "*")
 
 	r = routers.InitRouter(r)
 	s := &http.Server{
