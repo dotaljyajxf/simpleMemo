@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
@@ -51,19 +52,25 @@ type ModuleInfo struct {
 }
 
 type RpcMethod struct {
-	Request   string
-	Response  string
-	Module    string
-	Method    string
-	ParamType []string
-	Comment   string
+	Request string
+	Module  string
+	Method  string
 }
 
-type ImplInfo struct {
-	Struct  string
-	Module  string
-	Package string
-	Path    string
+func getParamType(param ast.Expr) (string, string) {
+	st, ok := param.(*ast.StarExpr)
+	if !ok {
+		return "", ""
+	}
+	sel, ok := st.X.(*ast.SelectorExpr)
+	if !ok {
+		return "", ""
+	}
+	m, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return "", ""
+	}
+	return m.Name, sel.Sel.Name
 }
 
 func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string]bool) {
@@ -77,9 +84,47 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 	}
 
 	for _, pkg := range pkgs {
-		for fn, f := range pkg.Files {
-			fmt.Println(fn)
-			fmt.Println(f)
+		for _, f := range pkg.Files {
+			packageName := f.Name.Name
+			for _, d := range f.Decls {
+				gd, ok := d.(*ast.GenDecl)
+				if !ok {
+					continue
+				}
+
+				if len(gd.Specs) != 1 {
+					continue
+				}
+
+				ts, ok := gd.Specs[0].(*ast.TypeSpec)
+				if !ok {
+					continue
+				}
+				iFace, ok := ts.Type.(*ast.InterfaceType)
+				if !ok {
+					continue
+				}
+				for _, method := range iFace.Methods.List {
+					ft, ok := method.Type.(*ast.FuncType)
+					if !ok {
+						continue
+					}
+					if len(ft.Params.List) != 2 {
+
+					}
+					var methodInfo RpcMethod
+					x, sel := getParamType(ft.Params.List[0].Type)
+					if x != "pb" {
+
+					}
+					methodInfo.Request = sel
+					methodInfo.Module = packageName
+					methodInfo.Method = method.Names[0].Name
+
+					fmt.Println(methodInfo)
+
+				}
+			}
 		}
 	}
 }
@@ -90,7 +135,7 @@ func genModuleInfo(wd string) *ModuleInfo {
 
 	typeMap := make(map[string]bool)
 
-	dir, err := ioutil.ReadDir(wd + "/../module/")
+	dir, err := ioutil.ReadDir(wd + "/../modules/")
 	if err != nil {
 		return nil
 	}
