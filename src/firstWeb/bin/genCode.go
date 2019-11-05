@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
@@ -73,7 +72,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 
 	pkgs, err := parser.ParseDir(fs, wd+"/../module/"+fi.Name(), nil, parser.ParseComments)
 	if err != nil {
-		logrus.Fatal("parseDir Error:%s", err.Error())
+		fmt.Println("parseDir Error:%s", err.Error())
 		return
 	}
 
@@ -127,7 +126,7 @@ func genModuleInfo(wd string) *ModuleInfo {
 func GenGoFile() error {
 	wd, err := os.Getwd()
 	if err != nil {
-		logrus.Fatal("get work directory failed:%s", err.Error())
+		fmt.Println("get work directory failed:%s", err.Error())
 		return err
 	}
 
@@ -185,8 +184,8 @@ func GenGoFile() error {
 func main() {
 	err := GenGoFile()
 	if err != nil {
-		logrus.Fatal(err.Error())
+		fmt.Println(err.Error())
 	} else {
-		logrus.Debug("done")
+		fmt.Println("done")
 	}
 }
