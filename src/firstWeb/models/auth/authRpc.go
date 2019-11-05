@@ -1,10 +1,14 @@
 package auth
 
 import (
-	"fmt"
+	"firstWeb/proto/pb"
 )
 
-func GetAuthInfo(name string, password string) bool {
-	fmt.Println(name, password)
-	return true
+func GetInfo(arg *pb.TGetAuthArg) *pb.TAuthInfo {
+
+	ret := pb.NewTAuthInfo()
+	ret.SetAge(12)
+	ret.SetName("LittleCai")
+	ret.SetSex(1)
+	return ret
 }
