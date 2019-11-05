@@ -77,7 +77,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 
 	fs := new(token.FileSet)
 
-	pkgs, err := parser.ParseDir(fs, wd+"/../module/"+fi.Name(), nil, parser.ParseComments)
+	pkgs, err := parser.ParseDir(fs, wd+"/../models/"+fi.Name(), nil, parser.ParseComments)
 	if err != nil {
 		fmt.Println("parseDir Error:%s", err.Error())
 		return
@@ -100,30 +100,25 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 				if !ok {
 					continue
 				}
-				iFace, ok := ts.Type.(*ast.InterfaceType)
+				ft, ok := ts.Type.(*ast.FuncType)
 				if !ok {
 					continue
 				}
-				for _, method := range iFace.Methods.List {
-					ft, ok := method.Type.(*ast.FuncType)
-					if !ok {
-						continue
-					}
-					if len(ft.Params.List) != 2 {
 
-					}
-					var methodInfo RpcMethod
-					x, sel := getParamType(ft.Params.List[0].Type)
-					if x != "pb" {
-
-					}
-					methodInfo.Request = sel
-					methodInfo.Module = packageName
-					methodInfo.Method = method.Names[0].Name
-
-					fmt.Println(methodInfo)
+				if len(ft.Params.List) != 2 {
 
 				}
+				var methodInfo RpcMethod
+				x, sel := getParamType(ft.Params.List[0].Type)
+				if x != "pb" {
+
+				}
+				methodInfo.Request = sel
+				methodInfo.Module = packageName
+				methodInfo.Method = ts.Name.Name
+
+				fmt.Println(methodInfo)
+
 			}
 		}
 	}
@@ -135,7 +130,7 @@ func genModuleInfo(wd string) *ModuleInfo {
 
 	typeMap := make(map[string]bool)
 
-	dir, err := ioutil.ReadDir(wd + "/../modules/")
+	dir, err := ioutil.ReadDir(wd + "/../models/")
 	if err != nil {
 		return nil
 	}
