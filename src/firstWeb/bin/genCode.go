@@ -100,14 +100,14 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 
 	fs := new(token.FileSet)
 
-	pkgs, err := parser.ParseDir(fs, wd+"/../models/"+fi.Name(), nil, parser.ParseComments)
+	pkgs, err := parser.ParseDir(fs, wd+"/../module/"+fi.Name(), nil, parser.ParseComments)
 	if err != nil {
 		fmt.Println("parseDir Error:%s", err.Error())
 		return
 	}
 
 	for _, pkg := range pkgs {
-		moduleInfo.Modules[pkg.Name] = "firstWeb/models/" + pkg.Name
+		moduleInfo.Modules[pkg.Name] = "firstWeb/module/" + pkg.Name
 		for fn, f := range pkg.Files {
 
 			if strings.Split(fn, ".")[1] != "go" {
@@ -154,7 +154,7 @@ func genModuleInfo(wd string) *ModuleInfo {
 	moduleInfo := new(ModuleInfo)
 	moduleInfo.Modules = make(map[string]string)
 
-	dir, err := ioutil.ReadDir(wd + "/../models/")
+	dir, err := ioutil.ReadDir(wd + "/../module/")
 	if err != nil {
 		return nil
 	}
@@ -204,7 +204,7 @@ func GenGoFile() error {
 		return err
 	}
 
-	file, err := os.OpenFile(wd+"/../models/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	file, err := os.OpenFile(wd+"/../module/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
