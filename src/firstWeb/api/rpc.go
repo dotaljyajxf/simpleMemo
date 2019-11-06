@@ -1,7 +1,7 @@
 package api
 
 import (
-	"firstWeb/models"
+	"firstWeb/module"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -39,7 +39,7 @@ func DoRpc(router *gin.Engine) {
 			return
 		}
 		logrus.Infof("recive  method: %v", call)
-		ret, err := models.DoRpcMethod(call.Method, call.Args)
+		ret, err := module.DoRpcMethod(call.Method, call.Args)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

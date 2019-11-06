@@ -2,11 +2,11 @@
 //DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 
-package models
+package module
 
 import (
 	"errors"
-	"firstWeb/models/auth"
+	"firstWeb/module/auth"
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
