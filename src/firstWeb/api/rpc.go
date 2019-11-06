@@ -1,7 +1,9 @@
 package api
 
 import (
+	"firstWeb/models"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"sync"
 )
@@ -36,5 +38,14 @@ func DoRpc(router *gin.RouterGroup) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
+		ret, err := models.DoRpcMethod(call.Method, call.Args)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		logrus.Infof("response method: %s ret: %v", call.Method, ret)
+		c.ProtoBuf(http.StatusOK, ret)
+		call.Put()
 	})
 }
