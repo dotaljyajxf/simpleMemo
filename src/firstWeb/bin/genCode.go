@@ -19,15 +19,16 @@ package models
 import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
+	"github.com/sirupsen/logrus"
+	"errors"
+    {{range $module,$fn := .Modules}}"{{$fn}}"
+	{{end}}
 )
 
-var gRpcMethodMap map[string]func(args []byte) (interface{},error)
 
-func init() {
-	gRpcMethodMap = map[string]func(args []byte) (interface{} ,error) {
+var gRpcMethodMap = map[string]func(args []byte) (interface{} ,error) {
 		{{range $method :=.Methods}}"{{$method.Module}}.{{$method.Method}}": proxy_{{$method.Module}}_{{$method.Method}},
 		{{end}}
-	}
 }
 
 {{range $method := .Methods}}
@@ -45,7 +46,7 @@ func proxy_{{$method.Module}}_{{$method.Method}}(args []byte) (interface{} ,erro
 
 	}
 	
-	err := {{$method.Module}}.{{$method.Method}}(request,response)
+	err = {{$method.Module}}.{{$method.Method}}(request,response)
 	return response,err
 }
 {{end}}
@@ -58,10 +59,19 @@ func decodePb(msg []byte  ,obj interface{}) error {
 
 	return proto.Unmarshal(msg,pMsg)
 }
+
+func DoRpcMethod(method string,arg []byte) (interface{} ,error){
+	if f ,ok := gRpcMethodMap[method];ok {
+		return f(arg)
+	}
+	logrus.Fatalf("unknow method %s",method)
+	return nil,errors.New("unknow method")
+}
 `
 
 type ModuleInfo struct {
 	Methods []RpcMethod
+	Modules map[string]string
 }
 
 type RpcMethod struct {
@@ -98,6 +108,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 	}
 
 	for _, pkg := range pkgs {
+		moduleInfo.Modules[pkg.Name] = "firstWeb/models/" + pkg.Name
 		for fn, f := range pkg.Files {
 
 			if strings.Split(fn, ".")[1] != "go" {
@@ -142,6 +153,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 
 func genModuleInfo(wd string) *ModuleInfo {
 	moduleInfo := new(ModuleInfo)
+	moduleInfo.Modules = make(map[string]string)
 
 	dir, err := ioutil.ReadDir(wd + "/../models/")
 	if err != nil {
