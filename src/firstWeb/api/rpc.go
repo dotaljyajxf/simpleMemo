@@ -31,7 +31,7 @@ func (r *RpcType) Put() {
 }
 
 //auth.GetInfo  XXXXXNNJMH
-func DoRpc(router *gin.RouterGroup) {
+func DoRpc(router *gin.Engine) {
 	router.POST("/doRpc", func(c *gin.Context) {
 		var call = NewRpcCall()
 		if err := c.ShouldBindJSON(call); err != nil {
