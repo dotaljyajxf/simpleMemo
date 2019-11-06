@@ -14,6 +14,8 @@ import (
 const iCodeTpl = `//DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
+
+package models
 import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
@@ -31,10 +33,10 @@ func init() {
 {{range $method := .Methods}}
 func proxy_{{$method.Module}}_{{$method.Method}}(args []byte) (interface{} ,error) {
 	
-	request := new_{{$method.Request}}()
+	request := pb.New{{$method.Request}}()
 	defer request.Put()
 
-	response := new_{{$method.Response}}()
+	response := pb.New{{$method.Response}}()
 	defer response.Put()
 	
 	err := decodePb(args, request)
@@ -46,6 +48,7 @@ func proxy_{{$method.Module}}_{{$method.Method}}(args []byte) (interface{} ,erro
 	err := {{$method.Module}}.{{$method.Method}}(request,response)
 	return response,err
 }
+{{end}}
 
 func decodePb(msg []byte  ,obj interface{}) error {
 	pMsg,ok := obj.(proto.Message)
@@ -55,7 +58,6 @@ func decodePb(msg []byte  ,obj interface{}) error {
 
 	return proto.Unmarshal(msg,pMsg)
 }
-
 `
 
 type ModuleInfo struct {
