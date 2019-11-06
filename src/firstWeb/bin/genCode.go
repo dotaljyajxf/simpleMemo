@@ -87,35 +87,22 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 		for _, f := range pkg.Files {
 			packageName := f.Name.Name
 			for _, d := range f.Decls {
-				gd, ok := d.(*ast.GenDecl)
+				ft, ok := d.(*ast.FuncDecl)
 				if !ok {
 					continue
 				}
 
-				if len(gd.Specs) != 1 {
-					continue
-				}
-
-				ts, ok := gd.Specs[0].(*ast.TypeSpec)
-				if !ok {
-					continue
-				}
-				ft, ok := ts.Type.(*ast.FuncType)
-				if !ok {
-					continue
-				}
-
-				if len(ft.Params.List) != 2 {
+				if len(ft.Type.Params.List) != 2 {
 
 				}
 				var methodInfo RpcMethod
-				x, sel := getParamType(ft.Params.List[0].Type)
+				x, sel := getParamType(ft.Type.Params.List[0].Type)
 				if x != "pb" {
 
 				}
 				methodInfo.Request = sel
 				methodInfo.Module = packageName
-				methodInfo.Method = ts.Name.Name
+				methodInfo.Method = ft.Name.Name
 
 				fmt.Println(methodInfo)
 
