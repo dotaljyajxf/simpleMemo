@@ -8,54 +8,65 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"text/template"
 )
 
 const iCodeTpl = `//DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 import (
-	"sync"
-	"fmt"
-	
 	"firstWeb/proto/pb"
-	{{range $module, $fn := .Modules}}"{{$fn}}"
-	{{end}}
+	"github.com/golang/protobuf/proto"
 )
+
+var gRpcMethodMap map[string]func(args []byte) (interface{},error)
+
 func init() {
-	gRpcMethodMap = map[string]func(method string, args []byte) interface{} ,error {
+	gRpcMethodMap = map[string]func(args []byte) (interface{} ,error) {
 		{{range $method :=.Methods}}"{{$method.Module}}.{{$method.Method}}": proxy_{{$method.Module}}_{{$method.Method}},
 		{{end}}
 	}
 }
 
 {{range $method := .Methods}}
-func proxy_{{$method.Module}}_{{$method.Method}}(method string, args []byte) interface{} ,error {
+func proxy_{{$method.Module}}_{{$method.Method}}(args []byte) (interface{} ,error) {
 	
 	request := new_{{$method.Request}}()
-	defer g_{{$method.Request}}_pool.Put(request)
+	defer request.Put()
+
+	response := new_{{$method.Response}}()
+	defer response.Put()
 	
-	err := codec.Decode(args, request)
+	err := decodePb(args, request)
 	if err != nil {
 		return nil,	errors.New("decodeArgs error")
 
 	}
 	
-	ret := {{$method.Module}}.{{$method.Method}}(request)
-	return ret,nil
+	err := {{$method.Module}}.{{$method.Method}}(request,response)
+	return response,err
+}
+
+func decodePb(msg []byte  ,obj interface{}) error {
+	pMsg,ok := obj.(proto.Message)
+	if !ok {
+		return errors.New("type error")
+	}
+
+	return proto.Unmarshal(msg,pMsg)
 }
 
 `
 
 type ModuleInfo struct {
-	Types   []string
-	Modules map[string]string
 	Methods []RpcMethod
 }
 
 type RpcMethod struct {
-	Request string
-	Module  string
-	Method  string
+	Request  string
+	Response string
+	Module   string
+	Method   string
 }
 
 func getParamType(param ast.Expr) (string, string) {
@@ -74,7 +85,7 @@ func getParamType(param ast.Expr) (string, string) {
 	return m.Name, sel.Sel.Name
 }
 
-func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string]bool) {
+func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 
 	fs := new(token.FileSet)
 
@@ -92,8 +103,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 			}
 			start := strings.LastIndex(fn, "/")
 			fs := []byte(fn)
-			name := fs[start : len(fn)-3]
-			fmt.Println(name)
+			name := fs[start+1 : len(fn)-3]
 			if !strings.Contains(string(name), "Rpc") {
 				continue
 			}
@@ -104,7 +114,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 					continue
 				}
 
-				if len(ft.Type.Params.List) != 2 {
+				if len(ft.Type.Params.List) != 1 {
 
 				}
 				var methodInfo RpcMethod
@@ -112,11 +122,16 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 				if x != "pb" {
 
 				}
+				x, rel := getParamType(ft.Type.Params.List[1].Type)
+				if x != "pb" {
+
+				}
 				methodInfo.Request = sel
+				methodInfo.Response = rel
 				methodInfo.Module = pkg.Name
 				methodInfo.Method = ft.Name.Name
 
-				fmt.Println(methodInfo)
+				moduleInfo.Methods = append(moduleInfo.Methods, methodInfo)
 
 			}
 		}
@@ -125,9 +140,6 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 
 func genModuleInfo(wd string) *ModuleInfo {
 	moduleInfo := new(ModuleInfo)
-	moduleInfo.Modules = make(map[string]string)
-
-	typeMap := make(map[string]bool)
 
 	dir, err := ioutil.ReadDir(wd + "/../models/")
 	if err != nil {
@@ -153,12 +165,9 @@ func genModuleInfo(wd string) *ModuleInfo {
 		case "modidata":
 			continue
 		}
-		check(wd, fi, moduleInfo, typeMap)
+		check(wd, fi, moduleInfo)
 	}
 
-	for typeName, _ := range typeMap {
-		moduleInfo.Types = append(moduleInfo.Types, typeName)
-	}
 	return moduleInfo
 }
 
@@ -169,53 +178,28 @@ func GenGoFile() error {
 		return err
 	}
 
-	_ = genModuleInfo(wd)
-	//funcMap := template.FuncMap{
-	//	"dec": func(i int) int {
-	//		return i - 1
-	//	},
-	//}
-	//t := template.New("template")
-	//t = t.Funcs(funcMap)
-	//t, err = t.Parse(iCodeTpl)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//file, err := os.OpenFile(wd+"/../rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
-	//if err != nil {
-	//	return err
-	//}
-	//defer file.Close()
-	//err = t.Execute(file, param)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	////	fmtFile(wd+"/../rpc_auto.go")
-	//
-	//t = template.New("module")
-	//t = t.Funcs(funcMap)
-	//t, err = t.Parse(iImplTpl)
-	//if err != nil {
-	//	return err
-	//}
-	//for _, info := range param.ImplMap {
-	//	path := wd + "/../../../" + info.Path + "/" + info.Package + "/" + info.Module + "_pool_auto.go"
-	//
-	//	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	defer file.Close()
-	//	err = t.Execute(file, info)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	//		fmtFile(path)
-	//}
+	param := genModuleInfo(wd)
+	funcMap := template.FuncMap{
+		"dec": func(i int) int {
+			return i - 1
+		},
+	}
+	t := template.New("template")
+	t = t.Funcs(funcMap)
+	t, err = t.Parse(iCodeTpl)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.OpenFile(wd+"/../models/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	err = t.Execute(file, param)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

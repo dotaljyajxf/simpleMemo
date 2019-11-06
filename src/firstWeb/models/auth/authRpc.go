@@ -4,11 +4,10 @@ import (
 	"firstWeb/proto/pb"
 )
 
-func GetInfo(arg *pb.TGetAuthArg) *pb.TAuthInfo {
+func GetAuthInfo(arg *pb.TGetAuthArg, ret *pb.TAuthInfo) error {
 
-	ret := pb.NewTAuthInfo()
 	ret.SetAge(12)
-	ret.SetName("LittleCai")
+	ret.SetName(*arg.Name)
 	ret.SetSex(1)
-	return ret
+	return nil
 }
