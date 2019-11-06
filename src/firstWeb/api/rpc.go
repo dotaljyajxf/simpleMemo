@@ -45,7 +45,8 @@ func DoRpc(router *gin.Engine) {
 			return
 		}
 		logrus.Infof("response method: %s ret: %v", call.Method, ret)
-		c.ProtoBuf(http.StatusOK, ret)
 		call.Put()
+
+		c.ProtoBuf(http.StatusOK, ret)
 	})
 }

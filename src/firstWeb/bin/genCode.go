@@ -64,7 +64,6 @@ func DoRpcMethod(method string,arg []byte) (interface{} ,error){
 	if f ,ok := gRpcMethodMap[method];ok {
 		return f(arg)
 	}
-	logrus.Fatalf("unknow method %s",method)
 	return nil,errors.New("unknow method")
 }
 `
