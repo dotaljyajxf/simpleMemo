@@ -15,7 +15,7 @@ const iCodeTpl = `//DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 //DO NOT MODIFY GENERATED CODE !!!
 
-package models
+package module
 import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
