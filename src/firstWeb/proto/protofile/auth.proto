@@ -1,0 +1,12 @@
+package pb;
+
+message TAuthInfo {
+    optional string name =1;
+    optional int32 age = 2;
+    optional int32 sex = 3;
+}
+
+message TGetAuthArg {
+    optional string name = 1;
+}
+

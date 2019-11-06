@@ -10,6 +10,7 @@ import (
 func InitRouter(r *gin.Engine) *gin.Engine {
 
 	api.GetAuth(r)
+	api.DoRpc(r)
 	// Favicon
 	//r.StaticFile("/favicon.ico", conf.HttpFaviconsPath()+"/favicon.ico")
 

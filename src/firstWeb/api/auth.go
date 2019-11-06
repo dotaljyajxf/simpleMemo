@@ -1,7 +1,7 @@
 package api
 
 import (
-	"firstWeb/models/auth"
+	"firstWeb/module/auth"
 	"firstWeb/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
