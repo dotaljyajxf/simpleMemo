@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 const iCodeTpl = `//DO NOT MODIFY GENERATED CODE !!!
@@ -84,8 +85,19 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 	}
 
 	for _, pkg := range pkgs {
-		for _, f := range pkg.Files {
-			packageName := f.Name.Name
+		for fn, f := range pkg.Files {
+
+			if strings.Split(fn, ".")[1] != "go" {
+				continue
+			}
+			start := strings.LastIndex(fn, "/")
+			fs := []byte(fn)
+			name := fs[start : len(fn)-3]
+			fmt.Println(name)
+			if !strings.Contains(string(name), "Rpc") {
+				continue
+			}
+
 			for _, d := range f.Decls {
 				ft, ok := d.(*ast.FuncDecl)
 				if !ok {
@@ -101,7 +113,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo, typeMap map[string
 
 				}
 				methodInfo.Request = sel
-				methodInfo.Module = packageName
+				methodInfo.Module = pkg.Name
 				methodInfo.Method = ft.Name.Name
 
 				fmt.Println(methodInfo)
