@@ -10,7 +10,6 @@ import (
 func InitRouter(r *gin.Engine) *gin.Engine {
 
 	api.GetAuth(r)
-	api.DoRpc(r)
 	// Favicon
 	//r.StaticFile("/favicon.ico", conf.HttpFaviconsPath()+"/favicon.ico")
 
@@ -20,6 +19,7 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	groupRouter := r.Group("/api/v1")
 	groupRouter.Use(util.JWT())
 	{
+		api.DoRpc(r)
 		api.GetArticles(groupRouter)
 	}
 
