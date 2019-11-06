@@ -16,6 +16,10 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 
 	// Static assets like js and css files
 	//r.Static("/static", conf.HttpStaticPath())
+    
+    r.GET("/",func(c *gin.Context){
+        c.HTML(http.StatusOK,"index.html",nil)
+    })
 
 	groupRouter := r.Group("/api/v1")
 	groupRouter.Use(util.JWT())
