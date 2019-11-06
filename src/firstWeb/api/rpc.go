@@ -9,8 +9,8 @@ import (
 )
 
 type RpcType struct {
-	Method string `form:"method"  binding:"required" json:"method"`
-	Args   []byte `form:"args"    binding:"required" json:"args"`
+	Method string `form:"method" json:"method"  binding:"required" `
+	Args   []byte `form:"args"   json:"args"   binding:"required" `
 }
 
 var poolRpcCall = sync.Pool{
