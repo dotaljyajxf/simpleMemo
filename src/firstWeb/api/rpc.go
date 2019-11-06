@@ -9,8 +9,8 @@ import (
 )
 
 type RpcType struct {
-	Method string `form:"method"  binding:"required"`
-	Args   []byte `form:"args"    binding:"required"`
+	Method string `form:"method"  binding:"required" json:"method"`
+	Args   []byte `form:"args"    binding:"required" json:"args"`
 }
 
 var poolRpcCall = sync.Pool{
@@ -38,7 +38,7 @@ func DoRpc(router *gin.Engine) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-
+		logrus.Infof("recive  method: %v", call)
 		ret, err := models.DoRpcMethod(call.Method, call.Args)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
