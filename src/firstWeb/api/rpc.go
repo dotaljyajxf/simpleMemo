@@ -4,6 +4,7 @@ import (
 	"firstWeb/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"sync"
 )
@@ -33,6 +34,7 @@ func (r *RpcType) Put() {
 //auth.GetInfo  XXXXXNNJMH
 func DoRpc(router *gin.Engine) {
 	router.POST("/doRpc", func(c *gin.Context) {
+		logrus.Info(ioutil.ReadAll(c.Request.Body))
 		var call = NewRpcCall()
 		if err := c.ShouldBindJSON(call); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
