@@ -1,0 +1,40 @@
+#app {
+  height: 100%;
+}
+
+.ant-layout-header,
+.ant-layout-footer {
+  background: #7dbcea;
+  color: #fff;
+  width: 100%;
+}
+.ant-layout-footer {
+  line-height: 1.5;
+}
+.ant-layout-sider {
+  background: #3ba0e9;
+  color: #fff;
+  line-height: 120px;
+}
+.ant-layout-content {
+  background: rgba(16, 142, 233, 1);
+  color: #fff;
+  min-height: 120px;
+  line-height: 120px;
+}
+> .code-box-demo > div > .ant-layout {
+  margin-bottom: 48px;
+}
+> .code-box-demo > div > .ant-layout:last-child {
+  margin: 0;
+}
+
+.body-content,
+.ant-carousel,
+.slick-slider,
+.slick-list,
+.slick-track,
+.slick-slide > div {
+  width: 100%;
+  height: 100%;
+}

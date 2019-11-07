@@ -6,7 +6,6 @@ package module
 import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
-	"github.com/sirupsen/logrus"
 	"errors"
     "firstWeb/module/auth"
 	
