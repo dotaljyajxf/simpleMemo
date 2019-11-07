@@ -13,12 +13,12 @@ type Auth struct {
 
 var dummyAuth = Auth{}
 
-var pool = sync.Pool{New: func() interface{} {
+var Authpool = sync.Pool{New: func() interface{} {
 	return new(Auth)
 }}
 
 func NewAuth() *Auth {
-	ret := pool.Get().(*Auth)
+	ret := Authpool.Get().(*Auth)
 	*ret = dummyAuth
 	return ret
 }

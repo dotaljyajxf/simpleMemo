@@ -19,7 +19,6 @@ package module
 import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
-	"github.com/sirupsen/logrus"
 	"errors"
     {{range $module,$fn := .Modules}}"{{$fn}}"
 	{{end}}
