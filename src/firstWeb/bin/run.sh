@@ -14,7 +14,7 @@ function op_show()
 
 function op_start()
 {
-    nohup ./web  > ./log/nohup.log 2>&1 &
+    nohup ./web $args  > ./log/nohup.log 2>&1 &
     op_show
 }
 
@@ -40,6 +40,7 @@ function usage()
 }
 
 op=$1
+args=`cat ./args`
 case $op in
     start)
     op_start

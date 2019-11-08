@@ -31,7 +31,7 @@ func main() {
 	gin.SetMode(conf.Config.RunMode)
 
 	//r.LoadHTMLGlob(conf.Config.ViewPath + "*")
-    r.LoadHTMLFiles("../../index.html")
+    r.LoadHTMLFiles("/home/game/LittleCai/dist/index.html")
 
 	r = routers.InitRouter(r)
 	s := &http.Server{
