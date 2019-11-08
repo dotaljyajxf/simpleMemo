@@ -15,7 +15,7 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	//r.StaticFile("/favicon.ico", conf.HttpFaviconsPath()+"/favicon.ico")
 
 	// Static assets like js and css files
-	//r.Static("/static", conf.HttpStaticPath())
+	r.Static("/static","/home/game/LittleCai/src/firstWeb/static")
     
     r.GET("/",func(c *gin.Context){
         c.HTML(http.StatusOK,"index.html",nil)
@@ -28,7 +28,7 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	}
 
 	r.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
+        c.JSON(http.StatusFound,gin.H{"message" : "notFound"})
 	})
 	return r
 }

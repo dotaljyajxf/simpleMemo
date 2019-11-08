@@ -5,21 +5,21 @@
 }
 
 .body-content .carousel-one {
-    background-image: url('../../../static/images/c1.jpeg');
+    background-image: url('/static/images/c1.jpeg');
 }
 
 .body-content .carousel-two {
-    background-image: url('../../../static/images/c2.jpeg');
+    background-image: url('/static/images/c2.jpeg');
 }
 
 .body-content .carousel-three {
-    background-image: url('../../../static/images/c3.jpeg');
+    background-image: url('/static/images/c3.jpeg');
 }
 
 .body-content .carousel-four {
-    background-image: url('../../../static/images/c4.jpeg');
+    background-image: url('/static/images/c4.jpeg');
 }
 
 .body-content .carousel-five {
-    background-image: url('../../../static/images/c5.jpeg');
+    background-image: url('/static/images/c5.jpeg');
 }
