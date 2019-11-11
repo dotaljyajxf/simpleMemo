@@ -14,10 +14,10 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin"); //在每次构�
 
 function getPluginList() {
   var plugins = [
-    new CleanWebpackPlugin(),
+    //new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       //可以针对不同的模版，定义不同的名称
-      title: "little Cai",
+      title: "嘿哈",
       template: "./src/index.html",
       chunks: ["littleCai"],
       filename: "index.html"
@@ -57,7 +57,6 @@ module.exports = {
   entry: {
     //入口文件
     littleCai: "./src/firstWeb/react/littleCai/index.jsx"
-    // littleCai: "./src/firstWeb/react/littleCai/test.jsx"
   },
   devtool: "inline-source-map",
   devServer: {
@@ -68,6 +67,7 @@ module.exports = {
     filename: "[name]-[hash].js",
     chunkFilename: "[name].bundle.js",
     path: path.join(__dirname, "dist"),
+    publicPath: '/static/',
     library: "_LittleCaiPageRender"
   },
   module: {
@@ -80,7 +80,10 @@ module.exports = {
         test: /\.less$/,
         use: [
           {
-            loader: "style-loader"
+            loader: "style-loader",
+            options: {
+              outputPath: 'css'
+            }
           },
           {
             loader: "css-loader" // translates CSS into CommonJS
@@ -102,7 +105,12 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|gif|jpeg)$/,
-        use: ["file-loader"]
+        use: {
+          loader: "file-loader",
+          options: {
+            outputPath : 'images'
+          }
+        }
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
@@ -114,7 +122,8 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env"]
+            presets: ["@babel/preset-env"],
+            outputPath: 'js'
           }
         }
       },

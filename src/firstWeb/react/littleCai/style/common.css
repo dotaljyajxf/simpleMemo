@@ -4,8 +4,7 @@
 
 .ant-layout-header,
 .ant-layout-footer {
-  background: #7dbcea;
-  color: #fff;
+  background: #fff;
   width: 100%;
 }
 .ant-layout-footer {
@@ -17,8 +16,6 @@
   line-height: 120px;
 }
 .ant-layout-content {
-  background: rgba(16, 142, 233, 1);
-  color: #fff;
   min-height: 120px;
   line-height: 120px;
 }

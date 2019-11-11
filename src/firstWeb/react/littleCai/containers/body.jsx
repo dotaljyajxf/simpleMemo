@@ -18,11 +18,8 @@ class Body extends React.Component {
     return (
       <div className="body-content">
         <Carousel autoplay>
-          <div className="carousel-one carousel-img"></div>
-          <div className="carousel-two carousel-img"></div>
-          <div className="carousel-three carousel-img"></div>
-          <div className="carousel-four carousel-img"></div>
-          <div className="carousel-five carousel-img"></div>
+          <div className="carousel-one"></div>
+          <div className="carousel-two"></div>
         </Carousel>
       </div>
     );

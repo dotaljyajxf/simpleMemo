@@ -23,9 +23,10 @@
   justify-content: center;
 }
 
-.little-cai .user-info .ant-avatar-image {
-  border-radius: 50%;
-  border: 1px solid #fff;
+.header-content .user-info .anticon-heart {
+  color: red;
+  font-size: 20px;
+  margin-right: 10px;
 }
 
 .body-content .ant-carousel .slick-slide img {
