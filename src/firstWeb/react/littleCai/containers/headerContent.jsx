@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Button, Avatar, message } from "antd";
+import { Button, Icon, message } from "antd";
 
 const zh = {
-  hello: "Hello",
+  madeBy: "嘿哈小组",
   login: "登录",
   message: '请输入信息'
 };
@@ -15,6 +15,7 @@ class HeaderContent extends React.Component {
   }
 
   loginHandle() {
+    
     return message.info(zh.message);
   }
 
@@ -22,8 +23,8 @@ class HeaderContent extends React.Component {
     return (
       <div className="header-content">
         <div className="user-info">
-          <span>{zh.hello}</span>
-          {/* <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" /> */}
+          <Icon type="heart" theme="filled" />
+          <span>{zh.madeBy}</span>
         </div>
         <Button type="primary" onClick={this.loginHandle}>{zh.login}</Button>
       </div>
