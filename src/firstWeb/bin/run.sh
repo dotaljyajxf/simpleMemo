@@ -40,7 +40,23 @@ function usage()
 }
 
 op=$1
-args=`cat ./args`
+if [ ! -f ./conf/app.ini ];then
+   echo "./conf/app.ini not exist"
+   exit
+fi
+
+if [ ! -d ./static ];then
+   echo "./static not exist"
+   exit
+fi
+
+if [ ! -d ./views ];then
+   echo "./views not exist"
+   exit
+fi
+
+args="-c ./conf/app.ini -s ./static -v ./views"
+
 case $op in
     start)
     op_start

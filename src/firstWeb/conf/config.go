@@ -27,11 +27,13 @@ type ConfigIni struct {
 	LogLevel     int           `ini:"LOG_LEVEL"`
 	ConfPath     string        `ini:"-"`
 	ViewPath     string        `ini:"-"`
+	StaticPath   string        `ini:"-"`
 }
 
 func handleCmdFlag() {
 	flag.StringVar(&Config.ConfPath, "c", "./conf/app.ini", "set confFile path")
-	flag.StringVar(&Config.ViewPath, "v", "../views/", "set view path")
+	flag.StringVar(&Config.ViewPath, "v", "./views", "set view path")
+	flag.StringVar(&Config.StaticPath, "s", "./static", "set static path")
 	flag.Parse()
 }
 
