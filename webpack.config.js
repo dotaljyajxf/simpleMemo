@@ -67,7 +67,7 @@ module.exports = {
     filename: "[name]-[hash].js",
     chunkFilename: "[name].bundle.js",
     path: path.join(__dirname, "dist"),
-    publicPath: '/static/',
+    //publicPath: '/static/',
     library: "_LittleCaiPageRender"
   },
   module: {
