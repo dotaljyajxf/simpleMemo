@@ -15,7 +15,8 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	//r.StaticFile("/favicon.ico", conf.HttpFaviconsPath()+"/favicon.ico")
 
 	// Static assets like js and css files
-	r.Static("/static", conf.Config.StaticPath)
+	//r.Static("/static", conf.Config.StaticPath)
+	LocalStatic("/static", conf.Config.StaticPath, r)
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
