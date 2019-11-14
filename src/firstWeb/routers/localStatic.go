@@ -85,7 +85,7 @@ func createStaticHandler(relativePath string, fs http.FileSystem, group *gin.Eng
 		logrus.Infof("fileExt : %s", fileExt)
 		if fileExt == ".js" {
 			file = file + ".gz"
-			c.Request.Header.Set("Content-Encoding", "gzip")
+			c.Writer.Header().Set("Content-Encoding", "gzip")
 		}
 		logrus.Infof("fileAfter : %s", file)
 		// Check if file exists and/or if we have permission to access it
