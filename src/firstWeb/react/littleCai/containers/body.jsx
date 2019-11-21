@@ -1,6 +1,10 @@
 import React, { Component } from "react";
-import { Carousel } from "antd";
-import '../style/body.css';
+import {HashRouter as Router, Route, Link, Switch} from 'react-router-dom'
+import "../style/body.css";
+
+import Calendar from '../components/calendar.jsx';
+import Docs from '../components/docs.jsx';
+import Memo from '../components/memo.jsx';
 
 const zh = {
   hello: "Hello",
@@ -16,12 +20,14 @@ class Body extends React.Component {
 
   render() {
     return (
-      <div className="body-content">
-        <Carousel autoplay>
-          <div className="carousel-img carousel-one"></div>
-          <div className="carousel-img carousel-two"></div>
-        </Carousel>
-      </div>
+        <Router >
+          <Switch className="body-content">
+            <Route exact name = "calednar" path="/cal" component={Calendar}></Route>
+            <Route name = "docs" path="/docs" component={Docs}></Route>
+            <Route name = "memo" path="/memo" component={Memo}></Route>
+          </Switch>
+        </Router>
+     
     );
   }
 }

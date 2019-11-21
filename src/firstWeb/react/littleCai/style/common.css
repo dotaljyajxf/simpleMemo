@@ -6,12 +6,13 @@
 .ant-layout-footer {
   background: #fff;
   width: 100%;
+  border-bottom: 1px solid #eee;
 }
 .ant-layout-footer {
   line-height: 1.5;
 }
 .ant-layout-sider {
-  background: #3ba0e9;
+  background: #fff;
   color: #fff;
   line-height: 120px;
 }

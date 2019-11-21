@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Layout } from 'antd';
 import 'antd/dist/antd.css';
 import './style/common.css';
@@ -7,8 +7,9 @@ import './style/home.css';
 import HeaderContent from './containers/headerContent.jsx';
 import Body from './containers/body.jsx';
 import FooterContent from './containers/footerContent.jsx';
+import LeftSider from './containers/leftsider.jsx';
 
-const { Header, Footer, Content } = Layout;
+const { Header, Footer, Content, Sider } = Layout;
 const zh = {
     hello: '菜菜',
     login: '登录',
@@ -28,9 +29,14 @@ class HomePage extends React.Component {
             <Header>
               <HeaderContent />
             </Header>
-            <Content>
-              <Body />
-            </Content>
+            <Layout>
+              <Sider>
+                <LeftSider />
+              </Sider>
+              <Content>
+                <Body />
+              </Content>
+            </Layout>
             <Footer>
               <FooterContent />
             </Footer>
