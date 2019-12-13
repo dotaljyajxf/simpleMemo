@@ -2,7 +2,6 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"path"
@@ -83,11 +82,10 @@ func createStaticHandler(relativePath string, fs http.FileSystem, group *gin.Eng
 		file := c.Param("filepath")
 		fileExt := path.Ext(file)
 		if fileExt == ".js" {
-			file = file + ".gz"
-			c.Request.URL.Path = c.Request.URL.Path + ".gz"
+			file += ".gz"
+			c.Request.URL.Path += ".gz"
 			c.Writer.Header().Set("Content-Encoding", "gzip")
 		}
-		logrus.Infof("fileAfter : %s", file)
 		// Check if file exists and/or if we have permission to access it
 		if _, err := fs.Open(file); err != nil {
 			c.Writer.WriteHeader(http.StatusNotFound)
