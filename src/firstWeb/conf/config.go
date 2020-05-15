@@ -44,6 +44,7 @@ func Init() {
 		log.Fatal(2, "Fail to parse 'conf/app.ini': %v", err)
 	}
 
+	//TODO mode 来自命令行
 	mode := Cfg.Section("").Key("RUN_MODE").String()
 	if mode == "debug" {
 		err = Cfg.Section(mode).MapTo(Config)
