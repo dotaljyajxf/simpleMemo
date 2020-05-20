@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"firstWeb/module/auth"
+	"firstWeb/proto/pb"
 	"firstWeb/util"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -30,10 +31,20 @@ func Login(c *gin.Engine) {
 		if err != nil {
 			//...
 		}
-		retStr, _ := json.Marshal(authObj)
-		log.Infof("retStr: %s\n", retStr)
+
+		retAuth := pb.NewTAuthInfo()
+		retAuth.SetPhoneNum(authObj.GetPhoneNum())
+		retAuth.SetMail(authObj.GetMail())
+		retAuth.SetToken(token)
+		retAuth.SetUid(string(authObj.GetUid()))
+		retAuth.SetNickName(authObj.GetAccount())
+
+		//retStr, _ := json.Marshal(authObj)
+		//log.Infof("retStr: %s\n", retStr)
+
+		c.ProtoBuf(http.StatusOK, retAuth)
+		retAuth.Put()
 		authObj.Release()
-		c.JSON(http.StatusOK, gin.H{"authObj": retStr, "token": token})
 	})
 }
 
