@@ -28,11 +28,10 @@ var _ = math.Inf
 type TAuthInfo struct {
 	Token            *string `protobuf:"bytes,1,opt,name=Token" json:"Token,omitempty"`
 	NickName         *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
-	Account          *string `protobuf:"bytes,3,opt,name=Account" json:"Account,omitempty"`
-	Mail             *string `protobuf:"bytes,4,opt,name=Mail" json:"Mail,omitempty"`
-	PassWord         *string `protobuf:"bytes,5,opt,name=PassWord" json:"PassWord,omitempty"`
-	PhoneNum         *string `protobuf:"bytes,6,opt,name=PhoneNum" json:"PhoneNum,omitempty"`
-	Uid              *string `protobuf:"bytes,7,opt,name=Uid" json:"Uid,omitempty"`
+	Mail             *string `protobuf:"bytes,3,opt,name=Mail" json:"Mail,omitempty"`
+	PhoneNum         *string `protobuf:"bytes,4,opt,name=PhoneNum" json:"PhoneNum,omitempty"`
+	Uid              *string `protobuf:"bytes,5,opt,name=Uid" json:"Uid,omitempty"`
+	Message          *string `protobuf:"bytes,6,opt,name=Message" json:"Message,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
@@ -89,23 +88,6 @@ func (m *TAuthInfo) SetNickName(v string) {
 	}
 }
 
-func (m *TAuthInfo) GetAccount() string {
-	if m != nil && m.Account != nil {
-		return *m.Account
-	}
-	return ""
-}
-
-func (m *TAuthInfo) SetAccount(v string) {
-	if m != nil {
-		if m.Account != nil {
-			*m.Account = v
-		} else {
-			m.Account = &v
-		}
-	}
-}
-
 func (m *TAuthInfo) GetMail() string {
 	if m != nil && m.Mail != nil {
 		return *m.Mail
@@ -119,23 +101,6 @@ func (m *TAuthInfo) SetMail(v string) {
 			*m.Mail = v
 		} else {
 			m.Mail = &v
-		}
-	}
-}
-
-func (m *TAuthInfo) GetPassWord() string {
-	if m != nil && m.PassWord != nil {
-		return *m.PassWord
-	}
-	return ""
-}
-
-func (m *TAuthInfo) SetPassWord(v string) {
-	if m != nil {
-		if m.PassWord != nil {
-			*m.PassWord = v
-		} else {
-			m.PassWord = &v
 		}
 	}
 }
@@ -170,6 +135,23 @@ func (m *TAuthInfo) SetUid(v string) {
 			*m.Uid = v
 		} else {
 			m.Uid = &v
+		}
+	}
+}
+
+func (m *TAuthInfo) GetMessage() string {
+	if m != nil && m.Message != nil {
+		return *m.Message
+	}
+	return ""
+}
+
+func (m *TAuthInfo) SetMessage(v string) {
+	if m != nil {
+		if m.Message != nil {
+			*m.Message = v
+		} else {
+			m.Message = &v
 		}
 	}
 }
