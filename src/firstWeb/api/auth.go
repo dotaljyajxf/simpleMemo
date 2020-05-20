@@ -31,6 +31,7 @@ func Login(c *gin.Engine) {
 			//...
 		}
 		retStr, _ := json.Marshal(authObj)
+		log.Infof("retStr: %s\n", retStr)
 		authObj.Release()
 		c.JSON(http.StatusOK, gin.H{"authObj": retStr, "token": token})
 	})
@@ -49,7 +50,7 @@ func Regist(c *gin.Engine) {
 			c.JSON(http.StatusOK, gin.H{"message": "must need account and password"})
 			return
 		}
-		log.Info("regist: %s,%s", account, passWord)
+
 		authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"message": err.Error()})
