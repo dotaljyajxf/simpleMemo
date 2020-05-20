@@ -33,6 +33,7 @@ func Login(c *gin.Engine) {
 		}
 
 		retAuth := pb.NewTAuthInfo()
+		defer retAuth.Put()
 		retAuth.SetPhoneNum(authObj.GetPhoneNum())
 		retAuth.SetMail(authObj.GetMail())
 		retAuth.SetToken(token)
@@ -43,7 +44,6 @@ func Login(c *gin.Engine) {
 		//log.Infof("retStr: %s\n", retStr)
 
 		c.ProtoBuf(http.StatusOK, retAuth)
-		retAuth.Put()
 		authObj.Release()
 	})
 }
