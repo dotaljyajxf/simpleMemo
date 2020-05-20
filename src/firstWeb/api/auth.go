@@ -11,8 +11,8 @@ import (
 
 func Login(c *gin.Engine) {
 	c.POST("/Login", func(c *gin.Context) {
-		account := c.Param("account")
-		password := c.Param("password")
+		account := c.PostForm("account")
+		password := c.PostForm("password")
 
 		authObj, err := auth.FindAuthObj(account)
 		if err != nil {
@@ -38,11 +38,11 @@ func Login(c *gin.Engine) {
 
 func Regist(c *gin.Engine) {
 	c.POST("/Regist", func(c *gin.Context) {
-		account := c.Param("account")
-		passWord := c.Param("password")
-		mail := c.Param("mail")
-		phoneNum := c.Param("phonenum")
-		nickName := c.Param("name")
+		account := c.PostForm("account")
+		passWord := c.PostForm("password")
+		mail := c.PostForm("mail")
+		phoneNum := c.PostForm("phonenum")
+		nickName := c.PostForm("name")
 
 		log.Info("regist: %s,%s", account, passWord)
 		if account == "" || passWord == "" {
