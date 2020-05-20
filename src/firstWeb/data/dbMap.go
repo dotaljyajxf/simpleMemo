@@ -1,7 +1,7 @@
 package data
 
-import "firstWeb/data/def"
+import "firstWeb/data/table"
 
 var DbMap []interface{} = []interface{}{
-	&def.Auth{},
+	&table.Auth{},
 }

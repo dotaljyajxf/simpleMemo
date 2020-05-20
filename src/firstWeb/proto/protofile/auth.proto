@@ -1,12 +1,15 @@
 package pb;
 
 message TAuthInfo {
-    optional string name =1;
-    optional int32 age = 2;
-    optional int32 sex = 3;
+    optional string Token =1;
+    optional string NickName = 2;
+    optional string Account = 3;
+    optional string Mail = 4;
+    optional string PassWord = 5;
+    optional string PhoneNum = 6;
 }
 
 message TGetAuthArg {
-    optional string name = 1;
+    optional string Uid = 1;
 }
 

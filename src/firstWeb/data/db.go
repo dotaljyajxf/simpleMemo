@@ -31,7 +31,7 @@ func Init() {
 	Db.DB().SetMaxIdleConns(10)
 	Db.DB().SetMaxOpenConns(100)
 
-	Db = Db.AutoMigrate(DbMap...)
+	Db = Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(DbMap...)
 }
 
 func CloseDB() {

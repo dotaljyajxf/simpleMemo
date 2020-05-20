@@ -13,10 +13,9 @@
  * @brief
  *
  **/
-package def
+package table
 
 import (
-	"firstWeb/data"
 	"sync"
 )
 
@@ -30,12 +29,29 @@ func NewAuth() *Auth {
 	return ret
 }
 
-func (auth *Auth) GetName() string {
-	return auth.Name
+func (auth *Auth) Release() {
+	*auth = Auth{}
+	Authpool.Put(auth)
 }
 
-func (auth *Auth) SetName(name string) {
-	auth.Name = name
+func (auth *Auth) TableName() string {
+	return "auth"
+}
+
+func (auth *Auth) GetUid() uint64 {
+	return auth.Uid
+}
+
+func (auth *Auth) SetNickName(nickName string) {
+	auth.NickName = nickName
+}
+
+func (auth *Auth) GetAccount() string {
+	return auth.Account
+}
+
+func (auth *Auth) SetAccount(account string) {
+	auth.Account = account
 }
 
 func (auth *Auth) GetPassWord() string {
@@ -46,9 +62,18 @@ func (auth *Auth) SetPassWord(passWord string) {
 	auth.PassWord = passWord
 }
 
-func FindAuthObj(name string) *Auth {
-	auth := NewAuth()
-	auth.Name = name
-	data.Db.Find(auth).Find(auth)
-	return auth
+func (auth *Auth) GetMail() string {
+	return auth.PassWord
+}
+
+func (auth *Auth) SetMail(mail string) {
+	auth.Mail = mail
+}
+
+func (auth *Auth) GetPhoneNum() string {
+	return auth.PhoneNum
+}
+
+func (auth *Auth) SetPhoneNum(phoneNum string) {
+	auth.PhoneNum = phoneNum
 }
