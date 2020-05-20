@@ -19,6 +19,7 @@ func main() {
 
 	conf.Init()
 	data.Init()
+	Session = data.NewSession()
 
 	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
 		logrus.Fatal("server port must be a number between 1 and 65535")

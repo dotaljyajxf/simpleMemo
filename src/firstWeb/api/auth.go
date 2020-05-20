@@ -1,6 +1,7 @@
 package api
 
 import (
+	"firstWeb/data"
 	"firstWeb/module/auth"
 	"firstWeb/proto/pb"
 	"firstWeb/util"
@@ -79,6 +80,8 @@ func Regist(c *gin.Engine) {
 		if err != nil {
 			//...
 		}
+
+		data.Session.GetSession(token).Store("uid", string(authObj.GetUid()))
 
 		retAuth.SetPhoneNum(authObj.GetPhoneNum())
 		retAuth.SetMail(authObj.GetMail())
