@@ -44,7 +44,7 @@ func Regist(c *gin.Engine) {
 		phoneNum := c.PostForm("phonenum")
 		nickName := c.PostForm("name")
 
-		log.Info("regist: %s,%s", account, passWord)
+		log.Infof("regist: %s,%s", account, passWord)
 		if account == "" || passWord == "" {
 			c.JSON(http.StatusOK, gin.H{"message": "must need account and password"})
 			return
