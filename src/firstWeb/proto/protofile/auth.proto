@@ -7,9 +7,11 @@ message TAuthInfo {
     optional string Mail = 4;
     optional string PassWord = 5;
     optional string PhoneNum = 6;
+    optional string Uid = 7;
 }
 
-message TGetAuthArg {
-    optional string Uid = 1;
+message TAuthLoginArg {
+    optional string Account = 1;
+    optional string PassWord = 2;
 }
 

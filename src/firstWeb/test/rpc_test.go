@@ -1,7 +1,6 @@
 package test
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"firstWeb/data/table"
@@ -33,10 +32,8 @@ func decodePb(msg []byte, obj interface{}) error {
 func TestRegist(t *testing.T) {
 	registUrl := "http://106.12.16.96:8000/Regist"
 
-	params := `{"account":"liujianyong","password":"liujy594148"}`
-	paramsByte, _ := json.Marshal(params)
-	request, _ := http.NewRequest("POST", registUrl, bytes.NewBuffer(paramsByte))
-	request.Header.Set("content-type", "application/json")
+	request, _ := http.NewRequest("POST", registUrl, strings.NewReader("account=liujianyong&password=liujy594148&name=lalal"))
+	request.Header.Set("content-type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
 
@@ -69,15 +66,9 @@ func TestRegist(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	registUrl := "http://106.12.16.96:8000/Login"
-	params := struct {
-		account  string
-		password string
-	}{
-		"liujianyong", "liujy594148",
-	}
-	paramsByte, _ := json.Marshal(params)
-	request, _ := http.NewRequest("POST", registUrl, bytes.NewBuffer(paramsByte))
-	request.Header.Set("content-type", "application/json")
+
+	request, _ := http.NewRequest("POST", registUrl, strings.NewReader("account=liujianyong&password=liujy594148"))
+	request.Header.Set("content-type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
 
@@ -92,20 +83,21 @@ func TestLogin(t *testing.T) {
 	if err != nil {
 		// handle error
 	}
-	p := &struct {
-		authObj table.Auth
-		token   string
-		message string
-	}{}
+	p := make(map[string]string)
 
 	fmt.Println(body)
-	err = json.Unmarshal(body, p)
+	err = json.Unmarshal(body, &p)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Printf("%v", p.message)
-	fmt.Printf("%v", p.token)
-	fmt.Printf("%v", p.authObj)
+	fmt.Println(p["authObj"])
+	auth := table.NewAuth()
+	err = json.Unmarshal([]byte(p["authObj"]), auth)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Printf("%v\n", *auth)
+	fmt.Printf("%v\n", p["token"])
 
 }
 
