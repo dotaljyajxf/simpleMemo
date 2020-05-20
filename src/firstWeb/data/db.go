@@ -23,15 +23,15 @@ func Init() {
 		return
 	}
 
-	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return conf.Config.TablePrfix + defaultTableName
-	}
+	//gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+	//	return conf.Config.TablePrfix + defaultTableName
+	//}
 
 	Db.SingularTable(true)
 	Db.DB().SetMaxIdleConns(10)
 	Db.DB().SetMaxOpenConns(100)
 
-	Db = Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(DbMap...)
+	Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(DbMap...)
 }
 
 func CloseDB() {

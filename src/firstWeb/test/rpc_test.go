@@ -1,8 +1,10 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"firstWeb/data/table"
 	"firstWeb/proto/pb"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -26,6 +28,85 @@ func decodePb(msg []byte, obj interface{}) error {
 	}
 
 	return proto.Unmarshal(msg, pMsg)
+}
+
+func TestRegist(t *testing.T) {
+	registUrl := "http://106.12.16.96:8000/Regist"
+
+	params := `{"account":"liujianyong","password":"liujy594148"}`
+	paramsByte, _ := json.Marshal(params)
+	request, _ := http.NewRequest("POST", registUrl, bytes.NewBuffer(paramsByte))
+	request.Header.Set("content-type", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(request)
+	if err != nil {
+		fmt.Printf("%v", err.Error())
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+	p := &struct {
+		authObj table.Auth
+		token   string
+		message string
+	}{}
+	fmt.Println(body)
+	err = json.Unmarshal(body, p)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Printf("%v", p.message)
+	fmt.Printf("%v", p.token)
+	fmt.Printf("%v", p.authObj)
+
+}
+
+func TestLogin(t *testing.T) {
+	registUrl := "http://106.12.16.96:8000/Login"
+	params := struct {
+		account  string
+		password string
+	}{
+		"liujianyong", "liujy594148",
+	}
+	paramsByte, _ := json.Marshal(params)
+	request, _ := http.NewRequest("POST", registUrl, bytes.NewBuffer(paramsByte))
+	request.Header.Set("content-type", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(request)
+	if err != nil {
+		fmt.Printf("%v", err.Error())
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+	p := &struct {
+		authObj table.Auth
+		token   string
+		message string
+	}{}
+
+	fmt.Println(body)
+	err = json.Unmarshal(body, p)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Printf("%v", p.message)
+	fmt.Printf("%v", p.token)
+	fmt.Printf("%v", p.authObj)
+
 }
 
 func TestRpc(t *testing.T) {

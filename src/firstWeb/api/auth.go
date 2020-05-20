@@ -5,6 +5,7 @@ import (
 	"firstWeb/module/auth"
 	"firstWeb/util"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -43,10 +44,12 @@ func Regist(c *gin.Engine) {
 		phoneNum := c.Param("phonenum")
 		nickName := c.Param("name")
 
+		log.Info("regist: %s,%s", account, passWord)
 		if account == "" || passWord == "" {
 			c.JSON(http.StatusOK, gin.H{"message": "must need account and password"})
 			return
 		}
+		log.Info("regist: %s,%s", account, passWord)
 		authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"message": err.Error()})
