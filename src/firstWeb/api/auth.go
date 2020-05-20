@@ -9,7 +9,7 @@ import (
 )
 
 func Login(c *gin.Engine) {
-	c.GET("/Login", func(c *gin.Context) {
+	c.POST("/Login", func(c *gin.Context) {
 		account := c.Param("account")
 		password := c.Param("password")
 
@@ -36,7 +36,7 @@ func Login(c *gin.Engine) {
 }
 
 func Regist(c *gin.Engine) {
-	c.GET("/Regist", func(c *gin.Context) {
+	c.POST("/Regist", func(c *gin.Context) {
 		account := c.Param("account")
 		passWord := c.Param("password")
 		mail := c.Param("mail")
