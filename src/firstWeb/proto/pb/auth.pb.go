@@ -10,7 +10,7 @@ It is generated from these files:
 
 It has these top-level messages:
 	TAuthInfo
-	TGetAuthArg
+	TAuthLoginArg
 */
 package pb
 
@@ -26,9 +26,13 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type TAuthInfo struct {
-	Name             *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Age              *int32  `protobuf:"varint,2,opt,name=age" json:"age,omitempty"`
-	Sex              *int32  `protobuf:"varint,3,opt,name=sex" json:"sex,omitempty"`
+	Token            *string `protobuf:"bytes,1,opt,name=Token" json:"Token,omitempty"`
+	NickName         *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
+	Account          *string `protobuf:"bytes,3,opt,name=Account" json:"Account,omitempty"`
+	Mail             *string `protobuf:"bytes,4,opt,name=Mail" json:"Mail,omitempty"`
+	PassWord         *string `protobuf:"bytes,5,opt,name=PassWord" json:"PassWord,omitempty"`
+	PhoneNum         *string `protobuf:"bytes,6,opt,name=PhoneNum" json:"PhoneNum,omitempty"`
+	Uid              *string `protobuf:"bytes,7,opt,name=Uid" json:"Uid,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
@@ -51,94 +55,180 @@ func (m *TAuthInfo) Reset()         { *m = gTAuthInfoDummy }
 func (m *TAuthInfo) String() string { return proto.CompactTextString(m) }
 func (*TAuthInfo) ProtoMessage()    {}
 
-func (m *TAuthInfo) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+func (m *TAuthInfo) GetToken() string {
+	if m != nil && m.Token != nil {
+		return *m.Token
 	}
 	return ""
 }
 
-func (m *TAuthInfo) SetName(v string) {
+func (m *TAuthInfo) SetToken(v string) {
 	if m != nil {
-		if m.Name != nil {
-			*m.Name = v
+		if m.Token != nil {
+			*m.Token = v
 		} else {
-			m.Name = &v
+			m.Token = &v
 		}
 	}
 }
 
-func (m *TAuthInfo) GetAge() int32 {
-	if m != nil && m.Age != nil {
-		return *m.Age
+func (m *TAuthInfo) GetNickName() string {
+	if m != nil && m.NickName != nil {
+		return *m.NickName
 	}
-	return 0
+	return ""
 }
 
-func (m *TAuthInfo) SetAge(v int32) {
+func (m *TAuthInfo) SetNickName(v string) {
 	if m != nil {
-		if m.Age != nil {
-			*m.Age = v
+		if m.NickName != nil {
+			*m.NickName = v
 		} else {
-			m.Age = &v
+			m.NickName = &v
 		}
 	}
 }
 
-func (m *TAuthInfo) GetSex() int32 {
-	if m != nil && m.Sex != nil {
-		return *m.Sex
+func (m *TAuthInfo) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
 	}
-	return 0
+	return ""
 }
 
-func (m *TAuthInfo) SetSex(v int32) {
+func (m *TAuthInfo) SetAccount(v string) {
 	if m != nil {
-		if m.Sex != nil {
-			*m.Sex = v
+		if m.Account != nil {
+			*m.Account = v
 		} else {
-			m.Sex = &v
+			m.Account = &v
 		}
 	}
 }
 
-type TGetAuthArg struct {
-	Name             *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+func (m *TAuthInfo) GetMail() string {
+	if m != nil && m.Mail != nil {
+		return *m.Mail
+	}
+	return ""
+}
+
+func (m *TAuthInfo) SetMail(v string) {
+	if m != nil {
+		if m.Mail != nil {
+			*m.Mail = v
+		} else {
+			m.Mail = &v
+		}
+	}
+}
+
+func (m *TAuthInfo) GetPassWord() string {
+	if m != nil && m.PassWord != nil {
+		return *m.PassWord
+	}
+	return ""
+}
+
+func (m *TAuthInfo) SetPassWord(v string) {
+	if m != nil {
+		if m.PassWord != nil {
+			*m.PassWord = v
+		} else {
+			m.PassWord = &v
+		}
+	}
+}
+
+func (m *TAuthInfo) GetPhoneNum() string {
+	if m != nil && m.PhoneNum != nil {
+		return *m.PhoneNum
+	}
+	return ""
+}
+
+func (m *TAuthInfo) SetPhoneNum(v string) {
+	if m != nil {
+		if m.PhoneNum != nil {
+			*m.PhoneNum = v
+		} else {
+			m.PhoneNum = &v
+		}
+	}
+}
+
+func (m *TAuthInfo) GetUid() string {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
+	}
+	return ""
+}
+
+func (m *TAuthInfo) SetUid(v string) {
+	if m != nil {
+		if m.Uid != nil {
+			*m.Uid = v
+		} else {
+			m.Uid = &v
+		}
+	}
+}
+
+type TAuthLoginArg struct {
+	Account          *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
+	PassWord         *string `protobuf:"bytes,2,opt,name=PassWord" json:"PassWord,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-var gTGetAuthArgDummy TGetAuthArg
-var poolTGetAuthArg = sync.Pool{
+var gTAuthLoginArgDummy TAuthLoginArg
+var poolTAuthLoginArg = sync.Pool{
 	New: func() interface{} {
-		return new(TGetAuthArg)
+		return new(TAuthLoginArg)
 	},
 }
 
-func NewTGetAuthArg() *TGetAuthArg {
-	obj := poolTGetAuthArg.Get().(*TGetAuthArg)
+func NewTAuthLoginArg() *TAuthLoginArg {
+	obj := poolTAuthLoginArg.Get().(*TAuthLoginArg)
 	obj.Reset()
 	return obj
 }
-func (m *TGetAuthArg) Put() {
-	poolTGetAuthArg.Put(m)
+func (m *TAuthLoginArg) Put() {
+	poolTAuthLoginArg.Put(m)
 }
-func (m *TGetAuthArg) Reset()         { *m = gTGetAuthArgDummy }
-func (m *TGetAuthArg) String() string { return proto.CompactTextString(m) }
-func (*TGetAuthArg) ProtoMessage()    {}
+func (m *TAuthLoginArg) Reset()         { *m = gTAuthLoginArgDummy }
+func (m *TAuthLoginArg) String() string { return proto.CompactTextString(m) }
+func (*TAuthLoginArg) ProtoMessage()    {}
 
-func (m *TGetAuthArg) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+func (m *TAuthLoginArg) GetAccount() string {
+	if m != nil && m.Account != nil {
+		return *m.Account
 	}
 	return ""
 }
 
-func (m *TGetAuthArg) SetName(v string) {
+func (m *TAuthLoginArg) SetAccount(v string) {
 	if m != nil {
-		if m.Name != nil {
-			*m.Name = v
+		if m.Account != nil {
+			*m.Account = v
 		} else {
-			m.Name = &v
+			m.Account = &v
+		}
+	}
+}
+
+func (m *TAuthLoginArg) GetPassWord() string {
+	if m != nil && m.PassWord != nil {
+		return *m.PassWord
+	}
+	return ""
+}
+
+func (m *TAuthLoginArg) SetPassWord(v string) {
+	if m != nil {
+		if m.PassWord != nil {
+			*m.PassWord = v
+		} else {
+			m.PassWord = &v
 		}
 	}
 }
@@ -146,6 +236,6 @@ func (m *TGetAuthArg) SetName(v string) {
 func init() {
 	proto.RegisterType((*TAuthInfo)(nil), "pb.TAuthInfo")
 	gob.Register((*TAuthInfo)(nil))
-	proto.RegisterType((*TGetAuthArg)(nil), "pb.TGetAuthArg")
-	gob.Register((*TGetAuthArg)(nil))
+	proto.RegisterType((*TAuthLoginArg)(nil), "pb.TAuthLoginArg")
+	gob.Register((*TAuthLoginArg)(nil))
 }
