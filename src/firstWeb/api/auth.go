@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"firstWeb/module/auth"
 	"firstWeb/proto/pb"
 	"firstWeb/util"
@@ -15,14 +14,18 @@ func Login(c *gin.Engine) {
 		account := c.PostForm("account")
 		password := c.PostForm("password")
 
+		retAuth := pb.NewTAuthInfo()
+		defer retAuth.Put()
 		authObj, err := auth.FindAuthObj(account)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"message": "authError"})
+			retAuth.SetMessage("AccountError")
+			c.ProtoBuf(http.StatusOK, retAuth)
 			return
 		}
 
 		if authObj.GetPassWord() != password {
-			c.JSON(http.StatusOK, gin.H{"message": "passwordErr"})
+			retAuth.SetMessage("PassWordError")
+			c.ProtoBuf(http.StatusOK, retAuth)
 			return
 		}
 
@@ -32,8 +35,6 @@ func Login(c *gin.Engine) {
 			//...
 		}
 
-		retAuth := pb.NewTAuthInfo()
-		defer retAuth.Put()
 		retAuth.SetPhoneNum(authObj.GetPhoneNum())
 		retAuth.SetMail(authObj.GetMail())
 		retAuth.SetToken(token)
@@ -56,15 +57,20 @@ func Regist(c *gin.Engine) {
 		phoneNum := c.PostForm("phonenum")
 		nickName := c.PostForm("name")
 
+		retAuth := pb.NewTAuthInfo()
+		defer retAuth.Put()
+
 		log.Infof("regist: %s,%s", account, passWord)
 		if account == "" || passWord == "" {
-			c.JSON(http.StatusOK, gin.H{"message": "must need account and password"})
+			retAuth.SetMessage("NeedAccountAndPassWord")
+			c.ProtoBuf(http.StatusOK, retAuth)
 			return
 		}
 
 		authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"message": err.Error()})
+			retAuth.SetMessage(err.Error())
+			c.ProtoBuf(http.StatusOK, retAuth)
 			return
 		}
 
@@ -73,8 +79,18 @@ func Regist(c *gin.Engine) {
 		if err != nil {
 			//...
 		}
-		retStr, _ := json.Marshal(authObj)
+
+		retAuth.SetPhoneNum(authObj.GetPhoneNum())
+		retAuth.SetMail(authObj.GetMail())
+		retAuth.SetToken(token)
+		retAuth.SetUid(string(authObj.GetUid()))
+		retAuth.SetNickName(authObj.GetAccount())
+
+		c.ProtoBuf(http.StatusOK, retAuth)
 		authObj.Release()
-		c.JSON(http.StatusOK, gin.H{"authObj": retStr, "token": token})
+
+		//retStr, _ := json.Marshal(authObj)
+		//authObj.Release()
+		//c.JSON(http.StatusOK, gin.H{"authObj": retStr, "token": token})
 	})
 }

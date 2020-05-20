@@ -3,11 +3,10 @@ package pb;
 message TAuthInfo {
     optional string Token =1;
     optional string NickName = 2;
-    optional string Account = 3;
-    optional string Mail = 4;
-    optional string PassWord = 5;
-    optional string PhoneNum = 6;
-    optional string Uid = 7;
+    optional string Mail = 3;
+    optional string PhoneNum = 4;
+    optional string Uid = 5;
+    optional string Message = 6;
 }
 
 message TAuthLoginArg {

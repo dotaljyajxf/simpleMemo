@@ -83,28 +83,19 @@ func TestLogin(t *testing.T) {
 	if err != nil {
 		// handle error
 	}
-	p := make(map[string]string)
 
-	fmt.Println(body)
-	err = json.Unmarshal(body, &p)
+	ret := pb.NewTAuthInfo()
+	err = proto.Unmarshal(body, ret)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(p["authObj"])
-	auth := table.NewAuth()
-	err = json.Unmarshal([]byte(p["authObj"]), auth)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Printf("%v\n", *auth)
-	fmt.Printf("%v\n", p["token"])
-
+	fmt.Printf("%v", ret.String())
 }
 
 func TestRpc(t *testing.T) {
 
-	arg := pb.NewTGetAuthArg()
-	arg.SetName("haha")
+	arg := pb.NewTAuthLoginArg()
+	arg.SetAccount("haha")
 
 	msg, err := proto.Marshal(arg)
 
@@ -142,8 +133,8 @@ func TestRpc(t *testing.T) {
 
 func Benchmark_Add(b *testing.B) {
 	var n int
-	arg := pb.NewTGetAuthArg()
-	arg.SetName("haha")
+	arg := pb.NewTAuthLoginArg()
+	arg.SetAccount("haha")
 
 	msg, err := proto.Marshal(arg)
 
