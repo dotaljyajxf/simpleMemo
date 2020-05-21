@@ -52,13 +52,13 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
 	return "{{.FileNameNoExt}}"
 }
 
-{{range $filed := .Fields}}
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
-	return a{{.ModuleName}}.{{$field.Name}}
+{{range $Fields := .Fields}}
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Get{{$Fields.Name}}() {{$Fields.Type}} {
+	return a{{.ModuleName}}.{{$Fields.Name}}
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) SetNickName(a{{$field.Type}} {{$field.Type}}) {
-	{{.FileNameNoExt}}.NickName = a{{$field.Type}}
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Set{{$Fields.Name}}(a{{$Fields.Name}} {{$Fields.Type}}) {
+	{{.FileNameNoExt}}.{{$Fields.Name}} = a{{$Fields.Name}}
 }
 
 {{end}}
