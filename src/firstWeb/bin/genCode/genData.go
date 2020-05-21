@@ -52,13 +52,14 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
 	return "{{.FileNameNoExt}}"
 }
 
+{{$x := .}}
 {{range $field := .Fields}}
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
-	return {{.FileNameNoExt}}.{{$field.Name}}
+func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
+	return {{$x.FileNameNoExt}}.{{$field.Name}}
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
-	{{.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
+func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
+	{{$x.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
 }
 
 {{end}}
@@ -143,6 +144,7 @@ func genTableFile() {
 	t = t.Funcs(funcMap)
 	t, err = t.Parse(iTableTpl)
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
