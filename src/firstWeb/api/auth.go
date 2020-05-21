@@ -1,14 +1,18 @@
 package api
 
 import (
-	"firstWeb/data"
 	"firstWeb/module/auth"
 	"firstWeb/proto/pb"
 	"firstWeb/util"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
+
+func init() {
+	//gob.Register(pb.TAuthInfo{})
+}
 
 func Login(c *gin.Engine) {
 	c.POST("/Login", func(c *gin.Context) {
@@ -42,6 +46,10 @@ func Login(c *gin.Engine) {
 		retAuth.SetUid(string(authObj.GetUid()))
 		retAuth.SetNickName(authObj.GetAccount())
 
+		sess := sessions.Default(c)
+		sess.Set("user", retAuth)
+		sess.Save()
+
 		//retStr, _ := json.Marshal(authObj)
 		//log.Infof("retStr: %s\n", retStr)
 
@@ -70,6 +78,7 @@ func Regist(c *gin.Engine) {
 
 		authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 		if err != nil {
+			log.Fatalf("create auth failed ret:%s", err.Error())
 			retAuth.SetMessage(err.Error())
 			c.ProtoBuf(http.StatusOK, retAuth)
 			return
@@ -81,13 +90,24 @@ func Regist(c *gin.Engine) {
 			//...
 		}
 
-		data.Session.GetSession(token).Store("uid", string(authObj.GetUid()))
-
 		retAuth.SetPhoneNum(authObj.GetPhoneNum())
 		retAuth.SetMail(authObj.GetMail())
 		retAuth.SetToken(token)
 		retAuth.SetUid(string(authObj.GetUid()))
 		retAuth.SetNickName(authObj.GetAccount())
+
+		sess := sessions.Default(c)
+		sess.Set("user", retAuth)
+		err = sess.Save()
+		if err != nil {
+			log.Debugf("session save failed ret:%s", err.Error())
+			retAuth.SetMessage(err.Error())
+			c.ProtoBuf(http.StatusOK, retAuth)
+			return
+		}
+
+		auth := sess.Get("user").(pb.TAuthInfo)
+		log.Debugf("auth : %v", auth.String())
 
 		c.ProtoBuf(http.StatusOK, retAuth)
 		authObj.Release()

@@ -6,6 +6,8 @@ import (
 	"firstWeb/data"
 	"firstWeb/routers"
 	"fmt"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -28,8 +30,8 @@ func main() {
 
 	r := gin.Default()
 
-	//store := cookie.NewStore([]byte("secret"))
-	//r.Use(sessions.Sessions("mysession", store))
+	store := cookie.NewStore([]byte(conf.Config.JwtSecret))
+	r.Use(sessions.Sessions("mysession", store))
 
 	gin.SetMode(conf.Config.RunMode)
 

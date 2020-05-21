@@ -2,7 +2,9 @@ package util
 
 import (
 	"firstWeb/conf"
+	"firstWeb/proto/pb"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -53,7 +55,13 @@ func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 
-		token := c.Query("token")
+		sess := sessions.Default(c)
+		auth := sess.Get("user").(pb.TAuthInfo)
+		token := auth.GetToken()
+		if token == "" {
+			token = c.Query("token")
+		}
+
 		if token == "" {
 			code = -1
 		} else {
@@ -65,10 +73,12 @@ func JWT() gin.HandlerFunc {
 			}
 		}
 
+		retAuth := pb.NewTAuthInfo()
+		defer retAuth.Put()
+
 		if code != 0 {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "authorizedError",
-			})
+			retAuth.SetMessage("AuthorizedError")
+			c.ProtoBuf(http.StatusUnauthorized, retAuth)
 
 			c.Abort()
 			return
