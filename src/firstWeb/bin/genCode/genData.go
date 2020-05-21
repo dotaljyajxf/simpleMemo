@@ -44,7 +44,7 @@ func New{{.ModuleName}}() *{{.ModuleName}} {
 }
 
 func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
-	*a{{.ModuleName}} = {{.ModuleName}}{}
+	*{{.FileNameNoExt}} = {{.ModuleName}}{}
 	Authpool.Put(a{{.ModuleName}})
 }
 
@@ -52,13 +52,13 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
 	return "{{.FileNameNoExt}}"
 }
 
-{{range $Fields := .Fields}}
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Get{{$Fields.Name}}() {{$Fields.Type}} {
-	return a{{.ModuleName}}.{{$Fields.Name}}
+{{range $field := .Fields}}
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
+	return {{.FileNameNoExt}}.{{$field.Name}}
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Set{{$Fields.Name}}(a{{$Fields.Name}} {{$Fields.Type}}) {
-	{{.FileNameNoExt}}.{{$Fields.Name}} = a{{$Fields.Name}}
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
+	{{.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
 }
 
 {{end}}
