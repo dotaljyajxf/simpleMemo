@@ -4,6 +4,7 @@ import (
 	"firstWeb/data"
 	"firstWeb/data/table"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 func FindAuthObj(account string) (*table.Auth, error) {
@@ -24,6 +25,8 @@ func CreateAuth(name string, password string, mail, phoneNum, account string) (*
 	auth.SetMail(mail)
 	auth.SetPassWord(password)
 	auth.SetPhoneNum(phoneNum)
+	auth.SetCreateTime(time.Now().Unix())
+
 	err := data.Db.Create(auth).Error
 	if err != nil {
 		log.Errorf("create auth error : %s", err.Error())

@@ -77,3 +77,11 @@ func (auth *Auth) GetPhoneNum() string {
 func (auth *Auth) SetPhoneNum(phoneNum string) {
 	auth.PhoneNum = phoneNum
 }
+
+func (auth *Auth) GetCreateTime() int64 {
+	return auth.CreateTime
+}
+
+func (auth *Auth) SetCreateTime(time int64) {
+	auth.CreateTime = time
+}

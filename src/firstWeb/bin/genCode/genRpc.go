@@ -1,4 +1,4 @@
-package main
+package genCode
 
 import (
 	"fmt"
@@ -99,7 +99,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 
 	fs := new(token.FileSet)
 
-	pkgs, err := parser.ParseDir(fs, wd+"/../module/"+fi.Name(), nil, parser.ParseComments)
+	pkgs, err := parser.ParseDir(fs, wd+"/../../module/"+fi.Name(), nil, parser.ParseComments)
 	if err != nil {
 		fmt.Println("parseDir Error:%s", err.Error())
 		return
@@ -153,28 +153,12 @@ func genModuleInfo(wd string) *ModuleInfo {
 	moduleInfo := new(ModuleInfo)
 	moduleInfo.Modules = make(map[string]string)
 
-	dir, err := ioutil.ReadDir(wd + "/../module/")
+	dir, err := ioutil.ReadDir(wd + "/../../module/")
 	if err != nil {
 		return nil
 	}
 	for _, fi := range dir {
 		if !fi.IsDir() {
-			continue
-		}
-		switch fi.Name() {
-		case "errs":
-			continue
-		case "global":
-			continue
-		case "handler":
-			continue
-		case "hook":
-			continue
-		case "public":
-			continue
-		case "web":
-			continue
-		case "modidata":
 			continue
 		}
 		check(wd, fi, moduleInfo)
@@ -203,7 +187,7 @@ func GenGoFile() error {
 		return err
 	}
 
-	file, err := os.OpenFile(wd+"/../module/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	file, err := os.OpenFile(wd+"/../../module/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}

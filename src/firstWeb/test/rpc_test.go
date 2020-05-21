@@ -3,7 +3,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"firstWeb/data/table"
 	"firstWeb/proto/pb"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -32,7 +31,7 @@ func decodePb(msg []byte, obj interface{}) error {
 func TestRegist(t *testing.T) {
 	registUrl := "http://106.12.16.96:8000/Regist"
 
-	request, _ := http.NewRequest("POST", registUrl, strings.NewReader("account=liujianyong&password=liujy594148&name=lalal"))
+	request, _ := http.NewRequest("POST", registUrl, strings.NewReader("account=ljy11&password=liujy594148&name=lalal"))
 	request.Header.Set("content-type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}
@@ -48,20 +47,13 @@ func TestRegist(t *testing.T) {
 	if err != nil {
 		// handle error
 	}
-	p := &struct {
-		authObj table.Auth
-		token   string
-		message string
-	}{}
-	fmt.Println(body)
-	err = json.Unmarshal(body, p)
+
+	ret := pb.NewTAuthInfo()
+	err = proto.Unmarshal(body, ret)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Printf("%v", p.message)
-	fmt.Printf("%v", p.token)
-	fmt.Printf("%v", p.authObj)
-
+	fmt.Printf("%v", ret.String())
 }
 
 func TestLogin(t *testing.T) {

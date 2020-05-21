@@ -7,5 +7,5 @@ type Auth struct {
 	Mail       string
 	PassWord   string `gorm:"type:varchar(32)"`
 	PhoneNum   string
-	CreateTime string
+	CreateTime int64
 }
