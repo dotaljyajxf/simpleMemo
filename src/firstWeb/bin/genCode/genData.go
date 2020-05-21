@@ -101,7 +101,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 
 		tb.ModuleName = sp.Name.Name
 		tb.FileNameNoExt = fileName[:len(fileName)-3]
-		tb.Fields = make([]*FieldsType, 0)
+		tb.Fields = make([]FieldsType, 0)
 
 		st, ok := sp.Type.(*ast.StructType)
 		if !ok {
@@ -112,7 +112,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		for _, fl := range st.Fields.List {
 			fident, ok := fl.Type.(*ast.Ident)
 			if ok {
-				tb.Fields = append(tb.Fields, &FieldsType{fl.Names[0].Name, fident.Name})
+				tb.Fields = append(tb.Fields, FieldsType{fl.Names[0].Name, fident.Name})
 			}
 		}
 
