@@ -67,7 +67,7 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {
 type TableModule struct {
 	ModuleName    string
 	FileNameNoExt string
-	Fields        []*FieldsType
+	Fields        []FieldsType
 }
 
 type FieldsType struct {
