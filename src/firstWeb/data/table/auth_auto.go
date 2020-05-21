@@ -1,18 +1,4 @@
-/**********************************************************************************************************************
- *
- * Copyright (c) 2010 babeltime.com, Inc. All Rights Reserved
- * $
- *
- **********************************************************************************************************************/
 
-/**
- * @file $
- * @author $(liujianyong@babeltime.com)
- * @date $
- * @version $
- * @brief
- *
- **/
 package table
 
 import (
@@ -31,57 +17,75 @@ func NewAuth() *Auth {
 
 func (auth *Auth) Release() {
 	*auth = Auth{}
-	Authpool.Put(auth)
+	Authpool.Put(aAuth)
 }
 
 func (auth *Auth) TableName() string {
 	return "auth"
 }
 
+
+
 func (auth *Auth) GetUid() uint64 {
 	return auth.Uid
 }
 
-func (auth *Auth) SetNickName(nickName string) {
-	auth.NickName = nickName
+func (auth *Auth) SetUid(aUid uint64) {
+	auth.Uid = aUid
 }
+
+
+func (auth *Auth) GetNickName() string {
+	return auth.NickName
+}
+
+func (auth *Auth) SetNickName(aNickName string) {
+	auth.NickName = aNickName
+}
+
 
 func (auth *Auth) GetAccount() string {
 	return auth.Account
 }
 
-func (auth *Auth) SetAccount(account string) {
-	auth.Account = account
+func (auth *Auth) SetAccount(aAccount string) {
+	auth.Account = aAccount
 }
+
+
+func (auth *Auth) GetMail() string {
+	return auth.Mail
+}
+
+func (auth *Auth) SetMail(aMail string) {
+	auth.Mail = aMail
+}
+
 
 func (auth *Auth) GetPassWord() string {
 	return auth.PassWord
 }
 
-func (auth *Auth) SetPassWord(passWord string) {
-	auth.PassWord = passWord
+func (auth *Auth) SetPassWord(aPassWord string) {
+	auth.PassWord = aPassWord
 }
 
-func (auth *Auth) GetMail() string {
-	return auth.PassWord
-}
-
-func (auth *Auth) SetMail(mail string) {
-	auth.Mail = mail
-}
 
 func (auth *Auth) GetPhoneNum() string {
 	return auth.PhoneNum
 }
 
-func (auth *Auth) SetPhoneNum(phoneNum string) {
-	auth.PhoneNum = phoneNum
+func (auth *Auth) SetPhoneNum(aPhoneNum string) {
+	auth.PhoneNum = aPhoneNum
 }
+
 
 func (auth *Auth) GetCreateTime() int64 {
 	return auth.CreateTime
 }
 
-func (auth *Auth) SetCreateTime(time int64) {
-	auth.CreateTime = time
+func (auth *Auth) SetCreateTime(aCreateTime int64) {
+	auth.CreateTime = aCreateTime
 }
+
+
