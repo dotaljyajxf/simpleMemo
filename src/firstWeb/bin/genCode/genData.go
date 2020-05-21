@@ -139,7 +139,7 @@ func genTableFile() {
 			return i - 1
 		},
 	}
-	t := template.New("tableTpl")
+	t := template.New("template")
 	t = t.Funcs(funcMap)
 	t, err = t.Parse(iTableTpl)
 	if err != nil {
@@ -166,7 +166,11 @@ func genTableFile() {
 			return
 		}
 
-		t.Execute(fpAuto, tb)
+		err = t.Execute(fpAuto, tb)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 		fpAuto.Close()
 	}
 }
