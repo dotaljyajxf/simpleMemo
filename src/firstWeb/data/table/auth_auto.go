@@ -1,3 +1,4 @@
+
 package table
 
 import (
@@ -22,6 +23,7 @@ func (auth *Auth) Release() {
 func (auth *Auth) TableName() string {
 	return "auth"
 }
+
 
 func (auth *Auth) GetUid() uint64 {
 	return auth.Uid
@@ -78,3 +80,4 @@ func (auth *Auth) GetCreateTime() int64 {
 func (auth *Auth) SetCreateTime(aCreateTime int64) {
 	auth.CreateTime = aCreateTime
 }
+
