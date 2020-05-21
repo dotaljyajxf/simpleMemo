@@ -48,7 +48,16 @@ func Login(c *gin.Engine) {
 
 		sess := sessions.Default(c)
 		sess.Set("user", retAuth)
-		sess.Save()
+		err = sess.Save()
+		if err != nil {
+			log.Debugf("session save failed ret:%s", err.Error())
+			retAuth.SetMessage(err.Error())
+			c.ProtoBuf(http.StatusOK, retAuth)
+			return
+		}
+
+		auth := sess.Get("user").(*pb.TAuthInfo)
+		log.Debugf("auth : %v", auth.String())
 
 		//retStr, _ := json.Marshal(authObj)
 		//log.Infof("retStr: %s\n", retStr)
