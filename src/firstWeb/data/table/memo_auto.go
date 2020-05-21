@@ -1,3 +1,4 @@
+
 package table
 
 import (
@@ -22,6 +23,7 @@ func (memo *Memo) Release() {
 func (memo *Memo) TableName() string {
 	return "memo"
 }
+
 
 func (memo *Memo) GetID() uint64 {
 	return memo.ID
@@ -78,3 +80,4 @@ func (memo *Memo) GetText() string {
 func (memo *Memo) SetText(aText string) {
 	memo.Text = aText
 }
+

@@ -7,10 +7,13 @@ Package pb is a generated protocol buffer package.
 
 It is generated from these files:
 	auth.proto
+	memo.proto
 
 It has these top-level messages:
 	TAuthInfo
 	TAuthLoginArg
+	TMemo
+	TMemoList
 */
 package pb
 
@@ -30,7 +33,7 @@ type TAuthInfo struct {
 	NickName         *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
 	Mail             *string `protobuf:"bytes,3,opt,name=Mail" json:"Mail,omitempty"`
 	PhoneNum         *string `protobuf:"bytes,4,opt,name=PhoneNum" json:"PhoneNum,omitempty"`
-	Uid              *string `protobuf:"bytes,5,opt,name=Uid" json:"Uid,omitempty"`
+	Uid              *uint64 `protobuf:"varint,5,opt,name=Uid" json:"Uid,omitempty"`
 	Message          *string `protobuf:"bytes,6,opt,name=Message" json:"Message,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
@@ -122,14 +125,14 @@ func (m *TAuthInfo) SetPhoneNum(v string) {
 	}
 }
 
-func (m *TAuthInfo) GetUid() string {
+func (m *TAuthInfo) GetUid() uint64 {
 	if m != nil && m.Uid != nil {
 		return *m.Uid
 	}
-	return ""
+	return 0
 }
 
-func (m *TAuthInfo) SetUid(v string) {
+func (m *TAuthInfo) SetUid(v uint64) {
 	if m != nil {
 		if m.Uid != nil {
 			*m.Uid = v
