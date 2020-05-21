@@ -13,7 +13,7 @@
  * @brief
  *
  **/
-package genCode
+package main
 
 import (
 	"fmt"
