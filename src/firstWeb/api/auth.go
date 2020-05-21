@@ -10,10 +10,6 @@ import (
 	"net/http"
 )
 
-func init() {
-	//gob.Register(pb.TAuthInfo{})
-}
-
 func Login(c *gin.Engine) {
 	c.POST("/Login", func(c *gin.Context) {
 		account := c.PostForm("account")
@@ -49,18 +45,6 @@ func Login(c *gin.Engine) {
 		sess := sessions.Default(c)
 		sess.Set("user", retAuth)
 		err = sess.Save()
-		if err != nil {
-			log.Debugf("session save failed ret:%s", err.Error())
-			retAuth.SetMessage(err.Error())
-			c.ProtoBuf(http.StatusOK, retAuth)
-			return
-		}
-
-		auth := sess.Get("user").(*pb.TAuthInfo)
-		log.Debugf("auth : %v", auth.String())
-
-		//retStr, _ := json.Marshal(authObj)
-		//log.Infof("retStr: %s\n", retStr)
 
 		c.ProtoBuf(http.StatusOK, retAuth)
 		authObj.Release()
@@ -87,7 +71,7 @@ func Regist(c *gin.Engine) {
 
 		authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 		if err != nil {
-			log.Fatalf("create auth failed ret:%s", err.Error())
+			log.Infof("create auth failed ret:%s", err.Error())
 			retAuth.SetMessage(err.Error())
 			c.ProtoBuf(http.StatusOK, retAuth)
 			return
@@ -108,15 +92,6 @@ func Regist(c *gin.Engine) {
 		sess := sessions.Default(c)
 		sess.Set("user", retAuth)
 		err = sess.Save()
-		if err != nil {
-			log.Debugf("session save failed ret:%s", err.Error())
-			retAuth.SetMessage(err.Error())
-			c.ProtoBuf(http.StatusOK, retAuth)
-			return
-		}
-
-		auth := sess.Get("user").(*pb.TAuthInfo)
-		log.Debugf("auth : %v", auth.String())
 
 		c.ProtoBuf(http.StatusOK, retAuth)
 		authObj.Release()

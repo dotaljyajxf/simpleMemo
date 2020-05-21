@@ -58,10 +58,11 @@ func Init() {
 	Config.WriteTimeout = Config.ReadTimeout * time.Second
 
 	logrus.SetFormatter(&logrus.TextFormatter{
-		DisableColors: false,
-		FullTimestamp: true,
+		DisableColors:   false,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05.999999999 -0700 MST",
 	})
-
+	logrus.SetReportCaller(true)
 	log.Println(Config)
 
 	logFile, err := os.OpenFile(Config.LogPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
