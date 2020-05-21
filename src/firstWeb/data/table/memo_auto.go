@@ -1,4 +1,3 @@
-
 package table
 
 import (
@@ -24,7 +23,6 @@ func (memo *Memo) TableName() string {
 	return "memo"
 }
 
-
 func (memo *Memo) GetID() uint64 {
 	return memo.ID
 }
@@ -41,11 +39,11 @@ func (memo *Memo) SetUid(aUid uint64) {
 	memo.Uid = aUid
 }
 
-func (memo *Memo) GetYear() int8 {
+func (memo *Memo) GetYear() int {
 	return memo.Year
 }
 
-func (memo *Memo) SetYear(aYear int8) {
+func (memo *Memo) SetYear(aYear int) {
 	memo.Year = aYear
 }
 
@@ -80,4 +78,3 @@ func (memo *Memo) GetText() string {
 func (memo *Memo) SetText(aText string) {
 	memo.Text = aText
 }
-

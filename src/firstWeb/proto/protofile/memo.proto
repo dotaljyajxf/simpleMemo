@@ -1,0 +1,14 @@
+package pb;
+
+
+message TMemo {
+    optional string ID =1;
+    optional string CreatedAt = 2;
+    optional string Text = 3;
+    optional string Message = 4;
+}
+
+message TMemoList {
+    repeated TMemo memos = 1;
+}
+
