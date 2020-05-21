@@ -45,13 +45,12 @@ func New{{.ModuleName}}() *{{.ModuleName}} {
 
 func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
 	*{{.FileNameNoExt}} = {{.ModuleName}}{}
-	Authpool.Put(a{{.ModuleName}})
+	Authpool.Put({{.FileNameNoExt}})
 }
 
 func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
 	return "{{.FileNameNoExt}}"
 }
-
 {{$x := .}}
 {{range $field := .Fields}}
 func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
@@ -61,9 +60,22 @@ func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Typ
 func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
 	{{$x.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
 }
-
 {{end}}
 `
+
+const iMapTpl = `
+package table
+
+var DbMap []interface{} = []interface{}{
+{{range $name := .ModuleNames}}
+	&{{$name}}{},
+{{end}}
+}
+`
+
+type Modules struct {
+	ModuleNames []string
+}
 
 type TableModule struct {
 	ModuleName    string
@@ -120,6 +132,34 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 	}
 }
 
+func (m *Modules) genMap(dataDirPath string) {
+	funcMap := template.FuncMap{
+		"dec": func(i int) int {
+			return i - 1
+		},
+	}
+	t := template.New("templateMap")
+	t = t.Funcs(funcMap)
+	t, err := t.Parse(iMapTpl)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fpMap, err := os.OpenFile(dataDirPath+"/map_auto.go",
+		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("create file error : %s", err.Error())
+		return
+	}
+	err = t.Execute(fpMap, m)
+	if err != nil {
+		fmt.Println("genMap err : ", err.Error())
+		return
+	}
+	fpMap.Close()
+}
+
 func genTableFile() {
 	path := os.Getenv("GOPATH")
 	if path == "" {
@@ -147,7 +187,7 @@ func genTableFile() {
 		fmt.Println(err.Error())
 		return
 	}
-
+	modules := new(Modules)
 	for _, file := range fd {
 		if file.IsDir() {
 			continue
@@ -174,7 +214,9 @@ func genTableFile() {
 			return
 		}
 		fpAuto.Close()
+		modules.ModuleNames = append(modules.ModuleNames, tb.ModuleName)
 	}
+	modules.genMap(dataDirPath)
 }
 
 func main() {
