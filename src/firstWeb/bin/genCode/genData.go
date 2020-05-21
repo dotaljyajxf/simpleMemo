@@ -69,7 +69,7 @@ package table
 var DbMap []interface{} = []interface{}{
 {{range $name := .ModuleNames}}
 	&{{$name}}{},
-{{end}}
+{{- end}}
 }
 `
 
