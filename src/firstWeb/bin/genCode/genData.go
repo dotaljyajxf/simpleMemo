@@ -90,7 +90,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			continue
 		}
 
-		if len(gd.Specs) > 0 {
+		if len(gd.Specs) > 1 {
 			continue
 		}
 
@@ -158,16 +158,16 @@ func genTableFile() {
 		tb := new(TableModule)
 		tb.makeFileStruct(dataDirPath, file.Name())
 
-		fmt.Printf("%v", *tb)
-		//fpAuto ,err := os.OpenFile(dataDirPath +"/"+ tb.FileNameNoExt + "_auto.go",
-		//	os.O_CREATE|os.O_TRUNC|os.O_RDWR,0644)
-		//if err != nil {
-		//	fmt.Println("create file error : %s",err.Error())
-		//	return
-		//}
-		//
-		//t.Execute(fpAuto,tb)
-		//fpAuto.Close()
+		//fmt.Printf("%v", *tb)
+		fpAuto, err := os.OpenFile(dataDirPath+"/"+tb.FileNameNoExt+"_auto.go",
+			os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+		if err != nil {
+			fmt.Println("create file error : %s", err.Error())
+			return
+		}
+
+		t.Execute(fpAuto, tb)
+		fpAuto.Close()
 	}
 }
 
