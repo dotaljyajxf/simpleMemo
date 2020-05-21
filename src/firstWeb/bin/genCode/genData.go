@@ -173,4 +173,5 @@ func genTableFile() {
 
 func main() {
 	genTableFile()
+	fmt.Println("done")
 }
