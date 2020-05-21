@@ -106,7 +106,7 @@ func Regist(c *gin.Engine) {
 			return
 		}
 
-		auth := sess.Get("user").(pb.TAuthInfo)
+		auth := sess.Get("user").(*pb.TAuthInfo)
 		log.Debugf("auth : %v", auth.String())
 
 		c.ProtoBuf(http.StatusOK, retAuth)
