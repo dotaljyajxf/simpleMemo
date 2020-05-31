@@ -1,0 +1,16 @@
+package pb;
+
+message TAuthInfo {
+    optional string Token =1;
+    optional string NickName = 2;
+    optional string Mail = 3;
+    optional string PhoneNum = 4;
+    optional uint64 Uid = 5;
+    optional string Message = 6;
+}
+
+message TAuthLoginArg {
+    optional string Account = 1;
+    optional string PassWord = 2;
+}
+

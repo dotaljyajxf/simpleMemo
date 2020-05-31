@@ -1,0 +1,225 @@
+/**********************************************************************************************************************
+ *
+ * Copyright (c) 2010 babeltime.com, Inc. All Rights Reserved
+ * $
+ *
+ **********************************************************************************************************************/
+
+/**
+ * @file $
+ * @author $(liujianyong@babeltime.com)
+ * @date $
+ * @version $
+ * @brief
+ *
+ **/
+package main
+
+import (
+	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"io/ioutil"
+	"os"
+	"strings"
+	"text/template"
+)
+
+const iTableTpl = `
+package table
+
+import (
+	"sync"
+)
+
+var {{.ModuleName}}pool = sync.Pool{New: func() interface{} {
+	return new({{.ModuleName}})
+}}
+
+func New{{.ModuleName}}() *{{.ModuleName}} {
+	ret := {{.ModuleName}}pool.Get().(*{{.ModuleName}})
+	*ret = {{.ModuleName}}{}
+	return ret
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
+	*{{.FileNameNoExt}} = {{.ModuleName}}{}
+	Authpool.Put({{.FileNameNoExt}})
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
+	return "{{.FileNameNoExt}}"
+}
+{{$x := .}}
+{{range $field := .Fields}}
+func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
+	return {{$x.FileNameNoExt}}.{{$field.Name}}
+}
+
+func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
+	{{$x.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
+}
+{{end}}
+`
+
+const iMapTpl = `
+package table
+
+var DbMap []interface{} = []interface{}{
+{{range $name := .ModuleNames}}
+	&{{$name}}{},
+{{- end}}
+}
+`
+
+type Modules struct {
+	ModuleNames []string
+}
+
+type TableModule struct {
+	ModuleName    string
+	FileNameNoExt string
+	Fields        []FieldsType
+}
+
+type FieldsType struct {
+	Name string
+	Type string
+}
+
+func (tb *TableModule) makeFileStruct(dir string, fileName string) {
+	tk := token.NewFileSet()
+
+	pf, err := parser.ParseFile(tk, dir+"/"+fileName, nil, parser.ParseComments)
+	if err != nil {
+		fmt.Println("ParseFile failed err : %s", err.Error())
+		return
+	}
+
+	for _, decl := range pf.Decls {
+		gd, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+
+		if len(gd.Specs) > 1 {
+			continue
+		}
+
+		sp, ok := gd.Specs[0].(*ast.TypeSpec)
+		if !ok {
+			continue
+		}
+
+		tb.ModuleName = sp.Name.Name
+		tb.FileNameNoExt = fileName[:len(fileName)-3]
+		tb.Fields = make([]FieldsType, 0)
+
+		st, ok := sp.Type.(*ast.StructType)
+		if !ok {
+			fmt.Printf("single type not struct")
+			continue
+		}
+
+		for _, fl := range st.Fields.List {
+			fident, ok := fl.Type.(*ast.Ident)
+			if ok {
+				tb.Fields = append(tb.Fields, FieldsType{fl.Names[0].Name, fident.Name})
+			}
+		}
+
+	}
+}
+
+func (m *Modules) genMap(dataDirPath string) {
+	funcMap := template.FuncMap{
+		"dec": func(i int) int {
+			return i - 1
+		},
+	}
+	t := template.New("templateMap")
+	t = t.Funcs(funcMap)
+	t, err := t.Parse(iMapTpl)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fpMap, err := os.OpenFile(dataDirPath+"/map_auto.go",
+		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("create file error : %s", err.Error())
+		return
+	}
+	err = t.Execute(fpMap, m)
+	if err != nil {
+		fmt.Println("genMap err : ", err.Error())
+		return
+	}
+	fpMap.Close()
+}
+
+func genTableFile() {
+	path := os.Getenv("GOPATH")
+	if path == "" {
+		fmt.Println("can not get GOPATH")
+		return
+	}
+
+	dataDirPath := path + "/src/firstWeb/data/table"
+
+	fd, err := ioutil.ReadDir(dataDirPath)
+	if err != nil {
+		fmt.Println("read dir error : %s", err.Error())
+		return
+	}
+
+	funcMap := template.FuncMap{
+		"dec": func(i int) int {
+			return i - 1
+		},
+	}
+	t := template.New("template")
+	t = t.Funcs(funcMap)
+	t, err = t.Parse(iTableTpl)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	modules := new(Modules)
+	for _, file := range fd {
+		if file.IsDir() {
+			continue
+		}
+
+		if strings.Contains(file.Name(), "_auto") {
+			continue
+		}
+
+		tb := new(TableModule)
+		tb.makeFileStruct(dataDirPath, file.Name())
+
+		//fmt.Printf("%v", *tb)
+		fpAuto, err := os.OpenFile(dataDirPath+"/"+tb.FileNameNoExt+"_auto.go",
+			os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+		if err != nil {
+			fmt.Println("create file error : %s", err.Error())
+			return
+		}
+
+		err = t.Execute(fpAuto, tb)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		fpAuto.Close()
+		modules.ModuleNames = append(modules.ModuleNames, tb.ModuleName)
+	}
+	modules.genMap(dataDirPath)
+}
+
+func main() {
+	genTableFile()
+	fmt.Println("done ")
+}
