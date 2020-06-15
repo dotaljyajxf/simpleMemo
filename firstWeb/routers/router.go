@@ -4,14 +4,18 @@ import (
 	"firstWeb/api"
 	"firstWeb/conf"
 	"firstWeb/util"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func InitRouter(r *gin.Engine) *gin.Engine {
 
-	api.Regist(r)
-	api.Login(r)
+	//api.Login(r)
+	r.POST("/Login", AfterHook(api.Login))
+	r.POST("/Regist", AfterHook(api.Regist))
+	r.POST("/doRpc", AfterHook(api.DoRpc))
+
 	// Favicon
 	//r.StaticFile("/favicon.ico", conf.HttpFaviconsPath()+"/favicon.ico")
 
@@ -26,8 +30,7 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	groupRouter := r.Group("/api/v1")
 	groupRouter.Use(util.JWT())
 	{
-		api.DoRpc(r)
-		api.GetArticles(groupRouter)
+		groupRouter.POST("/memoList", AfterHook(api.GetMemo))
 	}
 
 	r.NoRoute(func(c *gin.Context) {

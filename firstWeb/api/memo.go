@@ -19,39 +19,32 @@ import (
 	"firstWeb/module/memo"
 	"firstWeb/proto/pb"
 	"firstWeb/util"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-func GetMemo(c *gin.Engine) {
-	c.POST("/memoList", func(c *gin.Context) {
-		year := c.PostForm("year")
-		mouth := c.PostForm("mouth")
+func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
+	year, _ := strconv.Atoi(c.PostForm("year"))
+	mouth, _ := strconv.Atoi(c.PostForm("mouth"))
 
-		sess := sessions.Default(c)
-		userObj := sess.Get("user").(pb.TAuthInfo)
+	sess := sessions.Default(c)
+	userObj := sess.Get("user").(pb.TAuthInfo)
 
-		memoList := pb.NewTMemoList()
-		defer memoList.Put()
-		memoList, err := memo.FindMemoByMouth(userObj.Uid, int(year), int8(mouth))
-		if err != nil {
-			memoList.SetMessage("FindError")
-			c.ProtoBuf(http.StatusOK, memoList)
-			return
-		}
+	memoList := pb.NewTMemoList()
+	memoObj, err := memo.FindMemoByMouth(userObj.GetUid(), year, int8(mouth))
+	if err != nil {
+		return util.MakeErrRet(ret, http.StatusOK, "GetMemoDbError")
+	}
+	for _, memo := range memoObj {
+		oneMemo := pb.NewTMemo()
+		*oneMemo.ID = memo.ID
+		oneMemo.Text = &memo.Text
+		*oneMemo.CreatedAt = memo.CreatedAt
 
-		memoList.set(authObj.GetPhoneNum())
-		memoList.SetMail(authObj.GetMail())
-		memoList.SetToken(token)
-		memoList.SetUid(string(authObj.GetUid()))
-		memoList.SetNickName(authObj.GetAccount())
-
-		sess := sessions.Default(c)
-		sess.Set("user", retAuth)
-		err = sess.Save()
-
-		c.ProtoBuf(http.StatusOK, retAuth)
-		authObj.Release()
-	})
+		memoList.Memos = append(memoList.Memos, oneMemo)
+	}
+	return util.MakeSuccessRet(ret, http.StatusOK, memoList)
 }

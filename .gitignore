@@ -1,3 +1,6 @@
 node_modules
 go.sum
-/vendor
+vendor/
+*.xml
+idea/
+dist/

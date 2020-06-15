@@ -3,11 +3,12 @@ package util
 import (
 	"firstWeb/conf"
 	"firstWeb/proto/pb"
+	"net/http"
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"time"
 )
 
 var jwtSecret = []byte(conf.Config.JwtSecret)
@@ -77,9 +78,9 @@ func JWT() gin.HandlerFunc {
 		defer retAuth.Put()
 
 		if code != 0 {
-			retAuth.SetMessage("AuthorizedError")
-			c.ProtoBuf(http.StatusUnauthorized, retAuth)
-
+			ret := pb.NewTAppRet()
+			MakeErrRet(ret, http.StatusForbidden, "AuthError")
+			c.ProtoBuf(ret.Code, ret)
 			c.Abort()
 			return
 		}

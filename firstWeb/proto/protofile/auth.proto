@@ -1,4 +1,6 @@
 package pb;
+option go_package="pb";
+
 
 message TAuthInfo {
     optional string Token =1;

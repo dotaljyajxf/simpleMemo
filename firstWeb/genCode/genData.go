@@ -161,13 +161,13 @@ func (m *Modules) genMap(dataDirPath string) {
 }
 
 func genTableFile() {
-	path := os.Getenv("GOPATH")
+	path := os.Getenv("HOME")
 	if path == "" {
 		fmt.Println("can not get GOPATH")
 		return
 	}
 
-	dataDirPath := path + "/src/firstWeb/data/table"
+	dataDirPath := path + "LittleCai/firstWeb/data/table"
 
 	fd, err := ioutil.ReadDir(dataDirPath)
 	if err != nil {

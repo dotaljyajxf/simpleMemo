@@ -1,0 +1,12 @@
+package pb;
+option go_package="pb";
+
+
+
+message TAppRet {
+    optional int Code =1;
+    optional string Msg = 2;
+    optional bytes Data = 3;
+}
+
+

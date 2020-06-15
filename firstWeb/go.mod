@@ -11,5 +11,6 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	google.golang.org/protobuf v1.23.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 )

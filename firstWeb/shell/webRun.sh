@@ -1,9 +1,9 @@
 
 
-cd /home/game/runWeb
+cd $HOME/run
 
 rm ./web
-cp /home/game/LittleCai/src/firstWeb/bin/web .
+cp $HOME/LittleCai/firstWeb/bin/web .
 
 sh run.sh restart 
 

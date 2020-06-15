@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-func FindMemoByMouth(uid uint64, year, mouth int8) ([]table.Memo, error) {
+func FindMemoByMouth(uid uint64, year int, mouth int8) ([]table.Memo, error) {
 	memos := make([]table.Memo, 0)
 	err := data.Db.Where("uid = ? and year = ? and mouth = ? and delete_at > 0", uid, year, mouth).Find(memos).Error
 	if err != nil {

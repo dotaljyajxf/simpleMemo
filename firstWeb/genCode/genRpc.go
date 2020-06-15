@@ -20,8 +20,6 @@ import (
 	"firstWeb/proto/pb"
 	"github.com/golang/protobuf/proto"
 	"errors"
-    {{range $module,$fn := .Modules}}"{{$fn}}"
-	{{end}}
 )
 
 
@@ -37,7 +35,6 @@ func proxy_{{$method.Module}}_{{$method.Method}}(args []byte) (interface{} ,erro
 	defer request.Put()
 
 	response := pb.New{{$method.Response}}()
-	defer response.Put()
 	
 	err := decodePb(args, request)
 	if err != nil {
@@ -99,7 +96,7 @@ func check(wd string, fi os.FileInfo, moduleInfo *ModuleInfo) {
 
 	fs := new(token.FileSet)
 
-	pkgs, err := parser.ParseDir(fs, wd+"/../../module/"+fi.Name(), nil, parser.ParseComments)
+	pkgs, err := parser.ParseDir(fs, wd+"/../module/"+fi.Name(), nil, parser.ParseComments)
 	if err != nil {
 		fmt.Println("parseDir Error:%s", err.Error())
 		return
@@ -153,7 +150,7 @@ func genModuleInfo(wd string) *ModuleInfo {
 	moduleInfo := new(ModuleInfo)
 	moduleInfo.Modules = make(map[string]string)
 
-	dir, err := ioutil.ReadDir(wd + "/../../module/")
+	dir, err := ioutil.ReadDir(wd + "/../module/")
 	if err != nil {
 		return nil
 	}
@@ -187,7 +184,7 @@ func GenGoFile() error {
 		return err
 	}
 
-	file, err := os.OpenFile(wd+"/../../module/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	file, err := os.OpenFile(wd+"/../module/rpc_auto.go", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}

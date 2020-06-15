@@ -1,5 +1,5 @@
 
-cd /home/game/LittleCai/src/firstWeb/bin 
+cd $HOME/LittleCai/firstWeb/bin
 
 go build -o web main.go
 

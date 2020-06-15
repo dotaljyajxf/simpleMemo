@@ -2,10 +2,13 @@ package api
 
 import (
 	"firstWeb/module"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"firstWeb/proto/pb"
+	"firstWeb/util"
 	"net/http"
 	"sync"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type RpcType struct {
@@ -31,22 +34,23 @@ func (r *RpcType) Put() {
 }
 
 //auth.GetInfo  XXXXXNNJMH
-func DoRpc(router *gin.Engine) {
-	router.POST("/doRpc", func(c *gin.Context) {
-		var call = NewRpcCall()
-		if err := c.ShouldBindJSON(call); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		logrus.Infof("recive  method: %v", call)
-		ret, err := module.DoRpcMethod(call.Method, call.Args)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		logrus.Infof("response method: %s ret: %v", call.Method, ret)
-		call.Put()
+func DoRpc(c *gin.Context, ret *pb.TAppRet) error {
+	var call = NewRpcCall()
+	if err := c.ShouldBindJSON(call); err != nil {
+		return util.MakeErrRet(ret, http.StatusBadRequest, err.Error())
+	}
+	logrus.Infof("recive  method: %v", call)
+	resp, err := module.DoRpcMethod(call.Method, call.Args)
+	if err != nil {
+		return util.MakeErrRet(ret, http.StatusBadRequest, err.Error())
+	}
+	respPoolObj, ok := resp.(util.PoolObj)
+	if !ok {
+		return util.MakeErrRet(ret, http.StatusBadRequest, "respNotPoolObj")
+	}
 
-		c.ProtoBuf(http.StatusOK, ret)
-	})
+	logrus.Infof("response method: %s ret: %v", call.Method, ret)
+	call.Put()
+
+	return util.MakeSuccessRet(ret, http.StatusBadRequest, respPoolObj)
 }

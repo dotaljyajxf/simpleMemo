@@ -57,7 +57,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
-	logrus.Info("Shutdown Server ...")
+	logrus.Info("Shutdown Server Start...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
