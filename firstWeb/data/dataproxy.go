@@ -10,22 +10,60 @@ import (
 	"reflect"
 )
 
-var Db *sql.DB
+var Data *DataManager
 
-func Exec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
-	return Db.ExecContext(ctx, sql, args)
+type DataManager struct {
+	Master    *sql.DB
+	Slave     *sql.DB
+	CacheConn *redis.conn
 }
 
-func QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
-	rows, err := Db.QueryContext(ctx, sql, args)
+type LocalTx struct {
+	*sql.Tx
+}
+
+func (data *DataManager) Begin() (*LocalTx, error) {
+	tx, err := data.Master.Begin()
+	if err != nil {
+		return nil, err
+	}
+	return &LocalTx{tx}, nil
+}
+
+func (tx *LocalTx) TxExec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
+	return tx.ExecContext(ctx, sql, args)
+}
+
+func (tx *LocalTx) TxQueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
+	rows, err := tx.QueryContext(ctx, sql, args)
 	if err != nil {
 		return err
 	}
 	return query(rows, resp)
 }
 
-func Query(resp interface{}, sql string, args ...interface{}) error {
-	rows, err := Db.Query(sql, args)
+func (tx *LocalTx) TxQuery(resp interface{}, sql string, args ...interface{}) error {
+	rows, err := tx.Query(sql, args)
+	if err != nil {
+		return err
+	}
+	return query(rows, resp)
+}
+
+func (data *DataManager) Exec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
+	return data.Master.ExecContext(ctx, sql, args)
+}
+
+func (data *DataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
+	rows, err := data.Slave.QueryContext(ctx, sql, args)
+	if err != nil {
+		return err
+	}
+	return query(rows, resp)
+}
+
+func (data *DataManager) Query(resp interface{}, sql string, args ...interface{}) error {
+	rows, err := data.Slave.Query(sql, args)
 	if err != nil {
 		return err
 	}
