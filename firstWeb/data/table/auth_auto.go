@@ -1,7 +1,8 @@
-
 package table
 
 import (
+	"encoding/json"
+	"fmt"
 	"sync"
 )
 
@@ -23,7 +24,6 @@ func (auth *Auth) Release() {
 func (auth *Auth) TableName() string {
 	return "auth"
 }
-
 
 func (auth *Auth) GetUid() uint64 {
 	return auth.Uid
@@ -81,3 +81,30 @@ func (auth *Auth) SetCreateTime(aCreateTime int64) {
 	auth.CreateTime = aCreateTime
 }
 
+func (auth *Auth) GetKey() string {
+	return fmt.Sprintf("%d", auth.Uid)
+}
+
+func (auth *Auth) SelectSql() (string, []interface{}) {
+	sql := fmt.Sprintf("SELECT `uid`,`nick_name`,`account` FROM auth WHERE uid = ?")
+	//sql := fmt.Sprintf("INSERT INTO auth(`uid`,...) VLAUES(?,?,?,?,?,?)")
+	return sql, []interface{}{auth.Uid}
+}
+
+func (auth *Auth) InsertSql() (string, []interface{}) {
+	sql := fmt.Sprintf("INSERT INTO auth(`uid`,...) VLAUES(?,?,?,?,?,?)")
+	return sql, []interface{}{auth.Uid, auth.NickName}
+}
+
+func (auth *Auth) UpdateSql() string {
+	return fmt.Sprintf("UPDATA auth set auth = ?,uid = ? where uid = ? ", auth.Uid)
+}
+
+func (auth *Auth) Decode(v []byte) error {
+	return json.Unmarshal(v, auth)
+}
+
+func (auth *Auth) Encode() []byte {
+	b, _ := json.Marshal(auth)
+	return b
+}

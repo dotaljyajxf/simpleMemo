@@ -3,9 +3,12 @@ package data
 import (
 	"context"
 	"database/sql"
+	"firstWeb/data/cache"
 	"fmt"
 	"strings"
 	"unicode"
+
+	"github.com/sirupsen/logrus"
 
 	"reflect"
 )
@@ -13,13 +16,21 @@ import (
 var Data *DataManager
 
 type DataManager struct {
-	Master    *sql.DB
-	Slave     *sql.DB
-	CacheConn *redis.conn
+	Master *sql.DB
+	Slave  *sql.DB
 }
 
 type LocalTx struct {
 	*sql.Tx
+}
+
+type TableHandler interface {
+	GetKey() string
+	Decode(v []byte) error
+	Encode() []byte
+	UpdateSql() (string, []interface{})
+	InsertSql() string
+	SelectSql() string
 }
 
 func (data *DataManager) Begin() (*LocalTx, error) {
@@ -35,39 +46,62 @@ func (tx *LocalTx) TxExec(ctx context.Context, sql string, args ...interface{}) 
 }
 
 func (tx *LocalTx) TxQueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
-	rows, err := tx.QueryContext(ctx, sql, args)
-	if err != nil {
-		return err
-	}
-	return query(rows, resp)
+	return queryContext(ctx, nil, tx.Tx, resp, sql, args)
 }
 
 func (tx *LocalTx) TxQuery(resp interface{}, sql string, args ...interface{}) error {
-	rows, err := tx.Query(sql, args)
-	if err != nil {
-		return err
-	}
-	return query(rows, resp)
+	return queryContext(context.Background(), nil, tx.Tx, resp, sql, args)
 }
 
 func (data *DataManager) Exec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
 	return data.Master.ExecContext(ctx, sql, args)
 }
 
-func (data *DataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
-	rows, err := data.Slave.QueryContext(ctx, sql, args)
+func (data *DataManager) InsertTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
+	res, err := data.Master.ExecContext(ctx, resp.InsertSql())
 	if err != nil {
-		return err
+		return res, err
 	}
-	return query(rows, resp)
+	cache.Set(resp.GetKey(), resp.Encode())
+	return res, err
+}
+
+func (data *DataManager) UpdateTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
+	sql, args := resp.UpdateSql()
+	res, err := data.Master.ExecContext(ctx, sql, args)
+	if err != nil {
+		return res, err
+	}
+	cache.Del(resp.GetKey())
+	return res, err
+}
+
+func (data *DataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
+	return queryContext(ctx, data.Slave, nil, resp, sql, args)
+}
+
+func (data *DataManager) QueryContextTable(ctx context.Context, resp TableHandler) error {
+	d, err := cache.Get(resp.GetKey())
+	if err == nil {
+		return resp.Decode(d.([]byte))
+	}
+	logrus.Info(err.Error())
+	return queryContext(ctx, data.Slave, nil, resp, resp.SelectSql())
+}
+
+func (data *DataManager) QueryTable(resp TableHandler) error {
+	return data.QueryContextTable(context.Background(), resp)
 }
 
 func (data *DataManager) Query(resp interface{}, sql string, args ...interface{}) error {
-	rows, err := data.Slave.Query(sql, args)
-	if err != nil {
-		return err
+	return data.QueryContext(context.Background(), resp, sql, args)
+}
+
+func (data *DataManager) Close() {
+	data.Master.Close()
+	if data.Slave != data.Master {
+		data.Slave.Close()
 	}
-	return query(rows, resp)
 }
 
 func fillFieldAddr(columnNames []string, val reflect.Value) []interface{} {
@@ -139,7 +173,18 @@ func parseRows(rows *sql.Rows, columnNames []string, val reflect.Value) error {
 	return rows.Err()
 }
 
-func query(rows *sql.Rows, resp interface{}) error {
+func queryContext(ctx context.Context, db *sql.DB, tx *sql.Tx, resp interface{}, sqlStr string, args ...interface{}) error {
+	var rows *sql.Rows
+	var err error
+	if tx == nil {
+		rows, err = db.QueryContext(ctx, sqlStr, args...)
+	} else {
+		rows, err = tx.QueryContext(ctx, sqlStr, args...)
+	}
+	if err != nil {
+		return err
+	}
+
 	columnNames, err := rows.Columns()
 	if err != nil {
 		return err

@@ -2,32 +2,39 @@ package conf
 
 import (
 	"flag"
-	"github.com/go-ini/ini"
-	"github.com/sirupsen/logrus"
 	"log"
 	"os"
 	"time"
+
+	"github.com/go-ini/ini"
+	"github.com/sirupsen/logrus"
 )
 
 var Config = &ConfigIni{}
 
 type ConfigIni struct {
-	RunMode      string        `ini:"RUN_MODE"`
-	PageSize     int           `ini:"PAGE_SIZE"`
-	JwtSecret    string        `ini:"JWT_SECRET"`
-	HTTPPort     int           `ini:"HTTP_PORT"`
-	ReadTimeout  time.Duration `ini:"READ_TIMEOUT"`
-	WriteTimeout time.Duration `ini:"WRITE_TIMEOUT"`
-	DBUser       string        `ini:"USER"`
-	DBPassWord   string        `ini:"PASSWORD"`
-	DBHost       string        `ini:"HOST"`
-	DBName       string        `ini:"DB_NAME"`
-	TablePrfix   string        `ini:"TABLE_PREFIX"`
-	LogPath      string        `ini:"LOG_PATH"`
-	LogLevel     int           `ini:"LOG_LEVEL"`
-	ConfPath     string        `ini:"-"`
-	ViewPath     string        `ini:"-"`
-	StaticPath   string        `ini:"-"`
+	RunMode          string        `ini:"RUN_MODE"`
+	PageSize         int           `ini:"PAGE_SIZE"`
+	JwtSecret        string        `ini:"JWT_SECRET"`
+	HTTPPort         int           `ini:"HTTP_PORT"`
+	ReadTimeout      time.Duration `ini:"READ_TIMEOUT"`
+	WriteTimeout     time.Duration `ini:"WRITE_TIMEOUT"`
+	DBUser           string        `ini:"USER"`
+	DBPassWord       string        `ini:"PASSWORD"`
+	DBHost           string        `ini:"HOST"`
+	DBName           string        `ini:"DB_NAME"`
+	TablePrfix       string        `ini:"TABLE_PREFIX"`
+	LogPath          string        `ini:"LOG_PATH"`
+	LogLevel         int           `ini:"LOG_LEVEL"`
+	UseQueryCache    int           `ini:"USE_QUERY_CACHE"`
+	RedisHost        string        `ini:"REDIS_HOST"`
+	RedisDB          int           `ini:"DB_NUMBER" `
+	RedisMaxIdel     int           `ini:"MAX_IDEL"`
+	RedisMaxActive   int           `ini:"MAX_ACTIVE"`
+	RedisIdelTimeout int           `ini:"IDEL_TIMEOUT"`
+	ConfPath         string        `ini:"-"`
+	ViewPath         string        `ini:"-"`
+	StaticPath       string        `ini:"-"`
 }
 
 func handleCmdFlag() {

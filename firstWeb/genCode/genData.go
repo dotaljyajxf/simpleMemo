@@ -51,6 +51,31 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
 func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
 	return "{{.FileNameNoExt}}"
 }
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Decode(v []byte) error {
+	return json.Unmarshal(v, {{.FileNameNoExt}})
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) Encode() []byte {
+	b, _ := json.Marshal({{.FileNameNoExt}})
+	return b
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) SelectSql() (string, []interface{}) {
+	sql := {{.SelectStr}}
+	return sql, []interface{}{ {{.SelectRet}} }
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) InsertSql() (string, []interface{}) {
+	sql := {{.InsertStr}}
+	return sql, []interface{}{ {{.InsertRet}} }
+}
+
+func ({{.FileNameNoExt}} *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
+	sql := {{.UpdateStr}}
+	return sql, []interface{}{ {{.SelectRet}} }
+}
+
 {{$x := .}}
 {{range $field := .Fields}}
 func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
@@ -78,9 +103,15 @@ type Modules struct {
 }
 
 type TableModule struct {
-	ModuleName    string
-	FileNameNoExt string
-	Fields        []FieldsType
+	ModuleName        string
+	FileNameNoExt     string
+	Fields            []FieldsType
+	SelectStr         string
+	SelectRet         string
+	UpdateStr         string
+	InsertStr         string
+	InsertRet         string
+	FieldName2SqlName map[string]string
 }
 
 type FieldsType struct {
@@ -115,6 +146,8 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		tb.ModuleName = sp.Name.Name
 		tb.FileNameNoExt = fileName[:len(fileName)-3]
 		tb.Fields = make([]FieldsType, 0)
+		tb.FieldName2SqlName = make(map[string]string)
+		primaryKeys := make([]string, 0)
 
 		st, ok := sp.Type.(*ast.StructType)
 		if !ok {
@@ -122,13 +155,57 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			continue
 		}
 
-		for _, fl := range st.Fields.List {
+		tb.SelectStr = "select "
+		tb.UpdateStr = "update " + tb.FileNameNoExt + " set"
+		tb.InsertStr = "insert into " + tb.FileNameNoExt + "("
+		insertValues := " vlues("
+		for index, fl := range st.Fields.List {
 			fident, ok := fl.Type.(*ast.Ident)
 			if ok {
 				tb.Fields = append(tb.Fields, FieldsType{fl.Names[0].Name, fident.Name})
 			}
+			tag := fl.Tag.Value
+			if strings.Contains(tag, "primary_key") {
+				primaryKeys = append(primaryKeys, fl.Names[0].Name)
+				parts := strings.Split(tag, "\"")
+				firstPart := strings.Split(parts[1], ",")
+				tb.FieldName2SqlName[fl.Names[0].Name] = firstPart[0]
+			} else {
+				parts := strings.Split(tag, "\"")
+				tb.FieldName2SqlName[fl.Names[0].Name] = parts[1]
+			}
+			tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
+			tb.UpdateStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "` = ?"
+			tb.InsertStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
+			insertValues += "?"
+			tb.InsertRet += tb.FileNameNoExt + "." + fl.Names[0].Name
+			if index != len(st.Fields.List)-1 {
+				tb.SelectStr += ","
+				tb.UpdateStr += ","
+				tb.InsertStr += ","
+				insertValues += ","
+				tb.InsertRet += ","
+			}
+		}
+		tb.SelectStr += " from " + tb.FileNameNoExt + " where "
+		tb.UpdateStr += " where "
+		tb.InsertStr += insertValues + ")"
+		for index, key := range primaryKeys {
+			tb.SelectStr += tb.FieldName2SqlName[key] + " = ?"
+			tb.UpdateStr += tb.FieldName2SqlName[key] + " = ?"
+
+			tb.SelectRet += tb.FileNameNoExt + "." + key
+			if index != len(primaryKeys)-1 {
+				tb.SelectStr += " and "
+				tb.SelectRet += ","
+			}
 		}
 
+		fmt.Println(tb.SelectStr)
+		fmt.Println(tb.UpdateStr)
+		fmt.Println(tb.InsertRet)
+		fmt.Println(tb.InsertStr)
+		fmt.Println(tb.SelectRet)
 	}
 }
 
@@ -167,7 +244,7 @@ func genTableFile() {
 		return
 	}
 
-	dataDirPath := path + "LittleCai/firstWeb/data/table"
+	dataDirPath := path + "/LittleCai/firstWeb/data/table"
 
 	fd, err := ioutil.ReadDir(dataDirPath)
 	if err != nil {
@@ -216,7 +293,7 @@ func genTableFile() {
 		fpAuto.Close()
 		modules.ModuleNames = append(modules.ModuleNames, tb.ModuleName)
 	}
-	modules.genMap(dataDirPath)
+	//modules.genMap(dataDirPath)
 }
 
 func main() {
