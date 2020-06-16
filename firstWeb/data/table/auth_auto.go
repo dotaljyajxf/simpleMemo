@@ -81,7 +81,7 @@ func (auth *Auth) SetCreateTime(aCreateTime int64) {
 	auth.CreateTime = aCreateTime
 }
 
-func (auth *Auth) GetKey() string {
+func (auth *Auth) GetStringKey() string {
 	return fmt.Sprintf("%d", auth.Uid)
 }
 

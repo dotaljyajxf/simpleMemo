@@ -48,8 +48,8 @@ func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
 	Authpool.Put({{.FileNameNoExt}})
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) TableName() string {
-	return "{{.FileNameNoExt}}"
+func ({{.FileNameNoExt}} *{{.ModuleName}}) GetStringKey() string {
+	return {{.StringKey}}
 }
 
 func ({{.FileNameNoExt}} *{{.ModuleName}}) Decode(v []byte) error {
@@ -112,6 +112,7 @@ type TableModule struct {
 	InsertStr         string
 	InsertRet         string
 	FieldName2SqlName map[string]string
+	StringKey		string
 }
 
 type FieldsType struct {
@@ -190,16 +191,19 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		tb.SelectStr += " from " + tb.FileNameNoExt + " where "
 		tb.UpdateStr += " where "
 		tb.InsertStr += insertValues + ")"
+		tb.StringKey = `fmt.Sprintf("`
 		for index, key := range primaryKeys {
 			tb.SelectStr += tb.FieldName2SqlName[key] + " = ?"
 			tb.UpdateStr += tb.FieldName2SqlName[key] + " = ?"
-
+			tb.StringKey += `%d`
 			tb.SelectRet += tb.FileNameNoExt + "." + key
 			if index != len(primaryKeys)-1 {
 				tb.SelectStr += " and "
 				tb.SelectRet += ","
+				tb.StringKey += "#"
 			}
 		}
+		tb.StringKey += `",` + tb.SelectRet + ")"
 
 		fmt.Println(tb.SelectStr)
 		fmt.Println(tb.UpdateStr)

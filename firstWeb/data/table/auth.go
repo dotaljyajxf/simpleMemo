@@ -7,8 +7,8 @@ type Auth struct {
 	Mail       string `sql:"mail"`
 	PassWord   string `sql:"pass_word"`
 	PhoneNum   string `sql:"phone_num"`
-	CreateTime int64  `sql:"create_at"`
-	UpdateTime int64  `sql:"update_at"`
+	CreateAt int64  `sql:"create_at"`
+	UpdateAt int64  `sql:"update_at"`
 }
 
 /*

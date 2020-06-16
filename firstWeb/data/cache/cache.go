@@ -9,10 +9,19 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-var _conn_pool *redis.Pool
+type Cache struct {
+	conn_pool *redis.Pool
+}
 
-func InitCache() {
-	_conn_pool = &redis.Pool{
+
+func NewRedisCache() *Cache {
+	cache := new(Cache)
+	cache.initCache()
+	return cache
+}
+
+func (c *cache)initCache() {
+	c.conn_pool = &redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial(
 				"tcp",
@@ -34,28 +43,28 @@ func InitCache() {
 		Wait:        true,
 	}
 
-	if _, err := Do("PING"); err != nil {
+	if _, err := c.do("PING"); err != nil {
 		panic(err)
 	}
 }
 
-func Do(command string, args ...interface{}) (reply interface{}, err error) {
-	if _conn_pool == nil {
+func (c *cache)do(command string, args ...interface{}) (reply interface{}, err error) {
+	if c.conn_pool == nil {
 		return nil, errors.New("NotInitRedis")
 	}
-	conn := _conn_pool.Get()
+	conn := c.conn_pool.Get()
 	defer conn.Close()
 	return conn.Do(command, args)
 }
 
-func Get(key string) (reply interface{}, err error) {
-	return Do("GET", key)
+func (c *cache)Get(key string) (reply interface{}, err error) {
+	return c.do("GET", key)
 }
 
-func Set(key string, val interface{}) (reply interface{}, err error) {
-	return Do("SET", key, val)
+func (c *cache)Set(key string, val interface{}) (reply interface{}, err error) {
+	return c.do("SET", key, val)
 }
 
-func Del(key string) (reply interface{}, err error) {
-	return Do("Del", key)
+func (c *cache)Del(key string) (reply interface{}, err error) {
+	return c.do("Del", key)
 }

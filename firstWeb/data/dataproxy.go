@@ -18,14 +18,21 @@ var Data *DataManager
 type DataManager struct {
 	Master *sql.DB
 	Slave  *sql.DB
+	Cache  CacheHandle
 }
 
 type LocalTx struct {
 	*sql.Tx
 }
 
+type CacheHandle interface {
+	Get(key string) (reply interface{}, err error)
+	Set(key string, val interface{}) (reply interface{}, err error)
+	Del(key string) (reply interface{}, err error)
+}
+
 type TableHandler interface {
-	GetKey() string
+	GetStringKey() string
 	Decode(v []byte) error
 	Encode() []byte
 	UpdateSql() (string, []interface{})
@@ -62,7 +69,10 @@ func (data *DataManager) InsertTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	cache.Set(resp.GetKey(), resp.Encode())
+	_,err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	if err != nil {
+		logrus.Info("set cache err %s\n", err.Error())
+	}
 	return res, err
 }
 
@@ -72,7 +82,10 @@ func (data *DataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	cache.Del(resp.GetKey())
+	_, err = data.Cache.Del(resp.GetStringKey())
+	if err != nil {
+		logrus.Info("del cache err %s\n", err.Error())
+	}
 	return res, err
 }
 
@@ -81,12 +94,20 @@ func (data *DataManager) QueryContext(ctx context.Context, resp interface{}, sql
 }
 
 func (data *DataManager) QueryContextTable(ctx context.Context, resp TableHandler) error {
-	d, err := cache.Get(resp.GetKey())
+	d, err := data.Cache.Get(resp.GetStringKey())
 	if err == nil {
 		return resp.Decode(d.([]byte))
 	}
-	logrus.Info(err.Error())
-	return queryContext(ctx, data.Slave, nil, resp, resp.SelectSql())
+	logrus.Debugf("Get cache err : %s\n",err.Error())
+	err = queryContext(ctx, data.Slave, nil, resp, resp.SelectSql())
+	if err != nil {
+		return err
+	}
+	_,err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	if err != nil {
+		logrus.Info("Set cache err %s\n", err.Error())
+	}
+	return nil
 }
 
 func (data *DataManager) QueryTable(resp TableHandler) error {
