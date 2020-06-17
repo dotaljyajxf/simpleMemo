@@ -4,3 +4,4 @@ vendor/
 *.xml
 idea/
 dist/
+vscode/

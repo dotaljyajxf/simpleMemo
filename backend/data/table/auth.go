@@ -1,7 +1,7 @@
 package table
 
 type TAuth struct {
-	Uid      uint64 `sql:"uid,primary_key"`
+	Uid      uint64 `sql:"uid,primary_key,auto_increment"`
 	NickName string `sql:"nick_name"`
 	Account  string `sql:"account"`
 	Mail     string `sql:"mail"`

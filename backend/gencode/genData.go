@@ -63,6 +63,14 @@ func (this *{{.ModuleName}}) Encode() []byte {
 	return b
 }
 
+func (this *{{.ModuleName}}) TableName() string {
+	return "{{.FileNameNoExt}}"
+}
+
+func (this *{{.ModuleName}}) SelectStr() string {
+	return "{{.BaseSelectStr}}"
+}
+
 func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
 	sql := "{{.SelectStr}}"
 	return sql, []interface{}{ {{.SelectRet}} }
@@ -109,6 +117,7 @@ type TableModule struct {
 	FileNameNoExt     string
 	Fields            []FieldsType
 	SelectStr         string
+	BaseSelectStr     string
 	SelectRet         string
 	UpdateStr         string
 	InsertStr         string
@@ -179,7 +188,8 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			}
 
 			if strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "create_at") ||
-				strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "update_at") {
+				strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "update_at") ||
+				strings.Contains(tag, "auto_increment") {
 				tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
 				if index != len(st.Fields.List)-1 {
 					tb.SelectStr += ","
@@ -200,6 +210,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				tb.InsertRet += ","
 			}
 		}
+		tb.BaseSelectStr = tb.SelectStr
 		tb.SelectStr += " from " + tb.FileNameNoExt + " where "
 		tb.UpdateStr += " where "
 		tb.InsertStr += ") " + insertValues + ")"
@@ -219,33 +230,33 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 	}
 }
 
-func (m *Modules) genMap(dataDirPath string) {
-	funcMap := template.FuncMap{
-		"dec": func(i int) int {
-			return i - 1
-		},
-	}
-	t := template.New("templateMap")
-	t = t.Funcs(funcMap)
-	t, err := t.Parse(iMapTpl)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	fpMap, err := os.OpenFile(dataDirPath+"/map_auto.go",
-		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println("create file error : %s", err.Error())
-		return
-	}
-	err = t.Execute(fpMap, m)
-	if err != nil {
-		fmt.Println("genMap err : ", err.Error())
-		return
-	}
-	fpMap.Close()
-}
+//func (m *Modules) genMap(dataDirPath string) {
+//	funcMap := template.FuncMap{
+//		"dec": func(i int) int {
+//			return i - 1
+//		},
+//	}
+//	t := template.New("templateMap")
+//	t = t.Funcs(funcMap)
+//	t, err := t.Parse(iMapTpl)
+//	if err != nil {
+//		fmt.Println(err.Error())
+//		return
+//	}
+//
+//	fpMap, err := os.OpenFile(dataDirPath+"/map_auto.go",
+//		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+//	if err != nil {
+//		fmt.Println("create file error : %s", err.Error())
+//		return
+//	}
+//	err = t.Execute(fpMap, m)
+//	if err != nil {
+//		fmt.Println("genMap err : ", err.Error())
+//		return
+//	}
+//	fpMap.Close()
+//}
 
 func genTableFile() {
 	path := os.Getenv("HOME")

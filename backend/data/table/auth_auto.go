@@ -34,6 +34,14 @@ func (this *TAuth) Encode() []byte {
 	return b
 }
 
+func (this *TAuth) TableName() string {
+	return "auth"
+}
+
+func (this *TAuth) SelectStr() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at`"
+}
+
 func (this *TAuth) SelectSql() (string, []interface{}) {
 	sql := "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where uid = ?"
 	return sql, []interface{}{this.Uid}

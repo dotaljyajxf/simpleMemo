@@ -1,8 +1,48 @@
 package data
 
 import (
+	"backend/conf"
+	"backend/data/cache"
+	"database/sql"
+	"fmt"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/sirupsen/logrus"
 )
+
+func InitDataManager() {
+	masterDns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		conf.Config.DBUser, conf.Config.DBPassWord, conf.Config.MasterHost, conf.Config.DBName)
+	var err error
+	Manager.Master, err = sql.Open("mysql", masterDns)
+	if err != nil {
+		logrus.Fatalf("open master db error src %s,%s\n", masterDns, err)
+		return
+	}
+	Manager.Slave = Manager.Master
+	if conf.Config.MasterHost != conf.Config.SlaveHost {
+		slaveDns := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+			conf.Config.DBUser, conf.Config.DBPassWord, conf.Config.SlaveHost, conf.Config.DBName)
+		Manager.Master, err = sql.Open("mysql", slaveDns)
+		if err != nil {
+			logrus.Fatalf("open slave db error src %s,%s\n", masterDns, err)
+			return
+		}
+	}
+
+	if conf.Config.CacheUse == 1 {
+		Manager.Cache = cache.InitDbCache()
+	} else {
+		Manager.Cache = &cache.DbCache{}
+	}
+
+	if err = Manager.Master.Ping(); err != nil {
+		panic(err)
+	}
+	if err = Manager.Slave.Ping(); err != nil {
+		panic(err)
+	}
+
+}
 
 //user:password@tcp(localhost)/dbname?charset=utf8&parseTime=True&loc=Local
 //

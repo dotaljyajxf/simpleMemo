@@ -16,7 +16,7 @@
 package table
 
 type TMemo struct {
-	ID        uint64 `sql:"id,primary_key"`
+	ID        uint64 `sql:"id,primary_key,auto_increment"`
 	Uid       uint64 `sql:"uid"`
 	Year      int    `sql:"year"`
 	Mouth     int8   `sql:"mouth"`

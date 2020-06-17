@@ -13,28 +13,34 @@ import (
 var Config = &ConfigIni{}
 
 type ConfigIni struct {
-	RunMode          string        `ini:"RUN_MODE"`
-	PageSize         int           `ini:"PAGE_SIZE"`
-	JwtSecret        string        `ini:"JWT_SECRET"`
-	HTTPPort         int           `ini:"HTTP_PORT"`
-	ReadTimeout      time.Duration `ini:"READ_TIMEOUT"`
-	WriteTimeout     time.Duration `ini:"WRITE_TIMEOUT"`
-	DBUser           string        `ini:"USER"`
-	DBPassWord       string        `ini:"PASSWORD"`
-	DBHost           string        `ini:"HOST"`
-	DBName           string        `ini:"DB_NAME"`
-	TablePrfix       string        `ini:"TABLE_PREFIX"`
-	LogPath          string        `ini:"LOG_PATH"`
-	LogLevel         int           `ini:"LOG_LEVEL"`
-	UseQueryCache    int           `ini:"USE_QUERY_CACHE"`
-	RedisHost        string        `ini:"REDIS_HOST"`
-	RedisDB          int           `ini:"DB_NUMBER" `
-	RedisMaxIdel     int           `ini:"MAX_IDEL"`
-	RedisMaxActive   int           `ini:"MAX_ACTIVE"`
-	RedisIdelTimeout int           `ini:"IDEL_TIMEOUT"`
-	ConfPath         string        `ini:"-"`
-	ViewPath         string        `ini:"-"`
-	StaticPath       string        `ini:"-"`
+	RunMode               string        `ini:"RUN_MODE"`
+	PageSize              int           `ini:"PAGE_SIZE"`
+	JwtSecret             string        `ini:"JWT_SECRET"`
+	HTTPPort              int           `ini:"HTTP_PORT"`
+	ReadTimeout           time.Duration `ini:"READ_TIMEOUT"`
+	WriteTimeout          time.Duration `ini:"WRITE_TIMEOUT"`
+	DBUser                string        `ini:"USER"`
+	DBPassWord            string        `ini:"PASSWORD"`
+	MasterHost            string        `ini:"MASTER_HOST"`
+	SlaveHost             string        `ini:"SLAVE_HOST"`
+	DBName                string        `ini:"DB_NAME"`
+	TablePrfix            string        `ini:"TABLE_PREFIX"`
+	LogPath               string        `ini:"LOG_PATH"`
+	LogLevel              int           `ini:"LOG_LEVEL"`
+	CacheUse              int           `ini:"CACHE_USE"`
+	CacheRedisHost        string        `ini:"CACHE_REDIS_HOST"`
+	CacheRedisDB          int           `ini:"CACHE_DB_NUMBER" `
+	CacheRedisMaxIdel     int           `ini:"CACHE_MAX_IDEL"`
+	CacheRedisMaxActive   int           `ini:"CACHE_MAX_ACTIVE"`
+	CacheRedisIdelTimeout int           `ini:"CACHE_IDEL_TIMEOUT"`
+	KvRedisHost           string        `ini:"KV_REDIS_HOST"`
+	KvRedisDB             int           `ini:"KV_DB_NUMBER" `
+	KvRedisMaxIdel        int           `ini:"KV_MAX_IDEL"`
+	KvRedisMaxActive      int           `ini:"KV_MAX_ACTIVE"`
+	KvRedisIdelTimeout    int           `ini:"KV_IDEL_TIMEOUT"`
+	ConfPath              string        `ini:"-"`
+	ViewPath              string        `ini:"-"`
+	StaticPath            string        `ini:"-"`
 }
 
 func handleCmdFlag() {

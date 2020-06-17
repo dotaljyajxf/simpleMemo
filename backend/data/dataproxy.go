@@ -12,9 +12,9 @@ import (
 	"reflect"
 )
 
-var Data *DataManager
+var Manager *dataManager
 
-type DataManager struct {
+type dataManager struct {
 	Master *sql.DB
 	Slave  *sql.DB
 	Cache  CacheHandle
@@ -39,7 +39,7 @@ type TableHandler interface {
 	SelectSql() (string, []interface{})
 }
 
-func (data *DataManager) Begin() (*LocalTx, error) {
+func (data *dataManager) Begin() (*LocalTx, error) {
 	tx, err := data.Master.Begin()
 	if err != nil {
 		return nil, err
@@ -59,11 +59,11 @@ func (tx *LocalTx) TxQuery(resp interface{}, sql string, args ...interface{}) er
 	return queryContext(context.Background(), nil, tx.Tx, resp, sql, args)
 }
 
-func (data *DataManager) Exec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
+func (data *dataManager) Exec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
 	return data.Master.ExecContext(ctx, sql, args)
 }
 
-func (data *DataManager) InsertTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
+func (data *dataManager) InsertTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
 	sql, args := resp.InsertSql()
 	res, err := data.Master.ExecContext(ctx, sql, args)
 	if err != nil {
@@ -76,7 +76,7 @@ func (data *DataManager) InsertTable(ctx context.Context, resp TableHandler) (sq
 	return res, err
 }
 
-func (data *DataManager) UpdateTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
+func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
 	sql, args := resp.UpdateSql()
 	res, err := data.Master.ExecContext(ctx, sql, args)
 	if err != nil {
@@ -89,11 +89,11 @@ func (data *DataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	return res, err
 }
 
-func (data *DataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
+func (data *dataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
 	return queryContext(ctx, data.Slave, nil, resp, sql, args)
 }
 
-func (data *DataManager) QueryContextTable(ctx context.Context, resp TableHandler) error {
+func (data *dataManager) QueryContextTable(ctx context.Context, resp TableHandler) error {
 	d, err := data.Cache.Get(resp.GetStringKey())
 	if err == nil {
 		return resp.Decode(d.([]byte))
@@ -111,15 +111,15 @@ func (data *DataManager) QueryContextTable(ctx context.Context, resp TableHandle
 	return nil
 }
 
-func (data *DataManager) QueryTable(resp TableHandler) error {
+func (data *dataManager) QueryTable(resp TableHandler) error {
 	return data.QueryContextTable(context.Background(), resp)
 }
 
-func (data *DataManager) Query(resp interface{}, sql string, args ...interface{}) error {
+func (data *dataManager) Query(resp interface{}, sql string, args ...interface{}) error {
 	return data.QueryContext(context.Background(), resp, sql, args)
 }
 
-func (data *DataManager) Close() {
+func (data *dataManager) Close() {
 	data.Master.Close()
 	if data.Slave != data.Master {
 		data.Slave.Close()
