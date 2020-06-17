@@ -18,12 +18,13 @@ package memo
 import (
 	"firstWeb/data"
 	"firstWeb/data/table"
-	log "github.com/sirupsen/logrus"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
-func FindMemoByMouth(uid uint64, year int, mouth int8) ([]table.Memo, error) {
-	memos := make([]table.Memo, 0)
+func FindMemoByMouth(uid uint64, year int, mouth int8) ([]table.TMemo, error) {
+	memos := make([]table.TMemo, 0)
 	err := data.Db.Where("uid = ? and year = ? and mouth = ? and delete_at > 0", uid, year, mouth).Find(memos).Error
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())
@@ -34,7 +35,7 @@ func FindMemoByMouth(uid uint64, year int, mouth int8) ([]table.Memo, error) {
 
 func CreateMemo(uid uint64, text string) error {
 	curTime := time.Now()
-	memo := table.NewMemo()
+	memo := table.NewTMemo()
 	memo.Uid = uid
 	y, m, _ := curTime.Date()
 	memo.CreatedAt = curTime.Unix()

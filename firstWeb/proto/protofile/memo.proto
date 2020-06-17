@@ -1,10 +1,12 @@
+syntax = "proto3";
+
+option go_package=".;pb";
 package pb;
-option go_package="pb";
 
 message TMemo {
-    optional uint64 ID =1;
-    optional int64 CreatedAt = 2;
-    optional string Text = 3;
+     uint64 ID = 1;
+     int64 CreatedAt = 2;
+     string Text = 3;
 }
 
 message TMemoList {

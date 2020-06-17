@@ -13,14 +13,13 @@ type Cache struct {
 	conn_pool *redis.Pool
 }
 
-
 func NewRedisCache() *Cache {
 	cache := new(Cache)
 	cache.initCache()
 	return cache
 }
 
-func (c *cache)initCache() {
+func (c *Cache) initCache() {
 	c.conn_pool = &redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial(
@@ -48,7 +47,7 @@ func (c *cache)initCache() {
 	}
 }
 
-func (c *cache)do(command string, args ...interface{}) (reply interface{}, err error) {
+func (c *Cache) do(command string, args ...interface{}) (reply interface{}, err error) {
 	if c.conn_pool == nil {
 		return nil, errors.New("NotInitRedis")
 	}
@@ -57,14 +56,14 @@ func (c *cache)do(command string, args ...interface{}) (reply interface{}, err e
 	return conn.Do(command, args)
 }
 
-func (c *cache)Get(key string) (reply interface{}, err error) {
+func (c *Cache) Get(key string) (reply interface{}, err error) {
 	return c.do("GET", key)
 }
 
-func (c *cache)Set(key string, val interface{}) (reply interface{}, err error) {
+func (c *Cache) Set(key string, val interface{}) (reply interface{}, err error) {
 	return c.do("SET", key, val)
 }
 
-func (c *cache)Del(key string) (reply interface{}, err error) {
+func (c *Cache) Del(key string) (reply interface{}, err error) {
 	return c.do("Del", key)
 }

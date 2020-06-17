@@ -30,12 +30,12 @@ type TAuthInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Token    *string `protobuf:"bytes,1,opt,name=Token" json:"Token,omitempty"`
-	NickName *string `protobuf:"bytes,2,opt,name=NickName" json:"NickName,omitempty"`
-	Mail     *string `protobuf:"bytes,3,opt,name=Mail" json:"Mail,omitempty"`
-	PhoneNum *string `protobuf:"bytes,4,opt,name=PhoneNum" json:"PhoneNum,omitempty"`
-	Uid      *uint64 `protobuf:"varint,5,opt,name=Uid" json:"Uid,omitempty"`
-	Message  *string `protobuf:"bytes,6,opt,name=Message" json:"Message,omitempty"`
+	Token    string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
+	NickName string `protobuf:"bytes,2,opt,name=NickName,proto3" json:"NickName,omitempty"`
+	Mail     string `protobuf:"bytes,3,opt,name=Mail,proto3" json:"Mail,omitempty"`
+	PhoneNum string `protobuf:"bytes,4,opt,name=PhoneNum,proto3" json:"PhoneNum,omitempty"`
+	Uid      uint64 `protobuf:"varint,5,opt,name=Uid,proto3" json:"Uid,omitempty"`
+	Message  string `protobuf:"bytes,6,opt,name=Message,proto3" json:"Message,omitempty"`
 }
 
 func (x *TAuthInfo) Reset() {
@@ -71,43 +71,43 @@ func (*TAuthInfo) Descriptor() ([]byte, []int) {
 }
 
 func (x *TAuthInfo) GetToken() string {
-	if x != nil && x.Token != nil {
-		return *x.Token
+	if x != nil {
+		return x.Token
 	}
 	return ""
 }
 
 func (x *TAuthInfo) GetNickName() string {
-	if x != nil && x.NickName != nil {
-		return *x.NickName
+	if x != nil {
+		return x.NickName
 	}
 	return ""
 }
 
 func (x *TAuthInfo) GetMail() string {
-	if x != nil && x.Mail != nil {
-		return *x.Mail
+	if x != nil {
+		return x.Mail
 	}
 	return ""
 }
 
 func (x *TAuthInfo) GetPhoneNum() string {
-	if x != nil && x.PhoneNum != nil {
-		return *x.PhoneNum
+	if x != nil {
+		return x.PhoneNum
 	}
 	return ""
 }
 
 func (x *TAuthInfo) GetUid() uint64 {
-	if x != nil && x.Uid != nil {
-		return *x.Uid
+	if x != nil {
+		return x.Uid
 	}
 	return 0
 }
 
 func (x *TAuthInfo) GetMessage() string {
-	if x != nil && x.Message != nil {
-		return *x.Message
+	if x != nil {
+		return x.Message
 	}
 	return ""
 }
@@ -117,8 +117,8 @@ type TAuthLoginArg struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Account  *string `protobuf:"bytes,1,opt,name=Account" json:"Account,omitempty"`
-	PassWord *string `protobuf:"bytes,2,opt,name=PassWord" json:"PassWord,omitempty"`
+	Account  string `protobuf:"bytes,1,opt,name=Account,proto3" json:"Account,omitempty"`
+	PassWord string `protobuf:"bytes,2,opt,name=PassWord,proto3" json:"PassWord,omitempty"`
 }
 
 func (x *TAuthLoginArg) Reset() {
@@ -154,15 +154,15 @@ func (*TAuthLoginArg) Descriptor() ([]byte, []int) {
 }
 
 func (x *TAuthLoginArg) GetAccount() string {
-	if x != nil && x.Account != nil {
-		return *x.Account
+	if x != nil {
+		return x.Account
 	}
 	return ""
 }
 
 func (x *TAuthLoginArg) GetPassWord() string {
-	if x != nil && x.PassWord != nil {
-		return *x.PassWord
+	if x != nil {
+		return x.PassWord
 	}
 	return ""
 }
@@ -185,7 +185,8 @@ var file_auth_proto_rawDesc = []byte{
 	0x07, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
 	0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x50, 0x61, 0x73, 0x73, 0x57,
 	0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x50, 0x61, 0x73, 0x73, 0x57,
-	0x6f, 0x72, 0x64, 0x42, 0x04, 0x5a, 0x02, 0x70, 0x62,
+	0x6f, 0x72, 0x64, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x3b, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (

@@ -5,8 +5,8 @@ dirRoot="$HOME/LittleCai"
 curPwd=$(pwd)
 
 cd $dirRoot/firstWeb/genCode
-go run genCode.go
-echo "genCode done ..."
+go run genData.go
+echo "genData done ..."
 go run genRpc.go
 echo "genRpc done ..."
 
@@ -30,6 +30,9 @@ $GOBIN/protoc --plugin=$GOBIN/protoc-gen-go --go_out=../pb *.proto
 cd $curPwd
 
 echo "protoc pb done..."
+
+go run $dirRoot/firstWeb/genCode/genPbPool.go
+echo "genPbPool done ..."
 
 
 

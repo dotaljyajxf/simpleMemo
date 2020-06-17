@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"database/sql"
-	"firstWeb/data/cache"
 	"fmt"
 	"strings"
 	"unicode"
@@ -36,8 +35,8 @@ type TableHandler interface {
 	Decode(v []byte) error
 	Encode() []byte
 	UpdateSql() (string, []interface{})
-	InsertSql() string
-	SelectSql() string
+	InsertSql() (string, []interface{})
+	SelectSql() (string, []interface{})
 }
 
 func (data *DataManager) Begin() (*LocalTx, error) {
@@ -65,11 +64,12 @@ func (data *DataManager) Exec(ctx context.Context, sql string, args ...interface
 }
 
 func (data *DataManager) InsertTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
-	res, err := data.Master.ExecContext(ctx, resp.InsertSql())
+	sql, args := resp.InsertSql()
+	res, err := data.Master.ExecContext(ctx, sql, args)
 	if err != nil {
 		return res, err
 	}
-	_,err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
 	if err != nil {
 		logrus.Info("set cache err %s\n", err.Error())
 	}
@@ -98,12 +98,13 @@ func (data *DataManager) QueryContextTable(ctx context.Context, resp TableHandle
 	if err == nil {
 		return resp.Decode(d.([]byte))
 	}
-	logrus.Debugf("Get cache err : %s\n",err.Error())
-	err = queryContext(ctx, data.Slave, nil, resp, resp.SelectSql())
+	logrus.Debugf("Get cache err : %s\n", err.Error())
+	sql, args := resp.SelectSql()
+	err = queryContext(ctx, data.Slave, nil, resp, sql, args)
 	if err != nil {
 		return err
 	}
-	_,err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
 	if err != nil {
 		logrus.Info("Set cache err %s\n", err.Error())
 	}

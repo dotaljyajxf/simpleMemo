@@ -30,60 +30,62 @@ const iTableTpl = `
 package table
 
 import (
+	"encoding/json"
+	"fmt"
 	"sync"
 )
 
-var {{.ModuleName}}pool = sync.Pool{New: func() interface{} {
+var {{.FileNameNoExt}}Pool = &sync.Pool{New: func() interface{} {
 	return new({{.ModuleName}})
 }}
 
 func New{{.ModuleName}}() *{{.ModuleName}} {
-	ret := {{.ModuleName}}pool.Get().(*{{.ModuleName}})
+	ret := {{.FileNameNoExt}}Pool.Get().(*{{.ModuleName}})
 	*ret = {{.ModuleName}}{}
 	return ret
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Release() {
-	*{{.FileNameNoExt}} = {{.ModuleName}}{}
-	Authpool.Put({{.FileNameNoExt}})
+func (this *{{.ModuleName}}) Release() {
+	*this = {{.ModuleName}}{}
+	{{.FileNameNoExt}}Pool.Put(this)
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) GetStringKey() string {
+func (this *{{.ModuleName}}) GetStringKey() string {
 	return {{.StringKey}}
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Decode(v []byte) error {
-	return json.Unmarshal(v, {{.FileNameNoExt}})
+func (this *{{.ModuleName}}) Decode(v []byte) error {
+	return json.Unmarshal(v, this)
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) Encode() []byte {
-	b, _ := json.Marshal({{.FileNameNoExt}})
+func (this *{{.ModuleName}}) Encode() []byte {
+	b, _ := json.Marshal(this)
 	return b
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) SelectSql() (string, []interface{}) {
-	sql := {{.SelectStr}}
+func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
+	sql := "{{.SelectStr}}"
 	return sql, []interface{}{ {{.SelectRet}} }
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) InsertSql() (string, []interface{}) {
-	sql := {{.InsertStr}}
+func (this *{{.ModuleName}}) InsertSql() (string, []interface{}) {
+	sql := "{{.InsertStr}}"
 	return sql, []interface{}{ {{.InsertRet}} }
 }
 
-func ({{.FileNameNoExt}} *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
-	sql := {{.UpdateStr}}
+func (this *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
+	sql := "{{.UpdateStr}}"
 	return sql, []interface{}{ {{.SelectRet}} }
 }
 
 {{$x := .}}
 {{range $field := .Fields}}
-func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
-	return {{$x.FileNameNoExt}}.{{$field.Name}}
+func (this *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
+	return this.{{$field.Name}}
 }
 
-func ({{$x.FileNameNoExt}} *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
-	{{$x.FileNameNoExt}}.{{$field.Name}} = a{{$field.Name}}
+func (this *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
+	this.{{$field.Name}} = a{{$field.Name}}
 }
 {{end}}
 `
@@ -112,7 +114,7 @@ type TableModule struct {
 	InsertStr         string
 	InsertRet         string
 	FieldName2SqlName map[string]string
-	StringKey		string
+	StringKey         string
 }
 
 type FieldsType struct {
@@ -159,7 +161,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		tb.SelectStr = "select "
 		tb.UpdateStr = "update " + tb.FileNameNoExt + " set"
 		tb.InsertStr = "insert into " + tb.FileNameNoExt + "("
-		insertValues := " vlues("
+		insertValues := " values("
 		for index, fl := range st.Fields.List {
 			fident, ok := fl.Type.(*ast.Ident)
 			if ok {
@@ -175,11 +177,21 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				parts := strings.Split(tag, "\"")
 				tb.FieldName2SqlName[fl.Names[0].Name] = parts[1]
 			}
+
+			if strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "create_at") ||
+				strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "update_at") {
+				tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
+				if index != len(st.Fields.List)-1 {
+					tb.SelectStr += ","
+				}
+				continue
+			}
+
 			tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
 			tb.UpdateStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "` = ?"
 			tb.InsertStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
 			insertValues += "?"
-			tb.InsertRet += tb.FileNameNoExt + "." + fl.Names[0].Name
+			tb.InsertRet += "this." + fl.Names[0].Name
 			if index != len(st.Fields.List)-1 {
 				tb.SelectStr += ","
 				tb.UpdateStr += ","
@@ -190,13 +202,13 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		}
 		tb.SelectStr += " from " + tb.FileNameNoExt + " where "
 		tb.UpdateStr += " where "
-		tb.InsertStr += insertValues + ")"
+		tb.InsertStr += ") " + insertValues + ")"
 		tb.StringKey = `fmt.Sprintf("`
 		for index, key := range primaryKeys {
 			tb.SelectStr += tb.FieldName2SqlName[key] + " = ?"
 			tb.UpdateStr += tb.FieldName2SqlName[key] + " = ?"
 			tb.StringKey += `%d`
-			tb.SelectRet += tb.FileNameNoExt + "." + key
+			tb.SelectRet += "this." + key
 			if index != len(primaryKeys)-1 {
 				tb.SelectStr += " and "
 				tb.SelectRet += ","
@@ -204,12 +216,6 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			}
 		}
 		tb.StringKey += `",` + tb.SelectRet + ")"
-
-		fmt.Println(tb.SelectStr)
-		fmt.Println(tb.UpdateStr)
-		fmt.Println(tb.InsertRet)
-		fmt.Println(tb.InsertStr)
-		fmt.Println(tb.SelectRet)
 	}
 }
 

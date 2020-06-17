@@ -15,7 +15,7 @@
  **/
 package table
 
-type Memo struct {
+type TMemo struct {
 	ID        uint64 `sql:"id,primary_key"`
 	Uid       uint64 `sql:"uid"`
 	Year      int    `sql:"year"`

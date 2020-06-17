@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 dirRoot="$HOME/LittleCai"
 runPath="$HOME/LittleCai/firstWeb/shell"

@@ -1,14 +1,15 @@
 package auth
 
 import (
+	"context"
 	"firstWeb/data"
 	"firstWeb/data/table"
+
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
-func FindAuthObj(account string) (*table.Auth, error) {
-	auth := table.NewAuth()
+func FindAuthObj(account string) (*table.TAuth, error) {
+	auth := table.NewTAuth()
 	auth.Account = account
 	err := data.Db.Where(auth).First(auth).Error
 	if err != nil {
@@ -18,16 +19,15 @@ func FindAuthObj(account string) (*table.Auth, error) {
 	return auth, nil
 }
 
-func CreateAuth(name string, password string, mail, phoneNum, account string) (*table.Auth, error) {
-	auth := table.NewAuth()
+func CreateAuth(name string, password string, mail, phoneNum, account string) (*table.TAuth, error) {
+	auth := table.NewTAuth()
 	auth.SetAccount(account)
 	auth.SetNickName(name)
 	auth.SetMail(mail)
 	auth.SetPassWord(password)
 	auth.SetPhoneNum(phoneNum)
-	auth.SetCreateTime(time.Now().Unix())
 
-	err := data.Db.Create(auth).Error
+	_, err := data.Data.InsertTable(context.Background(), auth)
 	if err != nil {
 		log.Errorf("create auth error : %s", err.Error())
 		return nil, err

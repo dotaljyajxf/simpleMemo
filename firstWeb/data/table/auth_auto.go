@@ -6,105 +6,109 @@ import (
 	"sync"
 )
 
-var Authpool = sync.Pool{New: func() interface{} {
-	return new(Auth)
+var authPool = &sync.Pool{New: func() interface{} {
+	return new(TAuth)
 }}
 
-func NewAuth() *Auth {
-	ret := Authpool.Get().(*Auth)
-	*ret = Auth{}
+func NewTAuth() *TAuth {
+	ret := authPool.Get().(*TAuth)
+	*ret = TAuth{}
 	return ret
 }
 
-func (auth *Auth) Release() {
-	*auth = Auth{}
-	Authpool.Put(auth)
+func (this *TAuth) Release() {
+	*this = TAuth{}
+	authPool.Put(this)
 }
 
-func (auth *Auth) TableName() string {
-	return "auth"
+func (this *TAuth) GetStringKey() string {
+	return fmt.Sprintf("%d", this.Uid)
 }
 
-func (auth *Auth) GetUid() uint64 {
-	return auth.Uid
+func (this *TAuth) Decode(v []byte) error {
+	return json.Unmarshal(v, this)
 }
 
-func (auth *Auth) SetUid(aUid uint64) {
-	auth.Uid = aUid
-}
-
-func (auth *Auth) GetNickName() string {
-	return auth.NickName
-}
-
-func (auth *Auth) SetNickName(aNickName string) {
-	auth.NickName = aNickName
-}
-
-func (auth *Auth) GetAccount() string {
-	return auth.Account
-}
-
-func (auth *Auth) SetAccount(aAccount string) {
-	auth.Account = aAccount
-}
-
-func (auth *Auth) GetMail() string {
-	return auth.Mail
-}
-
-func (auth *Auth) SetMail(aMail string) {
-	auth.Mail = aMail
-}
-
-func (auth *Auth) GetPassWord() string {
-	return auth.PassWord
-}
-
-func (auth *Auth) SetPassWord(aPassWord string) {
-	auth.PassWord = aPassWord
-}
-
-func (auth *Auth) GetPhoneNum() string {
-	return auth.PhoneNum
-}
-
-func (auth *Auth) SetPhoneNum(aPhoneNum string) {
-	auth.PhoneNum = aPhoneNum
-}
-
-func (auth *Auth) GetCreateTime() int64 {
-	return auth.CreateTime
-}
-
-func (auth *Auth) SetCreateTime(aCreateTime int64) {
-	auth.CreateTime = aCreateTime
-}
-
-func (auth *Auth) GetStringKey() string {
-	return fmt.Sprintf("%d", auth.Uid)
-}
-
-func (auth *Auth) SelectSql() (string, []interface{}) {
-	sql := fmt.Sprintf("SELECT `uid`,`nick_name`,`account` FROM auth WHERE uid = ?")
-	//sql := fmt.Sprintf("INSERT INTO auth(`uid`,...) VLAUES(?,?,?,?,?,?)")
-	return sql, []interface{}{auth.Uid}
-}
-
-func (auth *Auth) InsertSql() (string, []interface{}) {
-	sql := fmt.Sprintf("INSERT INTO auth(`uid`,...) VLAUES(?,?,?,?,?,?)")
-	return sql, []interface{}{auth.Uid, auth.NickName}
-}
-
-func (auth *Auth) UpdateSql() string {
-	return fmt.Sprintf("UPDATA auth set auth = ?,uid = ? where uid = ? ", auth.Uid)
-}
-
-func (auth *Auth) Decode(v []byte) error {
-	return json.Unmarshal(v, auth)
-}
-
-func (auth *Auth) Encode() []byte {
-	b, _ := json.Marshal(auth)
+func (this *TAuth) Encode() []byte {
+	b, _ := json.Marshal(this)
 	return b
+}
+
+func (this *TAuth) SelectSql() (string, []interface{}) {
+	sql := "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where uid = ?"
+	return sql, []interface{}{this.Uid}
+}
+
+func (this *TAuth) InsertSql() (string, []interface{}) {
+	sql := "insert into auth(`uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,)  values(?,?,?,?,?,?,)"
+	return sql, []interface{}{this.Uid, this.NickName, this.Account, this.Mail, this.PassWord, this.PhoneNum}
+}
+
+func (this *TAuth) UpdateSql() (string, []interface{}) {
+	sql := "update auth set`uid` = ?,`nick_name` = ?,`account` = ?,`mail` = ?,`pass_word` = ?,`phone_num` = ?, where uid = ?"
+	return sql, []interface{}{this.Uid}
+}
+
+func (this *TAuth) GetUid() uint64 {
+	return this.Uid
+}
+
+func (this *TAuth) SetUid(aUid uint64) {
+	this.Uid = aUid
+}
+
+func (this *TAuth) GetNickName() string {
+	return this.NickName
+}
+
+func (this *TAuth) SetNickName(aNickName string) {
+	this.NickName = aNickName
+}
+
+func (this *TAuth) GetAccount() string {
+	return this.Account
+}
+
+func (this *TAuth) SetAccount(aAccount string) {
+	this.Account = aAccount
+}
+
+func (this *TAuth) GetMail() string {
+	return this.Mail
+}
+
+func (this *TAuth) SetMail(aMail string) {
+	this.Mail = aMail
+}
+
+func (this *TAuth) GetPassWord() string {
+	return this.PassWord
+}
+
+func (this *TAuth) SetPassWord(aPassWord string) {
+	this.PassWord = aPassWord
+}
+
+func (this *TAuth) GetPhoneNum() string {
+	return this.PhoneNum
+}
+
+func (this *TAuth) SetPhoneNum(aPhoneNum string) {
+	this.PhoneNum = aPhoneNum
+}
+
+func (this *TAuth) GetCreateAt() int64 {
+	return this.CreateAt
+}
+
+func (this *TAuth) SetCreateAt(aCreateAt int64) {
+	this.CreateAt = aCreateAt
+}
+
+func (this *TAuth) GetUpdateAt() int64 {
+	return this.UpdateAt
+}
+
+func (this *TAuth) SetUpdateAt(aUpdateAt int64) {
+	this.UpdateAt = aUpdateAt
 }

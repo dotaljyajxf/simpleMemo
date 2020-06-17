@@ -22,7 +22,6 @@ func proxy_auth_GetAuthInfo(args []byte) (interface{}, error) {
 	defer request.Put()
 
 	response := pb.NewTAuthInfo()
-	defer response.Put()
 
 	err := decodePb(args, request)
 	if err != nil {

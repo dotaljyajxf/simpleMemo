@@ -16,7 +16,7 @@ func AfterHook(f HandleFunc) gin.HandlerFunc {
 		if err != nil {
 			logrus.Error("server error : %s", err.Error())
 		}
-		c.ProtoBuf(ret.Code, ret)
+		c.ProtoBuf(int(ret.Code), ret)
 		ret.Put()
 	}
 }

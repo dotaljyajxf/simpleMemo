@@ -40,9 +40,9 @@ func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
 	}
 	for _, memo := range memoObj {
 		oneMemo := pb.NewTMemo()
-		*oneMemo.ID = memo.ID
-		oneMemo.Text = &memo.Text
-		*oneMemo.CreatedAt = memo.CreatedAt
+		oneMemo.ID = memo.Uid
+		oneMemo.Text = memo.Text
+		oneMemo.CreatedAt = memo.CreatedAt
 
 		memoList.Memos = append(memoList.Memos, oneMemo)
 	}

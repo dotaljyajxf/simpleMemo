@@ -1,12 +1,13 @@
-package pb;
-option go_package="pb";
+syntax = "proto3";
 
+option go_package=".;pb";
+package pb;
 
 
 message TAppRet {
-    optional int Code =1;
-    optional string Msg = 2;
-    optional bytes Data = 3;
+     int32 Code =1;
+     string Msg = 2;
+     bytes Data = 3;
 }
 
 

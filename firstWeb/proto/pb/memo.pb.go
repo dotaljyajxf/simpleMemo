@@ -30,9 +30,9 @@ type TMemo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ID        *uint64 `protobuf:"varint,1,opt,name=ID" json:"ID,omitempty"`
-	CreatedAt *int64  `protobuf:"varint,2,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	Text      *string `protobuf:"bytes,3,opt,name=Text" json:"Text,omitempty"`
+	ID        uint64 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	CreatedAt int64  `protobuf:"varint,2,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	Text      string `protobuf:"bytes,3,opt,name=Text,proto3" json:"Text,omitempty"`
 }
 
 func (x *TMemo) Reset() {
@@ -68,22 +68,22 @@ func (*TMemo) Descriptor() ([]byte, []int) {
 }
 
 func (x *TMemo) GetID() uint64 {
-	if x != nil && x.ID != nil {
-		return *x.ID
+	if x != nil {
+		return x.ID
 	}
 	return 0
 }
 
 func (x *TMemo) GetCreatedAt() int64 {
-	if x != nil && x.CreatedAt != nil {
-		return *x.CreatedAt
+	if x != nil {
+		return x.CreatedAt
 	}
 	return 0
 }
 
 func (x *TMemo) GetText() string {
-	if x != nil && x.Text != nil {
-		return *x.Text
+	if x != nil {
+		return x.Text
 	}
 	return ""
 }
@@ -93,7 +93,7 @@ type TMemoList struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Memos []*TMemo `protobuf:"bytes,1,rep,name=memos" json:"memos,omitempty"`
+	Memos []*TMemo `protobuf:"bytes,1,rep,name=memos,proto3" json:"memos,omitempty"`
 }
 
 func (x *TMemoList) Reset() {
@@ -146,7 +146,8 @@ var file_memo_proto_rawDesc = []byte{
 	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x54, 0x65, 0x78, 0x74, 0x22, 0x2c, 0x0a, 0x09, 0x54,
 	0x4d, 0x65, 0x6d, 0x6f, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x05, 0x6d, 0x65, 0x6d, 0x6f,
 	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x70, 0x62, 0x2e, 0x54, 0x4d, 0x65,
-	0x6d, 0x6f, 0x52, 0x05, 0x6d, 0x65, 0x6d, 0x6f, 0x73, 0x42, 0x04, 0x5a, 0x02, 0x70, 0x62,
+	0x6d, 0x6f, 0x52, 0x05, 0x6d, 0x65, 0x6d, 0x6f, 0x73, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x3b, 0x70,
+	0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

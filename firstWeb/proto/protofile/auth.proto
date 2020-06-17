@@ -1,18 +1,19 @@
-package pb;
-option go_package="pb";
+syntax = "proto3";
 
+option go_package=".;pb";
+package pb;
 
 message TAuthInfo {
-    optional string Token =1;
-    optional string NickName = 2;
-    optional string Mail = 3;
-    optional string PhoneNum = 4;
-    optional uint64 Uid = 5;
-    optional string Message = 6;
+     string Token =1;
+     string NickName = 2;
+     string Mail = 3;
+     string PhoneNum = 4;
+     uint64 Uid = 5;
+     string Message = 6;
 }
 
 message TAuthLoginArg {
-    optional string Account = 1;
-    optional string PassWord = 2;
+     string Account = 1;
+     string PassWord = 2;
 }
 

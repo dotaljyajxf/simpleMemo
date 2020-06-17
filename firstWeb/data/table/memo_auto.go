@@ -1,83 +1,106 @@
-
 package table
 
 import (
+	"encoding/json"
+	"fmt"
 	"sync"
 )
 
-var Memopool = sync.Pool{New: func() interface{} {
-	return new(Memo)
+var memoPool = &sync.Pool{New: func() interface{} {
+	return new(TMemo)
 }}
 
-func NewMemo() *Memo {
-	ret := Memopool.Get().(*Memo)
-	*ret = Memo{}
+func NewTMemo() *TMemo {
+	ret := memoPool.Get().(*TMemo)
+	*ret = TMemo{}
 	return ret
 }
 
-func (memo *Memo) Release() {
-	*memo = Memo{}
-	Authpool.Put(memo)
+func (this *TMemo) Release() {
+	*this = TMemo{}
+	memoPool.Put(this)
 }
 
-func (memo *Memo) TableName() string {
-	return "memo"
+func (this *TMemo) GetStringKey() string {
+	return fmt.Sprintf("%d", this.ID)
 }
 
-
-func (memo *Memo) GetID() uint64 {
-	return memo.ID
+func (this *TMemo) Decode(v []byte) error {
+	return json.Unmarshal(v, this)
 }
 
-func (memo *Memo) SetID(aID uint64) {
-	memo.ID = aID
+func (this *TMemo) Encode() []byte {
+	b, _ := json.Marshal(this)
+	return b
 }
 
-func (memo *Memo) GetUid() uint64 {
-	return memo.Uid
+func (this *TMemo) SelectSql() (string, []interface{}) {
+	sql := "select `id`,`uid`,`year`,`mouth`,`create_at`,`delete_at`,`text` from memo where id = ?"
+	return sql, []interface{}{this.ID}
 }
 
-func (memo *Memo) SetUid(aUid uint64) {
-	memo.Uid = aUid
+func (this *TMemo) InsertSql() (string, []interface{}) {
+	sql := "insert into memo(`id`,`uid`,`year`,`mouth`,`delete_at`,`text`)  values(?,?,?,?,?,?)"
+	return sql, []interface{}{this.ID, this.Uid, this.Year, this.Mouth, this.DeletedAt, this.Text}
 }
 
-func (memo *Memo) GetYear() int {
-	return memo.Year
+func (this *TMemo) UpdateSql() (string, []interface{}) {
+	sql := "update memo set`id` = ?,`uid` = ?,`year` = ?,`mouth` = ?,`delete_at` = ?,`text` = ? where id = ?"
+	return sql, []interface{}{this.ID}
 }
 
-func (memo *Memo) SetYear(aYear int) {
-	memo.Year = aYear
+func (this *TMemo) GetID() uint64 {
+	return this.ID
 }
 
-func (memo *Memo) GetMouth() int8 {
-	return memo.Mouth
+func (this *TMemo) SetID(aID uint64) {
+	this.ID = aID
 }
 
-func (memo *Memo) SetMouth(aMouth int8) {
-	memo.Mouth = aMouth
+func (this *TMemo) GetUid() uint64 {
+	return this.Uid
 }
 
-func (memo *Memo) GetCreatedAt() int64 {
-	return memo.CreatedAt
+func (this *TMemo) SetUid(aUid uint64) {
+	this.Uid = aUid
 }
 
-func (memo *Memo) SetCreatedAt(aCreatedAt int64) {
-	memo.CreatedAt = aCreatedAt
+func (this *TMemo) GetYear() int {
+	return this.Year
 }
 
-func (memo *Memo) GetDeletedAt() int64 {
-	return memo.DeletedAt
+func (this *TMemo) SetYear(aYear int) {
+	this.Year = aYear
 }
 
-func (memo *Memo) SetDeletedAt(aDeletedAt int64) {
-	memo.DeletedAt = aDeletedAt
+func (this *TMemo) GetMouth() int8 {
+	return this.Mouth
 }
 
-func (memo *Memo) GetText() string {
-	return memo.Text
+func (this *TMemo) SetMouth(aMouth int8) {
+	this.Mouth = aMouth
 }
 
-func (memo *Memo) SetText(aText string) {
-	memo.Text = aText
+func (this *TMemo) GetCreatedAt() int64 {
+	return this.CreatedAt
 }
 
+func (this *TMemo) SetCreatedAt(aCreatedAt int64) {
+	this.CreatedAt = aCreatedAt
+}
+
+func (this *TMemo) GetDeletedAt() int64 {
+	return this.DeletedAt
+}
+
+func (this *TMemo) SetDeletedAt(aDeletedAt int64) {
+	this.DeletedAt = aDeletedAt
+}
+
+func (this *TMemo) GetText() string {
+	return this.Text
+}
+
+func (this *TMemo) SetText(aText string) {
+	this.Text = aText
+}

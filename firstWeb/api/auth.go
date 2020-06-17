@@ -33,11 +33,11 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 		//..
 	}
 
-	retAuth.PhoneNum = &authObj.PhoneNum
-	retAuth.Mail = &authObj.Mail
-	retAuth.Token = &token
-	retAuth.Uid = &authObj.Uid
-	retAuth.NickName = &authObj.NickName
+	retAuth.PhoneNum = authObj.PhoneNum
+	retAuth.Mail = authObj.Mail
+	retAuth.Token = token
+	retAuth.Uid = authObj.Uid
+	retAuth.NickName = authObj.NickName
 
 	sess := sessions.Default(c)
 	sess.Set("user", retAuth)
@@ -73,11 +73,11 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 		//...
 	}
 
-	retAuth.PhoneNum = &authObj.PhoneNum
-	retAuth.Mail = &authObj.Mail
-	retAuth.Token = &token
-	retAuth.Uid = &authObj.Uid
-	retAuth.NickName = &authObj.NickName
+	retAuth.PhoneNum = authObj.PhoneNum
+	retAuth.Mail = authObj.Mail
+	retAuth.Token = token
+	retAuth.Uid = authObj.Uid
+	retAuth.NickName = authObj.NickName
 
 	sess := sessions.Default(c)
 	sess.Set("user", retAuth)

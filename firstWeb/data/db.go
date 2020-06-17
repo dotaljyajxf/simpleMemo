@@ -4,6 +4,7 @@ import (
 	"firstWeb/conf"
 	"firstWeb/data/table"
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,7 @@ func Init() {
 	Db.DB().SetMaxOpenConns(100)
 
 	Db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(table.DbMap...)
+
 }
 
 func CloseDB() {
