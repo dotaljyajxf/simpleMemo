@@ -4,7 +4,7 @@
 dirRoot="$HOME/LittleCai"
 curPwd=$(pwd)
 
-cd $dirRoot/firstWeb/genCode
+cd $dirRoot/backend/gencode
 go run genData.go
 echo "genData done ..."
 go run genRpc.go
@@ -23,7 +23,7 @@ if [ ! -x $GOBIN/protoc-gen-go ];then
   fi
 fi
 
-cd $dirRoot/firstWeb/proto/protofile
+cd $dirRoot/backend/proto/protofile
 #/Users/liujianyong/goDownload/bin/protoc --plugin=/Users/liujianyong/goDownload/bin/protoc-gen-go --go_out=../pb *.proto
 $GOBIN/protoc --plugin=$GOBIN/protoc-gen-go --go_out=../pb *.proto
 
@@ -31,7 +31,7 @@ cd $curPwd
 
 echo "protoc pb done..."
 
-go run $dirRoot/firstWeb/genCode/genPbPool.go
+go run $dirRoot/backend/gencode/genPbPool.go
 echo "genPbPool done ..."
 
 
