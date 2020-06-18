@@ -10,8 +10,7 @@ import (
 
 func FindAuthObj(account string) (*table.TAuth, error) {
 	auth := table.NewTAuth()
-	auth.Account = account
-	err := data.Manager.QueryTable(auth)
+	err := data.Manager.Query(auth, auth.SelectByAccountSql(), account)
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())
 		return nil, err
@@ -21,11 +20,11 @@ func FindAuthObj(account string) (*table.TAuth, error) {
 
 func CreateAuth(name string, password string, mail, phoneNum, account string) (*table.TAuth, error) {
 	auth := table.NewTAuth()
-	auth.SetAccount(account)
-	auth.SetNickName(name)
-	auth.SetMail(mail)
-	auth.SetPassWord(password)
-	auth.SetPhoneNum(phoneNum)
+	auth.Account = account
+	auth.NickName = name
+	auth.Mail = mail
+	auth.PassWord = password
+	auth.PhoneNum = phoneNum
 
 	_, err := data.Manager.InsertTable(context.Background(), auth)
 	if err != nil {

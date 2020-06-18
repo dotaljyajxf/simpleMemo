@@ -1,6 +1,7 @@
 package data
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -31,12 +32,12 @@ type CacheHandle interface {
 }
 
 type TableHandler interface {
-	GetStringKey() string
 	Decode(v []byte) error
 	Encode() []byte
 	UpdateSql() (string, []interface{})
 	InsertSql() (string, []interface{})
 	SelectSql() (string, []interface{})
+	TableName() string
 }
 
 func (data *dataManager) Begin() (*LocalTx, error) {
@@ -45,6 +46,17 @@ func (data *dataManager) Begin() (*LocalTx, error) {
 		return nil, err
 	}
 	return &LocalTx{tx}, nil
+}
+
+func getSqlKey(resp TableHandler, args ...interface{}) string {
+	ret := resp.TableName() + "#"
+	for index, v := range args {
+		if index != 0 {
+			ret += "#"
+		}
+		ret += fmt.Sprintf("%v", v)
+	}
+	return ret
 }
 
 func (tx *LocalTx) TxExec(ctx context.Context, sql string, args ...interface{}) (sql.Result, error) {
@@ -69,7 +81,7 @@ func (data *dataManager) InsertTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	_, err = data.Cache.Set(getSqlKey(resp, args), resp.Encode())
 	if err != nil {
 		logrus.Info("set cache err %s\n", err.Error())
 	}
@@ -82,7 +94,7 @@ func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	_, err = data.Cache.Del(resp.GetStringKey())
+	_, err = data.Cache.Del(getSqlKey(resp, args))
 	if err != nil {
 		logrus.Info("del cache err %s\n", err.Error())
 	}
@@ -90,29 +102,24 @@ func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 }
 
 func (data *dataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
-	return queryContext(ctx, data.Slave, nil, resp, sql, args)
-}
-
-func (data *dataManager) QueryContextTable(ctx context.Context, resp TableHandler) error {
-	d, err := data.Cache.Get(resp.GetStringKey())
-	if err == nil {
-		return resp.Decode(d.([]byte))
+	singleTable, ok := resp.(TableHandler)
+	if !ok {
+		return queryContext(ctx, data.Slave, nil, resp, sql, args)
 	}
-	logrus.Debugf("Get cache err : %s\n", err.Error())
-	sql, args := resp.SelectSql()
-	err = queryContext(ctx, data.Slave, nil, resp, sql, args)
+	cKey := getSqlKey(singleTable, args)
+	d, err := data.Cache.Get(cKey)
+	if err == nil {
+		return singleTable.Decode(d.([]byte))
+	}
+	err = queryContext(ctx, data.Slave, nil, singleTable, sql, args)
 	if err != nil {
 		return err
 	}
-	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	_, err = data.Cache.Set(cKey, singleTable.Encode())
 	if err != nil {
-		logrus.Info("Set cache err %s\n", err.Error())
+		logrus.Info("set cache err %s\n", err.Error())
 	}
-	return nil
-}
-
-func (data *dataManager) QueryTable(resp TableHandler) error {
-	return data.QueryContextTable(context.Background(), resp)
+	return err
 }
 
 func (data *dataManager) Query(resp interface{}, sql string, args ...interface{}) error {
@@ -124,6 +131,16 @@ func (data *dataManager) Close() {
 	if data.Slave != data.Master {
 		data.Slave.Close()
 	}
+}
+
+func MakeSelectSql(resp TableHandler, where string, selectField string) string {
+	buffer := bytes.Buffer{}
+	buffer.WriteString("select ")
+	buffer.WriteString(selectField)
+	buffer.WriteString(" from ")
+	buffer.WriteString(where)
+
+	return buffer.String()
 }
 
 func fillFieldAddr(columnNames []string, val reflect.Value) []interface{} {

@@ -18,14 +18,16 @@ package memo
 import (
 	"backend/data"
 	"backend/data/table"
+	"context"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func FindMemoByMouth(uid uint64, year int, mouth int8) ([]table.TMemo, error) {
-	memos := make([]table.TMemo, 0)
-	err := data.Db.Where("uid = ? and year = ? and mouth = ? and delete_at > 0", uid, year, mouth).Find(memos).Error
+func FindMemoByMouth(uid uint64, year int, mouth int8) ([]*table.TMemo, error) {
+	memos := make([]*table.TMemo, 0)
+	err := data.Manager.Query(memos, memos[0].SelectByUidYearMouthStatusSql(),
+		uid, year, mouth, 1)
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())
 		return nil, err
@@ -42,7 +44,7 @@ func CreateMemo(uid uint64, text string) error {
 	memo.DeletedAt = 0
 	memo.Text = text
 	memo.Year, memo.Mouth = int(y), int8(m)
-	err := data.Db.Create(memo).Error
+	_, err := data.Manager.InsertTable(context.Background(), memo)
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())
 		return err

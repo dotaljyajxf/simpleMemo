@@ -45,13 +45,25 @@ func New{{.ModuleName}}() *{{.ModuleName}} {
 	return ret
 }
 
-func (this *{{.ModuleName}}) Release() {
+func (this *{{.ModuleName}}) Put() {
 	*this = {{.ModuleName}}{}
 	{{.FileNameNoExt}}Pool.Put(this)
 }
 
 func (this *{{.ModuleName}}) GetStringKey() string {
-	return {{.StringKey}}
+	return fmt.Sprintf("{{.FileNameNoExt}}#{{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			#%v
+		{{- else -}}
+			%v
+		{{- end -}}
+	{{- end }}",{{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			,this.{{index $.FieldName2SqlName $val}}
+		{{- else -}}
+			this.{{index $.FieldName2SqlName $val}}
+		{{- end -}}
+	{{- end }})
 }
 
 func (this *{{.ModuleName}}) Decode(v []byte) error {
@@ -68,35 +80,115 @@ func (this *{{.ModuleName}}) TableName() string {
 }
 
 func (this *{{.ModuleName}}) SelectStr() string {
-	return "{{.BaseSelectStr}}"
+	return "{{range $index,$val := .SelectFields -}}
+		{{- if $index -}}
+			,{{.}}
+		{{- else -}}
+			{{.}}
+		{{- end -}}
+	{{- end }}"
 }
+
+{{range $name,$keys := .IndexKeys}}
+func (this *{{$.ModuleName}}) {{$name}}Sql() string {
+	return "select {{range $index,$val := $.SelectFields -}}
+		{{- if $index -}}
+			,{{.}}
+		{{- else -}}
+			{{.}}
+		{{- end -}}
+	{{- end }} from {{$.FileNameNoExt}} where {{range $index,$val := $keys -}}
+		{{- if $index -}}
+			,{{.}} = ?
+		{{- else -}}
+			{{.}} = ?
+		{{- end -}}
+	{{- end }}"
+}
+{{end}}
 
 func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
-	sql := "{{.SelectStr}}"
-	return sql, []interface{}{ {{.SelectRet}} }
-}
-
-func (this *{{.ModuleName}}) InsertSql() (string, []interface{}) {
-	sql := "{{.InsertStr}}"
-	return sql, []interface{}{ {{.InsertRet}} }
+	sql := "select {{range $index,$val := .SelectFields -}}
+		{{- if $index -}}
+			,{{.}}
+		{{- else -}}
+			{{.}}
+		{{- end -}}
+	{{- end }} from {{$.FileNameNoExt}} where {{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			,{{.}} = ?
+		{{- else -}}
+			{{.}} = ?
+		{{- end -}}
+	{{- end }}"
+	return sql, []interface{}{ {{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			,this.{{index $.FieldName2SqlName $val}}
+		{{- else -}}
+			this.{{index $.FieldName2SqlName $val}}
+		{{- end -}}
+	{{- end }} }
 }
 
 func (this *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
-	sql := "{{.UpdateStr}}"
-	return sql, []interface{}{ {{.SelectRet}} }
+	sql := "update {{$.FileNameNoExt}} set {{range $index,$val := .UpdateFields -}}
+		{{- if $index -}}
+			{{print " "}}and {{.}} = ?
+		{{- else -}}
+			{{print " "}}{{.}} = ?
+		{{- end -}}
+	{{- end }} where {{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			,{{.}} = ?
+		{{- else -}}
+			{{.}} = ?
+		{{- end -}}
+	{{- end }}"
+	return sql, []interface{}{ {{range $index,$val := .UpdateFields -}}
+		{{- if $index -}}
+			,this.{{index $.FieldName2SqlName $val}}
+		{{- else -}}
+			this.{{index $.FieldName2SqlName $val}}
+		{{- end -}}
+	{{- end }} {{range $index,$val := .KeyFields -}} 
+			 ,this.{{index $.FieldName2SqlName $val}}
+	{{- end -}} }
 }
 
-{{$x := .}}
-{{range $field := .Fields}}
-func (this *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
-	return this.{{$field.Name}}
+func (this *{{.ModuleName}}) InsertSql() (string, []interface{}) {
+	sql := "insert into {{$.FileNameNoExt}}({{range $index,$val := .InsertFields -}}
+		{{- if $index -}}
+			 ,{{.}}
+		{{- else -}}
+			{{.}}
+		{{- end -}}
+	{{- end }}) values({{range $index,$val := .InsertFields -}} 
+		{{- if $index -}}
+			 ,?
+		{{- else -}}
+			?
+		{{- end -}} 
+	{{- end -}})"
+	return sql, []interface{}{ {{range $index,$val := .InsertFields -}} 
+		{{- if $index -}}
+			 ,this.{{index $.FieldName2SqlName $val}}
+		{{- else -}}
+			this.{{index $.FieldName2SqlName $val}}
+		{{- end -}} 
+	{{- end -}} }
 }
-
-func (this *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
-	this.{{$field.Name}} = a{{$field.Name}}
-}
-{{end}}
 `
+
+//{{$x := .}}
+//{{range $field := .Fields}}
+//func (this *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
+//return this.{{$field.Name}}
+//}
+//
+//func (this *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
+//this.{{$field.Name}} = a{{$field.Name}}
+//}
+//{{end}}
 
 const iMapTpl = `
 package table
@@ -116,19 +208,62 @@ type TableModule struct {
 	ModuleName        string
 	FileNameNoExt     string
 	Fields            []FieldsType
-	SelectStr         string
-	BaseSelectStr     string
-	SelectRet         string
-	UpdateStr         string
-	InsertStr         string
-	InsertRet         string
+	SelectFields      []string
+	InsertFields      []string
+	UpdateFields      []string
+	KeyFields         []string
 	FieldName2SqlName map[string]string
-	StringKey         string
+
+	IndexKeys map[string][]string
 }
 
 type FieldsType struct {
 	Name string
 	Type string
+}
+
+func (tb *TableModule) handleComment(doc string) {
+	tb.IndexKeys = make(map[string][]string)
+	tmpIndexMap := make(map[string]bool)
+	lines := strings.Split(doc, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "KEY") {
+			r := strings.Split(line, " ")
+			c := strings.Split(r[len(r)-1], "`")
+			c = c[1 : len(c)-1]
+			if len(c) <= 0 {
+				continue
+			}
+
+			if len(c) > 0 {
+				f := ""
+				for _, field := range c {
+					if field == "," {
+						continue
+					}
+					f += "`" + field + "`" + " "
+					if _, ok := tmpIndexMap[f]; !ok {
+						tmpIndexMap[f] = true
+					}
+				}
+			} else {
+				f := "`" + c[0] + "`" + " "
+				if _, ok := tmpIndexMap[f]; !ok {
+					tmpIndexMap[f] = true
+				}
+			}
+		}
+	}
+
+	for key, _ := range tmpIndexMap {
+		indexName := "SelectBy"
+		v := strings.Split(key, " ")
+		v = v[:len(v)-1]
+		for _, one := range v {
+			indexName += tb.FieldName2SqlName[one]
+		}
+		tb.IndexKeys[indexName] = v
+	}
 }
 
 func (tb *TableModule) makeFileStruct(dir string, fileName string) {
@@ -139,6 +274,8 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		fmt.Println("ParseFile failed err : %s", err.Error())
 		return
 	}
+
+	//fmt.Println(pf.Comments[len(pf.Comments)-1].Text())
 
 	for _, decl := range pf.Decls {
 		gd, ok := decl.(*ast.GenDecl)
@@ -159,75 +296,46 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		tb.FileNameNoExt = fileName[:len(fileName)-3]
 		tb.Fields = make([]FieldsType, 0)
 		tb.FieldName2SqlName = make(map[string]string)
-		primaryKeys := make([]string, 0)
 
 		st, ok := sp.Type.(*ast.StructType)
 		if !ok {
 			fmt.Printf("single type not struct")
 			continue
 		}
-
-		tb.SelectStr = "select "
-		tb.UpdateStr = "update " + tb.FileNameNoExt + " set"
-		tb.InsertStr = "insert into " + tb.FileNameNoExt + "("
-		insertValues := " values("
-		for index, fl := range st.Fields.List {
+		for _, fl := range st.Fields.List {
 			fident, ok := fl.Type.(*ast.Ident)
 			if ok {
 				tb.Fields = append(tb.Fields, FieldsType{fl.Names[0].Name, fident.Name})
 			}
 			tag := fl.Tag.Value
+			sqlFieldName := ""
 			if strings.Contains(tag, "primary_key") {
-				primaryKeys = append(primaryKeys, fl.Names[0].Name)
 				parts := strings.Split(tag, "\"")
 				firstPart := strings.Split(parts[1], ",")
-				tb.FieldName2SqlName[fl.Names[0].Name] = firstPart[0]
+
+				sqlFieldName = "`" + firstPart[0] + "`"
+				tb.FieldName2SqlName[sqlFieldName] = fl.Names[0].Name
+				tb.KeyFields = append(tb.KeyFields, sqlFieldName)
 			} else {
 				parts := strings.Split(tag, "\"")
-				tb.FieldName2SqlName[fl.Names[0].Name] = parts[1]
+				sqlFieldName = "`" + parts[1] + "`"
+				tb.FieldName2SqlName[sqlFieldName] = fl.Names[0].Name
 			}
 
-			if strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "create_at") ||
-				strings.HasPrefix(tb.FieldName2SqlName[fl.Names[0].Name], "update_at") ||
-				strings.Contains(tag, "auto_increment") {
-				tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
-				if index != len(st.Fields.List)-1 {
-					tb.SelectStr += ","
-				}
+			if strings.Contains(sqlFieldName, "create_at") ||
+				strings.Contains(sqlFieldName, "update_at") ||
+				strings.Contains(tag, "auto_increment") ||
+				strings.Contains(tag, "primary_key") {
+				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 				continue
 			}
 
-			tb.SelectStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
-			tb.UpdateStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "` = ?"
-			tb.InsertStr += "`" + tb.FieldName2SqlName[fl.Names[0].Name] + "`"
-			insertValues += "?"
-			tb.InsertRet += "this." + fl.Names[0].Name
-			if index != len(st.Fields.List)-1 {
-				tb.SelectStr += ","
-				tb.UpdateStr += ","
-				tb.InsertStr += ","
-				insertValues += ","
-				tb.InsertRet += ","
-			}
+			tb.InsertFields = append(tb.InsertFields, sqlFieldName)
+			tb.UpdateFields = append(tb.UpdateFields, sqlFieldName)
+			tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 		}
-		tb.BaseSelectStr = tb.SelectStr
-		tb.SelectStr += " from " + tb.FileNameNoExt + " where "
-		tb.UpdateStr += " where "
-		tb.InsertStr += ") " + insertValues + ")"
-		tb.StringKey = `fmt.Sprintf("`
-		for index, key := range primaryKeys {
-			tb.SelectStr += tb.FieldName2SqlName[key] + " = ?"
-			tb.UpdateStr += tb.FieldName2SqlName[key] + " = ?"
-			tb.StringKey += `%d`
-			tb.SelectRet += "this." + key
-			if index != len(primaryKeys)-1 {
-				tb.SelectStr += " and "
-				tb.SelectRet += ","
-				tb.StringKey += "#"
-			}
-		}
-		tb.StringKey += `",` + tb.SelectRet + ")"
 	}
+	tb.handleComment(pf.Comments[len(pf.Comments)-1].Text())
 }
 
 //func (m *Modules) genMap(dataDirPath string) {

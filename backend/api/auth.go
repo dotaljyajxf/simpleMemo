@@ -16,18 +16,17 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	password := c.PostForm("password")
 
 	retAuth := pb.NewTAuthInfo()
-	defer retAuth.Put()
 	authObj, err := auth.FindAuthObj(account)
-	defer authObj.Release()
+	defer authObj.Put()
 	if err != nil {
 		return util.MakeErrRet(ret, http.StatusOK, err.Error())
 	}
 
-	if authObj.GetPassWord() != password {
+	if authObj.PassWord != password {
 		return util.MakeErrRet(ret, http.StatusOK, "PassWordError")
 	}
 
-	token, err := util.GenerateToken(authObj.GetAccount(), authObj.GetPassWord())
+	token, err := util.GenerateToken(authObj.Account, authObj.PassWord)
 
 	if err != nil {
 		//..
@@ -61,13 +60,13 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 	}
 
 	authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
-	defer authObj.Release()
+	defer authObj.Put()
 	if err != nil {
 		log.Infof("create auth failed ret:%s", err.Error())
 		return util.MakeErrRet(ret, http.StatusOK, "CreateFaild")
 	}
 
-	token, err := util.GenerateToken(authObj.GetAccount(), authObj.GetPassWord())
+	token, err := util.GenerateToken(authObj.Account, authObj.PassWord)
 
 	if err != nil {
 		//...

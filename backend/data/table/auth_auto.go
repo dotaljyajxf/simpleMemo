@@ -16,13 +16,13 @@ func NewTAuth() *TAuth {
 	return ret
 }
 
-func (this *TAuth) Release() {
+func (this *TAuth) Put() {
 	*this = TAuth{}
 	authPool.Put(this)
 }
 
 func (this *TAuth) GetStringKey() string {
-	return fmt.Sprintf("%d", this.Uid)
+	return fmt.Sprintf("auth#%v", this.Uid)
 }
 
 func (this *TAuth) Decode(v []byte) error {
@@ -39,84 +39,40 @@ func (this *TAuth) TableName() string {
 }
 
 func (this *TAuth) SelectStr() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at`"
+	return "`uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at`"
+}
+
+func (this *TAuth) SelectByAccountSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `account` = ?"
+}
+
+func (this *TAuth) SelectByCreateAtSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `create_at` = ?"
+}
+
+func (this *TAuth) SelectByMailSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `mail` = ?"
+}
+
+func (this *TAuth) SelectByNickNameSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `nick_name` = ?"
+}
+
+func (this *TAuth) SelectByUidSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `uid` = ?"
 }
 
 func (this *TAuth) SelectSql() (string, []interface{}) {
-	sql := "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where uid = ?"
+	sql := "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `uid` = ?"
 	return sql, []interface{}{this.Uid}
-}
-
-func (this *TAuth) InsertSql() (string, []interface{}) {
-	sql := "insert into auth(`uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,)  values(?,?,?,?,?,?,)"
-	return sql, []interface{}{this.Uid, this.NickName, this.Account, this.Mail, this.PassWord, this.PhoneNum}
 }
 
 func (this *TAuth) UpdateSql() (string, []interface{}) {
-	sql := "update auth set`uid` = ?,`nick_name` = ?,`account` = ?,`mail` = ?,`pass_word` = ?,`phone_num` = ?, where uid = ?"
-	return sql, []interface{}{this.Uid}
+	sql := "update auth set  `nick_name` = ? and `account` = ? and `mail` = ? and `pass_word` = ? and `phone_num` = ? where `uid` = ?"
+	return sql, []interface{}{this.NickName, this.Account, this.Mail, this.PassWord, this.PhoneNum, this.Uid}
 }
 
-func (this *TAuth) GetUid() uint64 {
-	return this.Uid
-}
-
-func (this *TAuth) SetUid(aUid uint64) {
-	this.Uid = aUid
-}
-
-func (this *TAuth) GetNickName() string {
-	return this.NickName
-}
-
-func (this *TAuth) SetNickName(aNickName string) {
-	this.NickName = aNickName
-}
-
-func (this *TAuth) GetAccount() string {
-	return this.Account
-}
-
-func (this *TAuth) SetAccount(aAccount string) {
-	this.Account = aAccount
-}
-
-func (this *TAuth) GetMail() string {
-	return this.Mail
-}
-
-func (this *TAuth) SetMail(aMail string) {
-	this.Mail = aMail
-}
-
-func (this *TAuth) GetPassWord() string {
-	return this.PassWord
-}
-
-func (this *TAuth) SetPassWord(aPassWord string) {
-	this.PassWord = aPassWord
-}
-
-func (this *TAuth) GetPhoneNum() string {
-	return this.PhoneNum
-}
-
-func (this *TAuth) SetPhoneNum(aPhoneNum string) {
-	this.PhoneNum = aPhoneNum
-}
-
-func (this *TAuth) GetCreateAt() int64 {
-	return this.CreateAt
-}
-
-func (this *TAuth) SetCreateAt(aCreateAt int64) {
-	this.CreateAt = aCreateAt
-}
-
-func (this *TAuth) GetUpdateAt() int64 {
-	return this.UpdateAt
-}
-
-func (this *TAuth) SetUpdateAt(aUpdateAt int64) {
-	this.UpdateAt = aUpdateAt
+func (this *TAuth) InsertSql() (string, []interface{}) {
+	sql := "insert into auth(`nick_name`,`account`,`mail`,`pass_word`,`phone_num`) values(?,?,?,?,?)"
+	return sql, []interface{}{this.NickName, this.Account, this.Mail, this.PassWord, this.PhoneNum}
 }
