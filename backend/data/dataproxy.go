@@ -37,7 +37,6 @@ type TableHandler interface {
 	Encode() []byte
 	UpdateSql() (string, []interface{})
 	InsertSql() (string, []interface{})
-	SelectSql() (string, []interface{})
 	TableName() string
 }
 

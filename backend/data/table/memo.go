@@ -1,14 +1,17 @@
 package table
 
+import "time"
+
 type TMemo struct {
-	ID        uint64 `sql:"id,primary_key,auto_increment"`
-	Uid       uint64 `sql:"uid"`
-	Year      int    `sql:"year"`
-	Mouth     int8   `sql:"mouth"`
-	Status    int8   `sql:"status"`
-	CreatedAt int64  `sql:"create_at"`
-	DeletedAt int64  `sql:"delete_at"`
-	Text      string `sql:"text"`
+	ID         int64     `sql:"id,primary_key,auto_increment"`
+	Uid        int64     `sql:"uid"`
+	Year       int64     `sql:"year"`
+	Mouth      int64     `sql:"mouth"`
+	Status     int64     `sql:"status"` //0未删除
+	RemindTime int64     `sql:"remind_time"`
+	Text       string    `sql:"text"`
+	CreatedAt  time.Time `sql:"create_at"`
+	DeletedAt  time.Time `sql:"delete_at"`
 }
 
 /*
@@ -18,6 +21,7 @@ CREATE TABLE `memo` (
   `year` tinyint unsigned NOT NULL  DEFAULT 0 COMMENT '年份 ',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态 ',
   `mouth` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '账号',
+  `remind_time` int unsigned NOT NULL DEFAULT 0 COMMENT '提醒时间',
   `text` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文本',
   `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `delete_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

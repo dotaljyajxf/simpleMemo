@@ -11,14 +11,14 @@ type PoolObj interface {
 	Put()
 }
 
-func MakeErrRet(r *pb.TAppRet, code int32, msg string) error {
+func MakeErrRet(r *pb.TAppRet, code int64, msg string) error {
 	r.Msg = msg
 	r.Code = code
 	r.Data = nil
 	return nil
 }
 
-func MakeSuccessRet(r *pb.TAppRet, code int32, resp interface{}) error {
+func MakeSuccessRet(r *pb.TAppRet, code int64, resp interface{}) error {
 	if rpObj, ok := resp.(PoolObj); ok {
 		defer rpObj.Put()
 	}

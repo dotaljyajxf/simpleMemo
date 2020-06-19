@@ -5,3 +5,5 @@ vendor/
 idea/
 dist/
 vscode/
+log/
+bin/

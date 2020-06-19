@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package=".;pb";
+package pb;
+
+
+message TAppRet {
+     int64 Code = 1;
+     string Msg = 2;
+     bytes Data = 3;
+}
+
+

@@ -1,14 +1,16 @@
 package table
 
+import "time"
+
 type TAuth struct {
-	Uid      uint64 `sql:"uid,primary_key,auto_increment"`
-	NickName string `sql:"nick_name"`
-	Account  string `sql:"account"`
-	Mail     string `sql:"mail"`
-	PassWord string `sql:"pass_word"`
-	PhoneNum string `sql:"phone_num"`
-	CreateAt int64  `sql:"create_at"`
-	UpdateAt int64  `sql:"update_at"`
+	Uid      int64     `sql:"uid,primary_key,auto_increment"`
+	NickName string    `sql:"nick_name"`
+	Account  string    `sql:"account"`
+	Mail     string    `sql:"mail"`
+	PassWord string    `sql:"pass_word"`
+	PhoneNum string    `sql:"phone_num"`
+	CreateAt time.Time `sql:"create_at"`
+	UpdateAt time.Time `sql:"update_at"`
 }
 
 /*

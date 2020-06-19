@@ -34,13 +34,13 @@ func (this *TMemo) Encode() []byte {
 }
 
 func (this *TMemo) UpdateSql() (string, []interface{}) {
-	sql := "update memo set  `uid` = ? and `year` = ? and `mouth` = ? and `status` = ? and `delete_at` = ? and `text` = ? where `id` = ?"
-	return sql, []interface{}{this.Uid, this.Year, this.Mouth, this.Status, this.DeletedAt, this.Text, this.ID}
+	sql := "update memo set  `uid` = ? and `year` = ? and `mouth` = ? and `status` = ? and `remind_time` = ? and `text` = ? where `id` = ?"
+	return sql, []interface{}{this.Uid, this.Year, this.Mouth, this.Status, this.RemindTime, this.Text, this.ID}
 }
 
 func (this *TMemo) InsertSql() (string, []interface{}) {
-	sql := "insert into memo(`uid`,`year`,`mouth`,`status`,`delete_at`,`text`) values(?,?,?,?,?,?)"
-	return sql, []interface{}{this.Uid, this.Year, this.Mouth, this.Status, this.DeletedAt, this.Text}
+	sql := "insert into memo(`uid`,`year`,`mouth`,`status`,`remind_time`,`text`) values(?,?,?,?,?,?)"
+	return sql, []interface{}{this.Uid, this.Year, this.Mouth, this.Status, this.RemindTime, this.Text}
 }
 
 func (this *TMemo) TableName() string {
@@ -48,23 +48,23 @@ func (this *TMemo) TableName() string {
 }
 
 func (this *TMemo) SelectStr() string {
-	return "`id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text`"
+	return "`id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`"
 }
-func (this *TMemo) SelectByCreatedAtSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `create_at` = ?"
+func (this *TMemo) SelectBySql() string {
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `create_at` = ?"
 }
 func (this *TMemo) SelectByIDSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `id` = ?"
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `id` = ?"
 }
 func (this *TMemo) SelectByUidSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `uid` = ?"
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `uid` = ?"
 }
 func (this *TMemo) SelectByUidYearSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `uid` = ?,`year` = ?"
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `uid` = ?,`year` = ?"
 }
 func (this *TMemo) SelectByUidYearMouthSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `uid` = ?,`year` = ?,`mouth` = ?"
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `uid` = ?,`year` = ?,`mouth` = ?"
 }
 func (this *TMemo) SelectByUidYearMouthStatusSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`create_at`,`delete_at`,`text` from memo where `uid` = ?,`year` = ?,`mouth` = ?,`status` = ?"
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text` from memo where `uid` = ?,`year` = ?,`mouth` = ?,`status` = ?"
 }

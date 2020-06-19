@@ -14,7 +14,6 @@ var Config = &ConfigIni{}
 
 type ConfigIni struct {
 	RunMode               string        `ini:"RUN_MODE"`
-	PageSize              int           `ini:"PAGE_SIZE"`
 	JwtSecret             string        `ini:"JWT_SECRET"`
 	HTTPPort              int           `ini:"HTTP_PORT"`
 	ReadTimeout           time.Duration `ini:"READ_TIMEOUT"`
@@ -24,7 +23,6 @@ type ConfigIni struct {
 	MasterHost            string        `ini:"MASTER_HOST"`
 	SlaveHost             string        `ini:"SLAVE_HOST"`
 	DBName                string        `ini:"DB_NAME"`
-	TablePrfix            string        `ini:"TABLE_PREFIX"`
 	LogPath               string        `ini:"LOG_PATH"`
 	LogLevel              int           `ini:"LOG_LEVEL"`
 	CacheUse              int           `ini:"CACHE_USE"`

@@ -38,6 +38,7 @@ func main() {
 	r.LoadHTMLGlob(conf.Config.ViewPath + "/*")
 	//r.LoadHTMLFiles(conf.Config.StaticPath + "index.html")
 
+	r = routers.CommonRouter(r)
 	r = routers.InitRouter(r)
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),

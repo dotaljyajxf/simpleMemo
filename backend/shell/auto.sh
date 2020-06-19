@@ -23,9 +23,9 @@ if [ ! -x $GOBIN/protoc-gen-go ];then
   fi
 fi
 
-cd $dirRoot/backend/proto/protofile
+cd $dirRoot/protofile
 #/Users/liujianyong/goDownload/bin/protoc --plugin=/Users/liujianyong/goDownload/bin/protoc-gen-go --go_out=../pb *.proto
-$GOBIN/protoc --plugin=$GOBIN/protoc-gen-go --go_out=../pb *.proto
+$GOBIN/protoc --plugin=$GOBIN/protoc-gen-go --go_out=$dirRoot/backend/proto/pb *.proto
 
 cd $curPwd
 

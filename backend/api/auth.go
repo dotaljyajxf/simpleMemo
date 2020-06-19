@@ -6,7 +6,6 @@ import (
 	"backend/util"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -38,9 +37,14 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	retAuth.Uid = authObj.Uid
 	retAuth.NickName = authObj.NickName
 
-	sess := sessions.Default(c)
-	sess.Set("user", retAuth)
-	err = sess.Save()
+	sessionUser := new(auth.SessionUser)
+	sessionUser.Account = authObj.Account
+	sessionUser.PhoneNum = authObj.PhoneNum
+	sessionUser.Mail = authObj.Mail
+	sessionUser.NickName = authObj.NickName
+	sessionUser.Uid = authObj.Uid
+	sessionUser.Token = token
+	auth.SetAuthSession(c, sessionUser)
 
 	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
 }
@@ -78,9 +82,14 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 	retAuth.Uid = authObj.Uid
 	retAuth.NickName = authObj.NickName
 
-	sess := sessions.Default(c)
-	sess.Set("user", retAuth)
-	err = sess.Save()
+	sessionUser := new(auth.SessionUser)
+	sessionUser.Account = authObj.Account
+	sessionUser.PhoneNum = authObj.PhoneNum
+	sessionUser.Mail = authObj.Mail
+	sessionUser.NickName = authObj.NickName
+	sessionUser.Uid = authObj.Uid
+	sessionUser.Token = token
+	auth.SetAuthSession(c, sessionUser)
 
 	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
 }

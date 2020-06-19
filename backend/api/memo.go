@@ -34,17 +34,34 @@ func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
 	userObj := sess.Get("user").(pb.TAuthInfo)
 
 	memoList := pb.NewTMemoList()
-	memoObj, err := memo.FindMemoByMouth(userObj.GetUid(), year, int8(mouth))
+	memoObj, err := memo.FindMemoByMouth(userObj.GetUid(), int64(year), int64(mouth))
 	if err != nil {
 		return util.MakeErrRet(ret, http.StatusOK, "GetMemoDbError")
 	}
 	for _, memo := range memoObj {
 		oneMemo := pb.NewTMemo()
-		oneMemo.ID = memo.Uid
+		oneMemo.ID = memo.ID
 		oneMemo.Text = memo.Text
-		oneMemo.CreatedAt = memo.CreatedAt
+		oneMemo.RemindTime = memo.RemindTime
 
 		memoList.Memos = append(memoList.Memos, oneMemo)
 	}
 	return util.MakeSuccessRet(ret, http.StatusOK, memoList)
+}
+
+func CreateMemo(c *gin.Context, ret *pb.TAppRet) error {
+	RemindTime, _ := strconv.Atoi(c.PostForm("remind_time"))
+	text := c.PostForm("text")
+
+	sess := sessions.Default(c)
+	userObj := sess.Get("user").(pb.TAuthInfo)
+
+	id, err := memo.CreateMemo(userObj.GetUid(), text, int64(RemindTime))
+	if err != nil {
+		return util.MakeErrRet(ret, http.StatusOK, "CreateMemoDbError")
+	}
+	resp := pb.NewTMemoCreateRet()
+	resp.ID = id
+
+	return util.MakeSuccessRet(ret, http.StatusOK, resp)
 }

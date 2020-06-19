@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package=".;pb";
+package pb;
+
+message TMemo {
+     int64 ID = 1;
+     int64 RemindTime = 2;
+     string Text = 3;
+}
+
+message TMemoList {
+    repeated TMemo memos = 1;
+}
+
+message TMemoCreateRet {
+    int64 ID = 1;
+}
+

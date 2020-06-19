@@ -1,17 +1,30 @@
-clean:
-	rm -rf output/
+#!/usr/bin/env bash
+
+PROJECT_ROOT :=$(HOME)/LittleCai
+OUTPATH :=$(HOME)/LittleCai/bin
+
+all:build run
 
 auto:
-	sh ./shell/auto.sh
+	sh $(PROJECT_ROOT)/backend/shell/auto.sh
 
-npm: build
-	sh ./shell/npmBuild.sh
+.PHONY: npm
+npm:
+	sh $(PROJECT_ROOT)/backend/shell/npmBuild.sh
 
+.PHONY: build
 build:
-	sh ./shell/webBuild.sh
+	go build -v -o $(OUTPATH)/web main.go
 
-test: install
-	go build -o output/bin/go_qschou_reward ./app
-
+.PHONY: run
 run:
-	sh ./shell/webRun.sh
+	sh $(PROJECT_ROOT)/backend/shell/run.sh restart
+
+build_linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -o $(OUTPATH)/web_linux -v main.go
+
+docker-build:
+        #docker run --rm -it -v "$(GOPATH)":/go -w /go/src/bitbucket.org/rsohlich/makepost golang:latest go build -o "$(BINARY_UNIX)" -v
+
+clean:
+	rm -rf $OUTPATH/*
