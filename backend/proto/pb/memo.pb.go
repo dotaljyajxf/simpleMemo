@@ -256,3 +256,35 @@ func (x *TMemoList) Put() {
 	*x = TMemoList{}
 	TMemoListPool.Put(x)
 }
+
+var TMemoPool = sync.Pool{
+	New: func() interface{} {
+		return new(TMemo)
+	},
+}
+
+//`````
+func NewTMemo() *TMemo {
+	return TMemoPool.Get().(*TMemo)
+}
+
+func (x *TMemo) Put() {
+	*x = TMemo{}
+	TMemoPool.Put(x)
+}
+
+var TMemoListPool = sync.Pool{
+	New: func() interface{} {
+		return new(TMemoList)
+	},
+}
+
+//`````
+func NewTMemoList() *TMemoList {
+	return TMemoListPool.Get().(*TMemoList)
+}
+
+func (x *TMemoList) Put() {
+	*x = TMemoList{}
+	TMemoListPool.Put(x)
+}

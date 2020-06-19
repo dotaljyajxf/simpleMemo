@@ -30,28 +30,31 @@ const iTableTpl = `
 package table
 
 import (
+{{- if .IsOriginTb}}
 	"encoding/json"
 	"fmt"
+{{- end}}
 	"sync"
 )
 
-var {{.FileNameNoExt}}Pool = &sync.Pool{New: func() interface{} {
+var a{{.ModuleName}}Pool = &sync.Pool{New: func() interface{} {
 	return new({{.ModuleName}})
 }}
 
 func New{{.ModuleName}}() *{{.ModuleName}} {
-	ret := {{.FileNameNoExt}}Pool.Get().(*{{.ModuleName}})
+	ret := a{{.ModuleName}}Pool.Get().(*{{.ModuleName}})
 	*ret = {{.ModuleName}}{}
 	return ret
 }
 
 func (this *{{.ModuleName}}) Put() {
 	*this = {{.ModuleName}}{}
-	{{.FileNameNoExt}}Pool.Put(this)
+	a{{.ModuleName}}Pool.Put(this)
 }
 
+{{- if .IsOriginTb}}
 func (this *{{.ModuleName}}) GetStringKey() string {
-	return fmt.Sprintf("{{.FileNameNoExt}}#{{range $index,$val := .KeyFields -}}
+	return fmt.Sprintf("{{.TableName}}#{{range $index,$val := .KeyFields -}}
 		{{- if $index -}}
 			#%v
 		{{- else -}}
@@ -59,9 +62,9 @@ func (this *{{.ModuleName}}) GetStringKey() string {
 		{{- end -}}
 	{{- end }}",{{range $index,$val := .KeyFields -}}
 		{{- if $index -}}
-			,this.{{index $.FieldName2SqlName $val}}
+			,this.{{index $.SqlName2Field $val}}
 		{{- else -}}
-			this.{{index $.FieldName2SqlName $val}}
+			this.{{index $.SqlName2Field $val}}
 		{{- end -}}
 	{{- end }})
 }
@@ -75,92 +78,37 @@ func (this *{{.ModuleName}}) Encode() []byte {
 	return b
 }
 
-func (this *{{.ModuleName}}) TableName() string {
-	return "{{.FileNameNoExt}}"
-}
-
-func (this *{{.ModuleName}}) SelectStr() string {
-	return "{{range $index,$val := .SelectFields -}}
-		{{- if $index -}}
-			,{{.}}
-		{{- else -}}
-			{{.}}
-		{{- end -}}
-	{{- end }}"
-}
-
-{{range $name,$keys := .IndexKeys}}
-func (this *{{$.ModuleName}}) {{$name}}Sql() string {
-	return "select {{range $index,$val := $.SelectFields -}}
-		{{- if $index -}}
-			,{{.}}
-		{{- else -}}
-			{{.}}
-		{{- end -}}
-	{{- end }} from {{$.FileNameNoExt}} where {{range $index,$val := $keys -}}
-		{{- if $index -}}
-			,{{.}} = ?
-		{{- else -}}
-			{{.}} = ?
-		{{- end -}}
-	{{- end }}"
-}
-{{end}}
-
-func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
-	sql := "select {{range $index,$val := .SelectFields -}}
-		{{- if $index -}}
-			,{{.}}
-		{{- else -}}
-			{{.}}
-		{{- end -}}
-	{{- end }} from {{$.FileNameNoExt}} where {{range $index,$val := .KeyFields -}}
-		{{- if $index -}}
-			,{{.}} = ?
-		{{- else -}}
-			{{.}} = ?
-		{{- end -}}
-	{{- end }}"
-	return sql, []interface{}{ {{range $index,$val := .KeyFields -}}
-		{{- if $index -}}
-			,this.{{index $.FieldName2SqlName $val}}
-		{{- else -}}
-			this.{{index $.FieldName2SqlName $val}}
-		{{- end -}}
-	{{- end }} }
-}
-
 func (this *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
-	sql := "update {{$.FileNameNoExt}} set {{range $index,$val := .UpdateFields -}}
+	sql := "update {{$.TableName}} set {{range $index,$val := .UpdateFields -}}
 		{{- if $index -}}
-			{{print " "}}and {{.}} = ?
+			{{print " "}}and {{dot}}{{.}}{{dot}} = ?
 		{{- else -}}
-			{{print " "}}{{.}} = ?
+			{{print " "}}{{dot}}{{.}}{{dot}} = ?
 		{{- end -}}
 	{{- end }} where {{range $index,$val := .KeyFields -}}
 		{{- if $index -}}
-			,{{.}} = ?
+			,{{dot}}{{.}}{{dot}} = ?
 		{{- else -}}
-			{{.}} = ?
+			{{dot}}{{.}}{{dot}} = ?
 		{{- end -}}
 	{{- end }}"
 	return sql, []interface{}{ {{range $index,$val := .UpdateFields -}}
 		{{- if $index -}}
-			,this.{{index $.FieldName2SqlName $val}}
+			,this.{{index $.SqlName2Field $val}}
 		{{- else -}}
-			this.{{index $.FieldName2SqlName $val}}
+			this.{{index $.SqlName2Field $val}}
 		{{- end -}}
 	{{- end }} {{range $index,$val := .KeyFields -}} 
-			 ,this.{{index $.FieldName2SqlName $val}}
+			 ,this.{{index $.SqlName2Field $val}}
 	{{- end -}} }
 }
 
 func (this *{{.ModuleName}}) InsertSql() (string, []interface{}) {
-	sql := "insert into {{$.FileNameNoExt}}({{range $index,$val := .InsertFields -}}
+	sql := "insert into {{$.TableName}}({{range $index,$val := .InsertFields -}}
 		{{- if $index -}}
-			 ,{{.}}
+			 ,{{dot}}{{.}}{{dot}}
 		{{- else -}}
-			{{.}}
+			{{dot}}{{.}}{{dot}}
 		{{- end -}}
 	{{- end }}) values({{range $index,$val := .InsertFields -}} 
 		{{- if $index -}}
@@ -171,48 +119,58 @@ func (this *{{.ModuleName}}) InsertSql() (string, []interface{}) {
 	{{- end -}})"
 	return sql, []interface{}{ {{range $index,$val := .InsertFields -}} 
 		{{- if $index -}}
-			 ,this.{{index $.FieldName2SqlName $val}}
+			 ,this.{{index $.SqlName2Field $val}}
 		{{- else -}}
-			this.{{index $.FieldName2SqlName $val}}
+			this.{{index $.SqlName2Field $val}}
 		{{- end -}} 
 	{{- end -}} }
 }
-`
-
-//{{$x := .}}
-//{{range $field := .Fields}}
-//func (this *{{$x.ModuleName}}) Get{{$field.Name}}() {{$field.Type}} {
-//return this.{{$field.Name}}
-//}
-//
-//func (this *{{$x.ModuleName}}) Set{{$field.Name}}(a{{$field.Name}} {{$field.Type}}) {
-//this.{{$field.Name}} = a{{$field.Name}}
-//}
-//{{end}}
-
-const iMapTpl = `
-package table
-
-var DbMap []interface{} = []interface{}{
-{{range $name := .ModuleNames}}
-	&{{$name}}{},
 {{- end}}
-}
-`
 
-type Modules struct {
-	ModuleNames []string
+func (this *{{.ModuleName}}) TableName() string {
+	return "{{.TableName}}"
 }
+
+func (this *{{.ModuleName}}) SelectStr() string {
+	return "{{range $index,$val := .SelectFields -}}
+		{{- if $index -}}
+			,{{dot}}{{.}}{{dot}}
+		{{- else -}}
+			{{dot}}{{.}}{{dot}}
+		{{- end -}}
+	{{- end }}"
+}
+
+{{- range $name,$keys := .IndexKeys}}
+func (this *{{$.ModuleName}}) {{$name}}Sql() string {
+	return "select {{range $index,$val := $.SelectFields -}}
+		{{- if $index -}}
+			,{{dot}}{{.}}{{dot}}
+		{{- else -}}
+			{{dot}}{{.}}{{dot}}
+		{{- end -}}
+	{{- end }} from {{$.TableName}} where {{range $index,$val := $keys -}}
+		{{- if $index -}}
+			,{{dot}}{{.}}{{dot}} = ?
+		{{- else -}}
+			{{dot}}{{.}}{{dot}} = ?
+		{{- end -}}
+	{{- end }}"
+}
+{{- end}}
+
+`
 
 type TableModule struct {
-	ModuleName        string
-	FileNameNoExt     string
-	Fields            []FieldsType
-	SelectFields      []string
-	InsertFields      []string
-	UpdateFields      []string
-	KeyFields         []string
-	FieldName2SqlName map[string]string
+	IsOriginTb    bool
+	ModuleName    string
+	TableName     string
+	Fields        []FieldsType
+	SelectFields  []string
+	InsertFields  []string
+	UpdateFields  []string
+	KeyFields     []string
+	SqlName2Field map[string]string
 
 	IndexKeys map[string][]string
 }
@@ -222,11 +180,23 @@ type FieldsType struct {
 	Type string
 }
 
-func (tb *TableModule) handleComment(doc string) {
-	tb.IndexKeys = make(map[string][]string)
+func (tInfo *TableModule) handleComment(doc string) map[string]bool {
+	tInfo.IsOriginTb = false
 	tmpIndexMap := make(map[string]bool)
+
 	lines := strings.Split(doc, "\n")
 	for _, line := range lines {
+		if strings.Contains(line, "CREATE TABLE") {
+			tInfo.IsOriginTb = true
+			r := strings.Split(line, " ")
+			tInfo.TableName = strings.Trim(r[2], "`")
+			continue
+		}
+		if strings.Contains(line, "TABLE_NAME") {
+			r := strings.Split(line, " ")
+			tInfo.TableName = r[len(r)-1]
+			continue
+		}
 		if strings.Contains(line, "KEY") {
 			r := strings.Split(line, " ")
 			c := strings.Split(r[len(r)-1], "`")
@@ -241,29 +211,27 @@ func (tb *TableModule) handleComment(doc string) {
 					if field == "," {
 						continue
 					}
-					f += "`" + field + "`" + " "
+					f += field + " "
 					if _, ok := tmpIndexMap[f]; !ok {
 						tmpIndexMap[f] = true
 					}
+
+					if strings.Contains(line, "PRIMARY") {
+						tInfo.KeyFields = append(tInfo.KeyFields, field)
+					}
 				}
 			} else {
-				f := "`" + c[0] + "`" + " "
+				f := c[0] + " "
 				if _, ok := tmpIndexMap[f]; !ok {
 					tmpIndexMap[f] = true
+				}
+				if strings.Contains(line, "PRIMARY") {
+					tInfo.KeyFields = append(tInfo.KeyFields, c[0])
 				}
 			}
 		}
 	}
-
-	for key, _ := range tmpIndexMap {
-		indexName := "SelectBy"
-		v := strings.Split(key, " ")
-		v = v[:len(v)-1]
-		for _, one := range v {
-			indexName += tb.FieldName2SqlName[one]
-		}
-		tb.IndexKeys[indexName] = v
-	}
+	return tmpIndexMap
 }
 
 func (tb *TableModule) makeFileStruct(dir string, fileName string) {
@@ -274,8 +242,6 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		fmt.Println("ParseFile failed err : %s", err.Error())
 		return
 	}
-
-	//fmt.Println(pf.Comments[len(pf.Comments)-1].Text())
 
 	for _, decl := range pf.Decls {
 		gd, ok := decl.(*ast.GenDecl)
@@ -292,10 +258,11 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			continue
 		}
 
+		tmpIndexMap := tb.handleComment(pf.Comments[len(pf.Comments)-1].Text())
+
 		tb.ModuleName = sp.Name.Name
-		tb.FileNameNoExt = fileName[:len(fileName)-3]
-		tb.Fields = make([]FieldsType, 0)
-		tb.FieldName2SqlName = make(map[string]string)
+		tb.SqlName2Field = make(map[string]string)
+		tb.IndexKeys = make(map[string][]string)
 
 		st, ok := sp.Type.(*ast.StructType)
 		if !ok {
@@ -303,9 +270,9 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			continue
 		}
 		for _, fl := range st.Fields.List {
-			fident, ok := fl.Type.(*ast.Ident)
-			if ok {
-				tb.Fields = append(tb.Fields, FieldsType{fl.Names[0].Name, fident.Name})
+			_, ok := fl.Type.(*ast.Ident)
+			if !ok {
+				continue
 			}
 			tag := fl.Tag.Value
 			sqlFieldName := ""
@@ -313,29 +280,41 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				parts := strings.Split(tag, "\"")
 				firstPart := strings.Split(parts[1], ",")
 
-				sqlFieldName = "`" + firstPart[0] + "`"
-				tb.FieldName2SqlName[sqlFieldName] = fl.Names[0].Name
-				tb.KeyFields = append(tb.KeyFields, sqlFieldName)
+				sqlFieldName = firstPart[0]
+				tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
 			} else {
 				parts := strings.Split(tag, "\"")
-				sqlFieldName = "`" + parts[1] + "`"
-				tb.FieldName2SqlName[sqlFieldName] = fl.Names[0].Name
+				sqlFieldName = parts[1]
+				tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
 			}
+			isTimeField := strings.Contains(sqlFieldName, "create_at") || strings.Contains(sqlFieldName, "update_at")
+			isAutoField := strings.Contains(tag, "auto_increment")
+			isPk := strings.Contains(tag, "primary_key")
 
-			if strings.Contains(sqlFieldName, "create_at") ||
-				strings.Contains(sqlFieldName, "update_at") ||
-				strings.Contains(tag, "auto_increment") ||
-				strings.Contains(tag, "primary_key") {
+			if isTimeField || isAutoField {
 				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 				continue
+			} else if isPk {
+				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
+				tb.InsertFields = append(tb.InsertFields, sqlFieldName)
+				continue
+			} else {
+				tb.InsertFields = append(tb.InsertFields, sqlFieldName)
+				tb.UpdateFields = append(tb.UpdateFields, sqlFieldName)
+				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 			}
+		}
 
-			tb.InsertFields = append(tb.InsertFields, sqlFieldName)
-			tb.UpdateFields = append(tb.UpdateFields, sqlFieldName)
-			tb.SelectFields = append(tb.SelectFields, sqlFieldName)
+		for key, _ := range tmpIndexMap {
+			indexName := "SelectBy"
+			v := strings.Split(key, " ")
+			v = v[:len(v)-1]
+			for _, one := range v {
+				indexName += tb.SqlName2Field[one]
+			}
+			tb.IndexKeys[indexName] = v
 		}
 	}
-	tb.handleComment(pf.Comments[len(pf.Comments)-1].Text())
 }
 
 //func (m *Modules) genMap(dataDirPath string) {
@@ -382,8 +361,8 @@ func genTableFile() {
 	}
 
 	funcMap := template.FuncMap{
-		"dec": func(i int) int {
-			return i - 1
+		"dot": func() string {
+			return "`"
 		},
 	}
 	t := template.New("template")
@@ -393,7 +372,6 @@ func genTableFile() {
 		fmt.Println(err.Error())
 		return
 	}
-	modules := new(Modules)
 	for _, file := range fd {
 		if file.IsDir() {
 			continue
@@ -406,8 +384,9 @@ func genTableFile() {
 		tb := new(TableModule)
 		tb.makeFileStruct(dataDirPath, file.Name())
 
+		fileNameNoExt := file.Name()[:len(file.Name())-3]
 		//fmt.Printf("%v", *tb)
-		fpAuto, err := os.OpenFile(dataDirPath+"/"+tb.FileNameNoExt+"_auto.go",
+		fpAuto, err := os.OpenFile(dataDirPath+"/"+fileNameNoExt+"_auto.go",
 			os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 		if err != nil {
 			fmt.Println("create file error : %s", err.Error())
@@ -420,9 +399,7 @@ func genTableFile() {
 			return
 		}
 		fpAuto.Close()
-		modules.ModuleNames = append(modules.ModuleNames, tb.ModuleName)
 	}
-	//modules.genMap(dataDirPath)
 }
 
 func main() {

@@ -177,3 +177,19 @@ func (x *TAppRet) Put() {
 	*x = TAppRet{}
 	TAppRetPool.Put(x)
 }
+
+var TAppRetPool = sync.Pool{
+	New: func() interface{} {
+		return new(TAppRet)
+	},
+}
+
+//`````
+func NewTAppRet() *TAppRet {
+	return TAppRetPool.Get().(*TAppRet)
+}
+
+func (x *TAppRet) Put() {
+	*x = TAppRet{}
+	TAppRetPool.Put(x)
+}

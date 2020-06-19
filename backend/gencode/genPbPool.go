@@ -88,8 +88,8 @@ func GenPbPool() error {
 	}
 
 	funcMap := template.FuncMap{
-		"dec": func(i int) int {
-			return i - 1
+		"dot": func() string {
+			return "`"
 		},
 	}
 	t := template.New("template")

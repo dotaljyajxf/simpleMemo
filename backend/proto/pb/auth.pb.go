@@ -294,3 +294,35 @@ func (x *TAuthLoginArg) Put() {
 	*x = TAuthLoginArg{}
 	TAuthLoginArgPool.Put(x)
 }
+
+var TAuthInfoPool = sync.Pool{
+	New: func() interface{} {
+		return new(TAuthInfo)
+	},
+}
+
+//`````
+func NewTAuthInfo() *TAuthInfo {
+	return TAuthInfoPool.Get().(*TAuthInfo)
+}
+
+func (x *TAuthInfo) Put() {
+	*x = TAuthInfo{}
+	TAuthInfoPool.Put(x)
+}
+
+var TAuthLoginArgPool = sync.Pool{
+	New: func() interface{} {
+		return new(TAuthLoginArg)
+	},
+}
+
+//`````
+func NewTAuthLoginArg() *TAuthLoginArg {
+	return TAuthLoginArgPool.Get().(*TAuthLoginArg)
+}
+
+func (x *TAuthLoginArg) Put() {
+	*x = TAuthLoginArg{}
+	TAuthLoginArgPool.Put(x)
+}

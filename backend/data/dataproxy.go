@@ -32,6 +32,7 @@ type CacheHandle interface {
 }
 
 type TableHandler interface {
+	GetStringKey() string
 	Decode(v []byte) error
 	Encode() []byte
 	UpdateSql() (string, []interface{})
@@ -81,7 +82,7 @@ func (data *dataManager) InsertTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	_, err = data.Cache.Set(getSqlKey(resp, args), resp.Encode())
+	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
 	if err != nil {
 		logrus.Info("set cache err %s\n", err.Error())
 	}
@@ -94,7 +95,7 @@ func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	_, err = data.Cache.Del(getSqlKey(resp, args))
+	_, err = data.Cache.Del(resp.GetStringKey())
 	if err != nil {
 		logrus.Info("del cache err %s\n", err.Error())
 	}
@@ -107,18 +108,19 @@ func (data *dataManager) QueryContext(ctx context.Context, resp interface{}, sql
 		return queryContext(ctx, data.Slave, nil, resp, sql, args)
 	}
 	cKey := getSqlKey(singleTable, args)
+	if cKey != singleTable.GetStringKey() {
+		return queryContext(ctx, data.Slave, nil, resp, sql, args)
+	}
 	d, err := data.Cache.Get(cKey)
 	if err == nil {
 		return singleTable.Decode(d.([]byte))
 	}
+	logrus.Infof("cache miss %s", cKey)
 	err = queryContext(ctx, data.Slave, nil, singleTable, sql, args)
 	if err != nil {
 		return err
 	}
-	_, err = data.Cache.Set(cKey, singleTable.Encode())
-	if err != nil {
-		logrus.Info("set cache err %s\n", err.Error())
-	}
+	_, _ = data.Cache.Set(cKey, singleTable.Encode())
 	return err
 }
 
