@@ -3,7 +3,6 @@ go.sum
 vendor/
 *.xml
 idea/
-dist/
 vscode/
 log/
 bin/
