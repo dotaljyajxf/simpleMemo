@@ -35,8 +35,8 @@ func main() {
 
 	gin.SetMode(conf.Config.RunMode)
 
-	r.LoadHTMLGlob(conf.Config.ViewPath + "/*")
-	//r.LoadHTMLFiles(conf.Config.StaticPath + "index.html")
+	//r.LoadHTMLGlob(conf.Config.StaticPath + "/views/*")
+	r.LoadHTMLFiles(conf.Config.StaticPath + "/index.html")
 
 	r = routers.CommonRouter(r)
 	r = routers.InitRouter(r)

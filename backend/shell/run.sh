@@ -1,12 +1,6 @@
 #!/bin/bash
 
 
-function op_build()
-{
-    go build -o web main.go
-    echo "build ok!"
-}
-
 function op_show()
 {
      ps -ef | grep web | grep -v grep
@@ -50,11 +44,6 @@ if [ ! -d ./static ];then
    exit
 fi
 
-if [ ! -d ./views ];then
-   echo "./views not exist"
-   exit
-fi
-
 args="-c ./conf/app.ini -s ./static -v ./views"
 
 case $op in
@@ -66,9 +55,6 @@ case $op in
     ;;
     restart)
     op_restart
-    ;;
-    build)
-    op_build
     ;;
     show)
     op_show

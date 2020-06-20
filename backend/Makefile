@@ -8,9 +8,9 @@ all:build run
 auto:
 	sh $(PROJECT_ROOT)/backend/shell/auto.sh
 
-.PHONY: npm
-npm:
-	sh $(PROJECT_ROOT)/backend/shell/npmBuild.sh
+.PHONY: static
+static:
+	sh $(PROJECT_ROOT)/backend/shell/mvStatic.sh
 
 .PHONY: build
 build:
@@ -18,7 +18,7 @@ build:
 
 .PHONY: run
 run:
-	sh $(PROJECT_ROOT)/backend/shell/run.sh restart
+	sh $(OUTPATH)/run.sh restart
 
 build_linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -o $(OUTPATH)/web_linux -v main.go
