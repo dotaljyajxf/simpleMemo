@@ -37,7 +37,7 @@
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
     "build": "webpack",
-    "buildProd": "NODE_ENV=production webpack -p --config webpack.config.product.js"
+    "build:prod": "NODE_ENV=production webpack -p --config webpack.config.product.js"
   },
   "repository": {
     "type": "git",
