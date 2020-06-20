@@ -24,7 +24,7 @@ function getPluginList() {
     new HtmlWebpackPlugin({
       //可以针对不同的模版，定义不同的名称
       title: "嘿哈",
-      template: "./src/index.html",
+      template: "./index.html",
       chunks: ["littleCai"],
       filename: "index.html"
     }),
@@ -71,7 +71,7 @@ module.exports = {
   mode: "development",
   entry: {
     //入口文件
-    littleCai: "./src/backend/react/littleCai/index.jsx",
+    littleCai: "./react/littleCai/index.jsx",
   },
 /* optimization: {
     splitChunks: {

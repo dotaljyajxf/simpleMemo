@@ -1,7 +1,7 @@
 
 curPwd=`pwd`
 
-staticPath=$HOME/LittleCai/bin/static
+staticPath=$HOME/LittleCai/bin
 
 rm -rf  $staticPath/static
 
@@ -17,23 +17,21 @@ fi
 
 npmPath=$HOME/LittleCai/frontend
 
+rm -rf $npmPath/dist/*
+
 cd $npmPath && npm run buildDev
 
-cd $staticPath
+cp $npmPath/dist/images/*  $staticPath/static/images/
 
-ls ./images/* |grep -E "[a-z0-9]{32}.jpeg" | xargs rm 
+#if [ ! `ls ./js/littleCai-*.js* | wc -l` -eq 0 ];then
+#    mv ./js/littleCai-*.js* /tmp/
+#fi
+#
+#if [ ! `ls ./js/vendors~littleCai*.js* | wc -l ` -eq 0 ];then
+#    mv ./js/vendors~littleCai*.js*  /tmp/
+#fi
 
-cp $npmPath/dist/images/*  ./images/
-
-if [ ! `ls ./js/littleCai-*.js* | wc -l` -eq 0 ];then
-    mv ./js/littleCai-*.js* /tmp/  
-fi
-
-if [ ! `ls ./js/vendors~littleCai*.js* | wc -l ` -eq 0 ];then 
-    mv ./js/vendors~littleCai*.js*  /tmp/
-fi
-
-cp $npmPath/dist/js/*  ./js/
+cp $npmPath/dist/js/*  $staticPath/static/js/
 
 cp $npmPath/dist/index.html  ../views/
 
