@@ -48,20 +48,23 @@ func (this *TAuth) TableName() string {
 }
 
 func (this *TAuth) SelectStr() string {
-	return "`uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`"
-}
-func (this *TAuth) SelectBySql() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num` from auth where `create_at` = ?"
+	return "`uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at`"
 }
 func (this *TAuth) SelectByAccountSql() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num` from auth where `account` = ?"
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `account` = ?"
+}
+func (this *TAuth) SelectByCreateAtSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `create_at` = ?"
 }
 func (this *TAuth) SelectByMailSql() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num` from auth where `mail` = ?"
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `mail` = ?"
 }
 func (this *TAuth) SelectByNickNameSql() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num` from auth where `nick_name` = ?"
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `nick_name` = ?"
 }
 func (this *TAuth) SelectByUidSql() string {
-	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num` from auth where `uid` = ?"
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `uid` = ?"
+}
+func (this *TAuth) SelectByUpdateAtSql() string {
+	return "select `uid`,`nick_name`,`account`,`mail`,`pass_word`,`phone_num`,`create_at`,`update_at` from auth where `update_at` = ?"
 }

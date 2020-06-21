@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/conf"
+	"backend/data"
 	"backend/routers"
 	"context"
 	"fmt"
@@ -20,7 +21,7 @@ import (
 func main() {
 
 	conf.Init()
-	//data.Init()
+	data.InitDataManager()
 
 	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
 		logrus.Fatal("server port must be a number between 1 and 65535")
@@ -43,8 +44,8 @@ func main() {
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),
 		Handler:        r,
-		ReadTimeout:    conf.Config.ReadTimeout,
-		WriteTimeout:   conf.Config.WriteTimeout,
+		ReadTimeout:    time.Second * conf.Config.ReadTimeout,
+		WriteTimeout:   time.Second * conf.Config.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
 

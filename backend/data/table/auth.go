@@ -20,7 +20,7 @@ CREATE TABLE `auth` (
   `account` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '账号',
   `mail` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '邮箱',
   `pass_word` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '密码',
-  `phone` char(11) NOT NULL DEFAULT '0' COMMENT 'phone',
+  `phone_num` char(11) NOT NULL DEFAULT '0' COMMENT 'phone',
   `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`uid`),
@@ -28,6 +28,6 @@ CREATE TABLE `auth` (
   UNIQUE KEY `nick_name` (`nick_name`),
   UNIQUE KEY `mail` (`mail`),
   KEY `idx_created` (`create_at`),
-  KEY `idx_updated` (`create_at`)
+  KEY `idx_updated` (`update_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 */

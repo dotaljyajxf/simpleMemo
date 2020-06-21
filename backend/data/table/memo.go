@@ -11,7 +11,7 @@ type TMemo struct {
 	RemindTime int64     `sql:"remind_time"`
 	Text       string    `sql:"text"`
 	CreatedAt  time.Time `sql:"create_at"`
-	DeletedAt  time.Time `sql:"delete_at"`
+	UpdateAt   time.Time `sql:"update_at"`
 }
 
 /*
@@ -24,10 +24,10 @@ CREATE TABLE `memo` (
   `remind_time` int unsigned NOT NULL DEFAULT 0 COMMENT '提醒时间',
   `text` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文本',
   `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `delete_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `u_year_m_d` (`uid`,`year`,`mouth`,`status`),
   KEY `idx_created` (`create_at`),
-  KEY `idx_deleted` (`create_at`),
+  KEY `idx_updated` (`update_at`),
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='备忘录表';
 */

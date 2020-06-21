@@ -270,10 +270,10 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			continue
 		}
 		for _, fl := range st.Fields.List {
-			_, ok := fl.Type.(*ast.Ident)
-			if !ok {
-				continue
-			}
+			//_, ok := fl.Type.(*ast.Ident)
+			//if !ok {
+			//	continue
+			//}
 			tag := fl.Tag.Value
 			sqlFieldName := ""
 			if strings.Contains(tag, "primary_key") {
@@ -304,7 +304,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 			}
 		}
-
+		fmt.Println(tb.SqlName2Field)
 		for key, _ := range tmpIndexMap {
 			indexName := "SelectBy"
 			v := strings.Split(key, " ")

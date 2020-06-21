@@ -27,11 +27,13 @@ type ConfigIni struct {
 	LogLevel              int           `ini:"LOG_LEVEL"`
 	CacheUse              int           `ini:"CACHE_USE"`
 	CacheRedisHost        string        `ini:"CACHE_REDIS_HOST"`
+	CacheRedisPassWd      string        `ini:"CACHE_REDIS_PW"`
 	CacheRedisDB          int           `ini:"CACHE_DB_NUMBER" `
 	CacheRedisMaxIdel     int           `ini:"CACHE_MAX_IDEL"`
 	CacheRedisMaxActive   int           `ini:"CACHE_MAX_ACTIVE"`
 	CacheRedisIdelTimeout int           `ini:"CACHE_IDEL_TIMEOUT"`
 	KvRedisHost           string        `ini:"KV_REDIS_HOST"`
+	KvRedisPassWd         string        `ini:"KV_REDIS_PW"`
 	KvRedisDB             int           `ini:"KV_DB_NUMBER" `
 	KvRedisMaxIdel        int           `ini:"KV_MAX_IDEL"`
 	KvRedisMaxActive      int           `ini:"KV_MAX_ACTIVE"`
@@ -64,9 +66,6 @@ func Init() {
 			return
 		}
 	}
-
-	Config.ReadTimeout = Config.ReadTimeout * time.Second
-	Config.WriteTimeout = Config.ReadTimeout * time.Second
 
 	logrus.SetFormatter(&logrus.TextFormatter{
 		DisableColors:   false,

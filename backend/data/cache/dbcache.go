@@ -13,6 +13,8 @@ type DbCache struct {
 	conn_pool *redis.Pool
 }
 
+const EXPIRE = 86400
+
 func InitDbCache() *DbCache {
 	dc := new(DbCache)
 	dc.initPool()
@@ -25,7 +27,7 @@ func (c *DbCache) initPool() {
 			return redis.Dial(
 				"tcp",
 				fmt.Sprintf(conf.Config.CacheRedisHost),
-				//redis.DialPassword(cfg.Password),
+				redis.DialPassword(conf.Config.CacheRedisPassWd),
 				redis.DialDatabase(conf.Config.CacheRedisDB),
 				redis.DialConnectTimeout(time.Second*2),
 				redis.DialReadTimeout(time.Second*2),
@@ -38,7 +40,7 @@ func (c *DbCache) initPool() {
 		},
 		MaxIdle:     conf.Config.CacheRedisMaxIdel,
 		MaxActive:   conf.Config.CacheRedisMaxActive,
-		IdleTimeout: time.Duration(conf.Config.CacheRedisIdelTimeout),
+		IdleTimeout: time.Second * time.Duration(conf.Config.CacheRedisIdelTimeout),
 		Wait:        true,
 	}
 
@@ -53,7 +55,7 @@ func (c *DbCache) do(command string, args ...interface{}) (reply interface{}, er
 	}
 	conn := c.conn_pool.Get()
 	defer conn.Close()
-	return conn.Do(command, args)
+	return conn.Do(command, args...)
 }
 
 func (c *DbCache) Get(key string) (reply interface{}, err error) {
@@ -61,7 +63,7 @@ func (c *DbCache) Get(key string) (reply interface{}, err error) {
 }
 
 func (c *DbCache) Set(key string, val interface{}) (reply interface{}, err error) {
-	return c.do("SET", key, val)
+	return c.do("SETEX", key, EXPIRE, val)
 }
 
 func (c *DbCache) Del(key string) (reply interface{}, err error) {

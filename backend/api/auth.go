@@ -20,7 +20,6 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	if err != nil {
 		return util.MakeErrRet(ret, http.StatusOK, err.Error())
 	}
-
 	if authObj.PassWord != password {
 		return util.MakeErrRet(ret, http.StatusOK, "PassWordError")
 	}
@@ -28,7 +27,7 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	token, err := util.GenerateToken(authObj.Account, authObj.PassWord)
 
 	if err != nil {
-		//..
+		return util.MakeErrRet(ret, http.StatusOK, "tokenError")
 	}
 
 	retAuth.PhoneNum = authObj.PhoneNum

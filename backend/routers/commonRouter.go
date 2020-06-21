@@ -11,6 +11,7 @@ import (
 func CommonRouter(r *gin.Engine) *gin.Engine {
 
 	//api.Login(r)
+	r.Use(LocalRecover())
 	r.POST("/Login", AfterHook(api.Login))
 	r.POST("/Regist", AfterHook(api.Regist))
 	r.POST("/doRpc", AfterHook(api.DoRpc))

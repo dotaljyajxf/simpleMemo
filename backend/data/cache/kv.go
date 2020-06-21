@@ -26,7 +26,7 @@ func (c *KvCache) initPool() {
 			return redis.Dial(
 				"tcp",
 				fmt.Sprintf(conf.Config.KvRedisHost),
-				//redis.DialPassword(cfg.Password),
+				redis.DialPassword(conf.Config.KvRedisPassWd),
 				redis.DialDatabase(conf.Config.KvRedisDB),
 				redis.DialConnectTimeout(time.Second*2),
 				redis.DialReadTimeout(time.Second*2),
@@ -39,7 +39,7 @@ func (c *KvCache) initPool() {
 		},
 		MaxIdle:     conf.Config.KvRedisMaxIdel,
 		MaxActive:   conf.Config.KvRedisMaxActive,
-		IdleTimeout: time.Duration(conf.Config.KvRedisIdelTimeout),
+		IdleTimeout: time.Second * time.Duration(conf.Config.CacheRedisIdelTimeout),
 		Wait:        true,
 	}
 
