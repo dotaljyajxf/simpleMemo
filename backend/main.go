@@ -3,6 +3,7 @@ package main
 import (
 	"backend/conf"
 	"backend/data"
+	"backend/data/cache"
 	"backend/routers"
 	"context"
 	"fmt"
@@ -12,8 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -22,6 +21,7 @@ func main() {
 
 	conf.Init()
 	data.InitDataManager()
+	cache.InitKvCache()
 
 	if conf.Config.HTTPPort < 1 || conf.Config.HTTPPort > 65535 {
 		logrus.Fatal("server port must be a number between 1 and 65535")
@@ -31,8 +31,8 @@ func main() {
 
 	r := gin.Default()
 
-	store := cookie.NewStore([]byte(conf.Config.JwtSecret))
-	r.Use(sessions.Sessions("mysession", store))
+	//store := cookie.NewStore([]byte(conf.Config.JwtSecret))
+	//r.Use(sessions.Sessions("mysession", store))
 
 	gin.SetMode(conf.Config.RunMode)
 

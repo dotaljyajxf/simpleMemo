@@ -184,16 +184,20 @@ func parseRow(rows *sql.Rows, columnNames []string, val reflect.Value) error {
 func parseRows(rows *sql.Rows, columnNames []string, val reflect.Value) error {
 	typ := val.Type()
 	t := typ.Elem()
+
+	if t.Kind() != reflect.Slice {
+		return fmt.Errorf("scan rows typr not slice (%v)", t.Kind())
+	}
 	results := reflect.MakeSlice(t, 0, 0)
+	t = t.Elem()
 
 	isPtr := false
-	if t.Elem().Kind() == reflect.Struct {
-		t = t.Elem() // struct
-	} else if t.Elem().Kind() == reflect.Ptr && !val.Elem().IsNil() && t.Elem().Elem().Kind() == reflect.Struct {
+	if t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct {
 		isPtr = true
-		t = t.Elem().Elem() // struct
-	} else {
-		return fmt.Errorf("scan data invalid(%v,%v)", t.Elem().Kind(), t.Elem().Elem().Kind())
+		t = t.Elem() // struct
+	}
+	if t.Kind() != reflect.Struct {
+		return fmt.Errorf("scan data invalid(%v)", t.Kind())
 	}
 
 	for rows.Next() {
@@ -234,11 +238,11 @@ func queryContext(ctx context.Context, db *sql.DB, tx *sql.Tx, resp interface{},
 	val := reflect.ValueOf(resp)
 	typ := val.Type()
 
-	if typ.Kind() != reflect.Ptr && typ.Kind() != reflect.Slice {
-		return fmt.Errorf("scan data invalid(%v,%v)", typ.Kind(), typ.Elem().Kind())
+	if typ.Kind() != reflect.Ptr {
+		return fmt.Errorf("scan data must ptr %s", typ.Kind())
 	}
 
-	if typ.Kind() != reflect.Slice && typ.Elem().Kind() == reflect.Struct {
+	if typ.Elem().Kind() == reflect.Struct {
 		logrus.Info("row")
 		return parseRow(rows, columnNames, val.Elem())
 	} else {

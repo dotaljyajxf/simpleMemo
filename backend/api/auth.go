@@ -43,8 +43,12 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	sessionUser.NickName = authObj.NickName
 	sessionUser.Uid = authObj.Uid
 	sessionUser.Token = token
-	auth.SetAuthSession(c, sessionUser)
+	err = auth.SetAuthSession(token, sessionUser)
+	if err != nil {
+		log.Errorf("set session error %s", err.Error())
+	}
 
+	c.SetCookie("token", token, 300, "/", "127.0.0.1", false, true)
 	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
 }
 
@@ -75,6 +79,8 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 		//...
 	}
 
+	c.SetCookie("token", token, 300, "/", "127.0.0.1", false, true)
+
 	retAuth.PhoneNum = authObj.PhoneNum
 	retAuth.Mail = authObj.Mail
 	retAuth.Token = token
@@ -88,7 +94,7 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 	sessionUser.NickName = authObj.NickName
 	sessionUser.Uid = authObj.Uid
 	sessionUser.Token = token
-	auth.SetAuthSession(c, sessionUser)
+	auth.SetAuthSession(token, sessionUser)
 
 	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
 }

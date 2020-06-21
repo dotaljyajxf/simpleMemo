@@ -54,5 +54,5 @@ func (c *KvCache) Do(command string, args ...interface{}) (reply interface{}, er
 	}
 	conn := c.conn_pool.Get()
 	defer conn.Close()
-	return conn.Do(command, args)
+	return conn.Do(command, args...)
 }

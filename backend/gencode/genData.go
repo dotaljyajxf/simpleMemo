@@ -87,7 +87,7 @@ func (this *{{.ModuleName}}) UpdateSql() (string, []interface{}) {
 		{{- end -}}
 	{{- end }} where {{range $index,$val := .KeyFields -}}
 		{{- if $index -}}
-			,{{dot}}{{.}}{{dot}} = ?
+			{{print " "}}and {{dot}}{{.}}{{dot}} = ?
 		{{- else -}}
 			{{dot}}{{.}}{{dot}} = ?
 		{{- end -}}
@@ -151,7 +151,7 @@ func (this *{{$.ModuleName}}) {{$name}}Sql() string {
 		{{- end -}}
 	{{- end }} from {{$.TableName}} where {{range $index,$val := $keys -}}
 		{{- if $index -}}
-			,{{dot}}{{.}}{{dot}} = ?
+			{{print " "}}and {{dot}}{{.}}{{dot}} = ?
 		{{- else -}}
 			{{dot}}{{.}}{{dot}} = ?
 		{{- end -}}

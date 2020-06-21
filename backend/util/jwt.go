@@ -2,7 +2,6 @@ package util
 
 import (
 	"backend/conf"
-	auth2 "backend/model/auth"
 	"backend/proto/pb"
 	"net/http"
 	"time"
@@ -56,11 +55,15 @@ func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 
-		sess := auth2.GetAuthSession(c)
-		token := sess.Token
-		if token == "" {
-			token = c.Query("token")
+		token, err := c.Cookie("token")
+		if err != nil {
+			c.ProtoBuf(http.StatusForbidden, "")
 		}
+		//sess := auth2.GetAuthSession(c)
+		//token := sess.Token
+		//if token == "" {
+		//	token = c.Query("token")
+		//}
 
 		if token == "" {
 			code = -1
@@ -72,9 +75,6 @@ func JWT() gin.HandlerFunc {
 				code = -3
 			}
 		}
-
-		retAuth := pb.NewTAuthInfo()
-		defer retAuth.Put()
 
 		if code != 0 {
 			ret := pb.NewTAppRet()
