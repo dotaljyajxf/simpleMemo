@@ -243,10 +243,8 @@ func queryContext(ctx context.Context, db *sql.DB, tx *sql.Tx, resp interface{},
 	}
 
 	if typ.Elem().Kind() == reflect.Struct {
-		logrus.Info("row")
 		return parseRow(rows, columnNames, val.Elem())
 	} else {
-		logrus.Info("rows")
 		return parseRows(rows, columnNames, val)
 	}
 }

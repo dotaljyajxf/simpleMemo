@@ -24,13 +24,13 @@ const KEY_PREFIX = "game_"
 func GetAuthSession(c *gin.Context) *SessionUser {
 	key, _ := c.Cookie("token")
 	key = KEY_PREFIX + key
-	res, err := redis.String(cache.Kv.Do("GET", key))
+	res, err := redis.Bytes(cache.Kv.Do("GET", key))
 	if err != nil {
 		logrus.Errorf("get session from cache error : %s,%s", err.Error(), key)
 		return nil
 	}
 	sess := new(SessionUser)
-	err = json.Unmarshal([]byte(res), sess)
+	err = json.Unmarshal(res, sess)
 	if err != nil {
 		logrus.Errorf("Unmarshal session from cache error : %s,%s", err.Error(), key)
 		return nil
@@ -46,7 +46,7 @@ func SetAuthSession(key string, s *SessionUser) error {
 	}
 
 	key = KEY_PREFIX + key
-	_, err = cache.Kv.Do("SETEX", key, 3600, string(sJson))
+	_, err = cache.Kv.Do("SETEX", key, 3600, sJson)
 	if err != nil {
 		logrus.Errorf("cache session error : %s,%s", err.Error(), key)
 		return err

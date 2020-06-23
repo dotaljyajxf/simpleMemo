@@ -58,6 +58,8 @@ func JWT() gin.HandlerFunc {
 		token, err := c.Cookie("token")
 		if err != nil {
 			c.ProtoBuf(http.StatusForbidden, "")
+			c.Abort()
+			return
 		}
 		//sess := auth2.GetAuthSession(c)
 		//token := sess.Token

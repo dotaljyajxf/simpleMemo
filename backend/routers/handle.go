@@ -3,6 +3,7 @@ package routers
 import (
 	"backend/proto/pb"
 	"fmt"
+	"net/http"
 	"runtime"
 	"strings"
 
@@ -15,12 +16,13 @@ type HandleFunc func(c *gin.Context, ret *pb.TAppRet) error
 func AfterHook(f HandleFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ret := pb.NewTAppRet()
+		defer ret.Put()
 		err := f(c, ret)
 		if err != nil {
 			logrus.Error("server error : %s", err.Error())
+			c.ProtoBuf(http.StatusServiceUnavailable, ret)
 		}
-		c.ProtoBuf(int(ret.Code), ret)
-		ret.Put()
+		c.ProtoBuf(http.StatusOK, ret)
 	}
 }
 
@@ -37,7 +39,7 @@ func LocalRecover() gin.HandlerFunc {
 					recv = fmt.Errorf("%v", r)
 				}
 				stack := StackInfo()
-				logrus.Error("panic", recv, "stack", strings.Join(stack, " "))
+				logrus.Errorf("panic %v\n, statck :%v", recv, strings.Join(stack, " "))
 				//SetHttpStatus(c, http.StatusInternalServerError)
 			}
 		}()
@@ -47,7 +49,7 @@ func LocalRecover() gin.HandlerFunc {
 
 func StackInfo() []string {
 	var pc [8]uintptr
-	sep := "/app/"
+	sep := "backend/"
 	data := make([]string, 0, 8)
 	n := runtime.Callers(5, pc[:])
 	for _, pc := range pc[:n] {
@@ -62,7 +64,7 @@ func StackInfo() []string {
 		ret := strings.Split(file, sep)
 		file = ret[1]
 		//name := fn.Name()
-		data = append(data, fmt.Sprintf("(%s:%d)", file, line))
+		data = append(data, fmt.Sprintf("(%s:%d)\n", file, line))
 	}
 	return data
 }
