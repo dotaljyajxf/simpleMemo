@@ -159,6 +159,24 @@ func (this *{{$.ModuleName}}) {{$name}}Sql() string {
 }
 {{- end}}
 
+{{- range $name,$keys := .SliceKeys}}
+func (this []*{{$.ModuleName}}) {{$name}}Sql() string {
+	return "select {{range $index,$val := $.SelectFields -}}
+		{{- if $index -}}
+			,{{dot}}{{.}}{{dot}}
+		{{- else -}}
+			{{dot}}{{.}}{{dot}}
+		{{- end -}}
+	{{- end }} from {{$.TableName}} where {{range $index,$val := $keys -}}
+		{{- if $index -}}
+			{{print " "}}and {{dot}}{{.}}{{dot}} = ?
+		{{- else -}}
+			{{dot}}{{.}}{{dot}} = ?
+		{{- end -}}
+	{{- end }}"
+}
+{{- end}}
+
 `
 
 type TableModule struct {
@@ -173,6 +191,9 @@ type TableModule struct {
 	SqlName2Field map[string]string
 
 	IndexKeys map[string][]string
+
+	IsAutoIncrement bool
+	SliceKeys       map[string][]string
 }
 
 type FieldsType struct {
@@ -183,9 +204,15 @@ type FieldsType struct {
 func (tInfo *TableModule) handleComment(doc string) map[string]bool {
 	tInfo.IsOriginTb = false
 	tmpIndexMap := make(map[string]bool)
+	tInfo.IsAutoIncrement = false
 
 	lines := strings.Split(doc, "\n")
 	for _, line := range lines {
+
+		if strings.Contains(line, "AUTO_INCREMENT") {
+			tInfo.IsAutoIncrement = true
+		}
+
 		if strings.Contains(line, "CREATE TABLE") {
 			tInfo.IsOriginTb = true
 			r := strings.Split(line, " ")
@@ -204,34 +231,50 @@ func (tInfo *TableModule) handleComment(doc string) map[string]bool {
 			if len(c) <= 0 {
 				continue
 			}
-
+			f := ""
+			isPk := false
 			if len(c) > 0 {
-				f := ""
 				for _, field := range c {
 					if field == "," {
 						continue
 					}
 					f += field + " "
 					if _, ok := tmpIndexMap[f]; !ok {
-						tmpIndexMap[f] = true
+						tmpIndexMap[f] = false
 					}
 
 					if strings.Contains(line, "PRIMARY") {
 						tInfo.KeyFields = append(tInfo.KeyFields, field)
+						isPk = true
 					}
 				}
 			} else {
-				f := c[0] + " "
+				f = c[0] + " "
 				if _, ok := tmpIndexMap[f]; !ok {
-					tmpIndexMap[f] = true
+					tmpIndexMap[f] = false
 				}
 				if strings.Contains(line, "PRIMARY") {
 					tInfo.KeyFields = append(tInfo.KeyFields, c[0])
+					isPk = true
 				}
 			}
+			if strings.Contains(line, "UNIQUE") || isPk {
+				//唯一索引或者主键索引  区别于 -->普通索引，批量查找
+				tmpIndexMap[f] = true
+			}
+
 		}
 	}
 	return tmpIndexMap
+}
+
+func (tb *TableModule) IsPK(key string) bool {
+	for _, n := range tb.KeyFields {
+		if n == key {
+			return true
+		}
+	}
+	return false
 }
 
 func (tb *TableModule) makeFileStruct(dir string, fileName string) {
@@ -275,21 +318,24 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 			//	continue
 			//}
 			tag := fl.Tag.Value
-			sqlFieldName := ""
-			if strings.Contains(tag, "primary_key") {
-				parts := strings.Split(tag, "\"")
-				firstPart := strings.Split(parts[1], ",")
-
-				sqlFieldName = firstPart[0]
-				tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
-			} else {
-				parts := strings.Split(tag, "\"")
-				sqlFieldName = parts[1]
-				tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
-			}
+			parts := strings.Split(tag, "\"")
+			sqlFieldName := parts[1]
+			tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
+			//sqlFieldName := ""
+			//if strings.Contains(tag, "primary_key") {
+			//	parts := strings.Split(tag, "\"")
+			//	firstPart := strings.Split(parts[1], ",")
+			//
+			//	sqlFieldName = firstPart[0]
+			//	tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
+			//} else {
+			//	parts := strings.Split(tag, "\"")
+			//	sqlFieldName = parts[1]
+			//	tb.SqlName2Field[sqlFieldName] = fl.Names[0].Name
+			//}
 			isTimeField := strings.Contains(sqlFieldName, "create_at") || strings.Contains(sqlFieldName, "update_at")
-			isAutoField := strings.Contains(tag, "auto_increment")
-			isPk := strings.Contains(tag, "primary_key")
+			isPk := tb.IsPK(sqlFieldName)
+			isAutoField := isPk && tb.IsAutoIncrement
 
 			if isTimeField || isAutoField {
 				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
@@ -304,15 +350,19 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				tb.SelectFields = append(tb.SelectFields, sqlFieldName)
 			}
 		}
-		fmt.Println(tb.SqlName2Field)
-		for key, _ := range tmpIndexMap {
+
+		for key, isUniqueOrPk := range tmpIndexMap {
 			indexName := "SelectBy"
 			v := strings.Split(key, " ")
 			v = v[:len(v)-1]
 			for _, one := range v {
 				indexName += tb.SqlName2Field[one]
 			}
-			tb.IndexKeys[indexName] = v
+			if !isUniqueOrPk {
+				tb.SliceKeys[indexName] = v
+			} else {
+				tb.IndexKeys[indexName] = v
+			}
 		}
 	}
 }

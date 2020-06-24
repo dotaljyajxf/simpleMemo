@@ -3,7 +3,7 @@ package table
 import "time"
 
 type TMemo struct {
-	ID         int64     `sql:"id,primary_key,auto_increment"`
+	ID         int64     `sql:"id"`
 	Uid        int64     `sql:"uid"`
 	Year       int64     `sql:"year"`
 	Mouth      int64     `sql:"mouth"`

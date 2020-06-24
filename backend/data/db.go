@@ -72,10 +72,21 @@ func InitDataManager() {
 //
 //}
 //
-//func CloseDB() {
-//	if err := Db.Close(); err != nil {
-//		logrus.Errorf("could not close database connection: %s", err)
-//	} else {
-//		logrus.Info("closed database connection")
-//	}
-//}
+func CloseDB() {
+	if err := Manager.Master.Close(); err != nil {
+		logrus.Errorf("could not close master database connection: %s", err)
+	} else {
+		logrus.Info("closed master database connection")
+	}
+	if Manager.Slave != Manager.Master {
+		if err := Manager.Slave.Close(); err != nil {
+			logrus.Errorf("could not close slave database connection: %s", err)
+		} else {
+			logrus.Info("closed slave database connection")
+		}
+	}
+
+	if conf.Config.CacheUse == 1 {
+		Manager.Cache.Close()
+	}
+}

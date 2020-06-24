@@ -66,6 +66,6 @@ func main() {
 	if err := s.Shutdown(ctx); err != nil {
 		logrus.Infof("Server Shutdown:%s", err)
 	}
-	//data.CloseDB()
+	data.CloseDB()
 	logrus.Info("Server exiting")
 }

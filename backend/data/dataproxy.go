@@ -29,6 +29,7 @@ type CacheHandle interface {
 	Get(key string) (reply interface{}, err error)
 	Set(key string, val interface{}) (reply interface{}, err error)
 	Del(key string) (reply interface{}, err error)
+	Close()
 }
 
 type TableHandler interface {

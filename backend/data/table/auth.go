@@ -3,7 +3,7 @@ package table
 import "time"
 
 type TAuth struct {
-	Uid      int64     `sql:"uid,primary_key,auto_increment"`
+	Uid      int64     `sql:"uid"`
 	NickName string    `sql:"nick_name"`
 	Account  string    `sql:"account"`
 	Mail     string    `sql:"mail"`

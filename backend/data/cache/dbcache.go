@@ -4,6 +4,7 @@ import (
 	"backend/conf"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -68,4 +69,12 @@ func (c *DbCache) Set(key string, val interface{}) (reply interface{}, err error
 
 func (c *DbCache) Del(key string) (reply interface{}, err error) {
 	return c.do("Del", key)
+}
+
+func (c *DbCache) Close() {
+	if c.conn_pool != nil {
+		if err := c.conn_pool.Close(); err != nil {
+			logrus.Error("closed redis  connection error")
+		}
+	}
 }
