@@ -131,14 +131,27 @@ func (this *{{.ModuleName}}) TableName() string {
 	return "{{.TableName}}"
 }
 
-func (this *{{.ModuleName}}) SelectStr() string {
-	return "{{range $index,$val := .SelectFields -}}
+func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
+	sql := "select {{range $index,$val := $.SelectFields -}}
 		{{- if $index -}}
 			,{{dot}}{{.}}{{dot}}
 		{{- else -}}
 			{{dot}}{{.}}{{dot}}
 		{{- end -}}
+	{{- end }} from {{$.TableName}} where {{range $index,$val := .KeyFields -}}
+		{{- if $index -}}
+			{{print " "}}and {{dot}}{{.}}{{dot}} = ?
+		{{- else -}}
+			{{dot}}{{.}}{{dot}} = ?
+		{{- end -}}
 	{{- end }}"
+	return sql, []interface{}{ {{range $index,$val := .KeyFields -}} 
+		{{- if $index -}}
+			 ,this.{{index $.SqlName2Field $val}}
+		{{- else -}}
+			this.{{index $.SqlName2Field $val}}
+		{{- end -}} 
+	{{- end -}} }
 }
 
 {{- range $name,$keys := .IndexKeys}}
@@ -159,8 +172,12 @@ func (this *{{$.ModuleName}}) {{$name}}Sql() string {
 }
 {{- end}}
 
+{{- if len .SliceKeys }}
+type {{$.ModuleName}}s []*{{$.ModuleName}}
+{{end}}
+
 {{- range $name,$keys := .SliceKeys}}
-func (this []*{{$.ModuleName}}) {{$name}}Sql() string {
+func (this {{$.ModuleName}}s) {{$name}}Sql() string {
 	return "select {{range $index,$val := $.SelectFields -}}
 		{{- if $index -}}
 			,{{dot}}{{.}}{{dot}}
@@ -306,6 +323,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 		tb.ModuleName = sp.Name.Name
 		tb.SqlName2Field = make(map[string]string)
 		tb.IndexKeys = make(map[string][]string)
+		tb.SliceKeys = make(map[string][]string)
 
 		st, ok := sp.Type.(*ast.StructType)
 		if !ok {
@@ -364,6 +382,7 @@ func (tb *TableModule) makeFileStruct(dir string, fileName string) {
 				tb.IndexKeys[indexName] = v
 			}
 		}
+		fmt.Println(tb.SliceKeys)
 	}
 }
 
@@ -402,7 +421,7 @@ func genTableFile() {
 		return
 	}
 
-	dataDirPath := path + "/LittleCai/backend/data/table"
+	dataDirPath := path + "/simpleMemo/backend/data/table"
 
 	fd, err := ioutil.ReadDir(dataDirPath)
 	if err != nil {

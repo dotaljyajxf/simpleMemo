@@ -11,7 +11,6 @@ import (
 func FindAuthObj(account string) (*table.TAuth, error) {
 	auth := table.NewTAuth()
 	log.Info("FindAuthObj Begin")
-	log.Infof("auth:%v", auth)
 	err := data.Manager.Query(auth, auth.SelectByAccountSql(), account)
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())

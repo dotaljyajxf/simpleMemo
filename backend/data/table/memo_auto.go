@@ -47,27 +47,31 @@ func (this *TMemo) TableName() string {
 	return "memo"
 }
 
-func (this *TMemo) SelectStr() string {
-	return "`id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at`"
-}
-func (this *TMemo) SelectByCreatedAtSql() string {
-	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `create_at` = ?"
+func (this *TMemo) SelectSql() (string, []interface{}) {
+	sql := "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `id` = ?"
+	return sql, []interface{}{this.ID}
 }
 func (this *TMemo) SelectByIDSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `id` = ?"
 }
-func (this *TMemo) SelectByUidSql() string {
+
+type TMemos []*TMemo
+
+func (this TMemos) SelectByCreatedAtSql() string {
+	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `create_at` = ?"
+}
+func (this TMemos) SelectByUidSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `uid` = ?"
 }
-func (this *TMemo) SelectByUidYearSql() string {
+func (this TMemos) SelectByUidYearSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `uid` = ? and `year` = ?"
 }
-func (this *TMemo) SelectByUidYearMouthSql() string {
+func (this TMemos) SelectByUidYearMouthSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `uid` = ? and `year` = ? and `mouth` = ?"
 }
-func (this *TMemo) SelectByUidYearMouthStatusSql() string {
+func (this TMemos) SelectByUidYearMouthStatusSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `uid` = ? and `year` = ? and `mouth` = ? and `status` = ?"
 }
-func (this *TMemo) SelectByUpdateAtSql() string {
+func (this TMemos) SelectByUpdateAtSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `update_at` = ?"
 }

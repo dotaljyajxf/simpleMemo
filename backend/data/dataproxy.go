@@ -39,6 +39,7 @@ type TableHandler interface {
 	UpdateSql() (string, []interface{})
 	InsertSql() (string, []interface{})
 	TableName() string
+	SelectSql() (string, []interface{})
 }
 
 func (data *dataManager) Begin() (*LocalTx, error) {
@@ -49,7 +50,7 @@ func (data *dataManager) Begin() (*LocalTx, error) {
 	return &LocalTx{tx}, nil
 }
 
-func getSqlKey(resp TableHandler, args ...interface{}) string {
+func getCacheKey(resp TableHandler, args ...interface{}) string {
 	ret := resp.TableName() + "#"
 	for index, v := range args {
 		if index != 0 {
@@ -82,10 +83,10 @@ func (data *dataManager) InsertTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	//_, err = data.Cache.Set(resp.GetStringKey(), string(resp.Encode()))
-	//if err != nil {
-	//	logrus.Infof("set cache err %s\n", err.Error())
-	//}
+	_, err = data.Cache.Set(resp.GetStringKey(), resp.Encode())
+	if err != nil {
+		logrus.Infof("set cache err %s\n", err.Error())
+	}
 	return res, err
 }
 
@@ -102,12 +103,28 @@ func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	return res, err
 }
 
+func (data *dataManager) QueryTable(ctx context.Context, resp TableHandler) error {
+	sql, args := resp.SelectSql()
+	cacheKey := resp.GetStringKey()
+	d, err := data.Cache.Get(cacheKey)
+	if err == nil {
+		return resp.Decode(d.([]byte))
+	}
+	logrus.Infof("cache miss %s", cacheKey)
+	err = queryContext(ctx, data.Slave, nil, resp, sql, args...)
+	if err != nil {
+		return err
+	}
+	_, _ = data.Cache.Set(cacheKey, resp.Encode())
+	return err
+}
+
 func (data *dataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
 	singleTable, ok := resp.(TableHandler)
 	if !ok {
 		return queryContext(ctx, data.Slave, nil, resp, sql, args...)
 	}
-	cKey := getSqlKey(singleTable, args)
+	cKey := getCacheKey(singleTable, args)
 	if cKey != singleTable.GetStringKey() {
 		logrus.Infof("ckey %s,% localKey s", cKey, singleTable.GetStringKey())
 		return queryContext(ctx, data.Slave, nil, resp, sql, args...)
@@ -136,11 +153,13 @@ func (data *dataManager) Close() {
 	}
 }
 
-func MakeSelectSql(resp TableHandler, where string, selectField string) string {
+func MakeSelectSql(selectField string, tableName string, where string) string {
 	buffer := bytes.Buffer{}
 	buffer.WriteString("select ")
 	buffer.WriteString(selectField)
 	buffer.WriteString(" from ")
+	buffer.WriteString(tableName)
+	buffer.WriteString(" ")
 	buffer.WriteString(where)
 
 	return buffer.String()

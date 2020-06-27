@@ -25,10 +25,8 @@ import (
 )
 
 func FindMemoByMouth(uid int64, year int64, mouth int64) ([]*table.TMemo, error) {
-	memos := make([]*table.TMemo, 0)
-	m := table.NewTMemo()
-	defer m.Put()
-	err := data.Manager.Query(&memos, m.SelectByUidYearMouthStatusSql(),
+	memos := make(table.TMemos, 0)
+	err := data.Manager.Query(&memos, memos.SelectByUidYearMouthStatusSql(),
 		uid, year, mouth, 1)
 	if err != nil {
 		log.Errorf("find auth error : %s", err.Error())

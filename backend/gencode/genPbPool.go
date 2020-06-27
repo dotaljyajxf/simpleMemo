@@ -80,7 +80,7 @@ func GenPbPool() error {
 		return nil
 	}
 
-	pbDir := path + "/LittleCai/backend/proto/pb"
+	pbDir := path + "/simpleMemo/backend/proto/pb"
 	fd, err := ioutil.ReadDir(pbDir)
 	if err != nil {
 		fmt.Println("read dir error : %s", err.Error())
