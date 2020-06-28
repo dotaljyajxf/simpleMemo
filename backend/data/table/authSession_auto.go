@@ -27,6 +27,10 @@ func (this *TAuthSession) SelectSql() (string, []interface{}) {
 	sql := "select `uid`,`nick_name`,`account`,`mail`,`phone_num` from auth where `uid` = ?"
 	return sql, []interface{}{this.Uid}
 }
+
+func (this *TAuthSession) FieldsStr() string {
+	return "`uid`,`nick_name`,`account`,`mail`,`phone_num`"
+}
 func (this *TAuthSession) SelectByAccountSql() string {
 	return "select `uid`,`nick_name`,`account`,`mail`,`phone_num` from auth where `account` = ?"
 }

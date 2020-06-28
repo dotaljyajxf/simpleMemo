@@ -3,6 +3,7 @@ package util
 import (
 	"backend/proto/pb"
 	"errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -19,6 +20,7 @@ func MakeErrRet(r *pb.TAppRet, code int64, msg string) error {
 }
 
 func MakeSuccessRet(r *pb.TAppRet, code int64, resp interface{}) error {
+	logrus.Infof("Response: %v\n", resp)
 	if rpObj, ok := resp.(PoolObj); ok {
 		defer rpObj.Put()
 	}

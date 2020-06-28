@@ -154,6 +154,16 @@ func (this *{{.ModuleName}}) SelectSql() (string, []interface{}) {
 	{{- end -}} }
 }
 
+func (this *{{.ModuleName}}) FieldsStr() string {
+	return "{{range $index,$val := $.SelectFields -}}
+		{{- if $index -}}
+			,{{dot}}{{.}}{{dot}}
+		{{- else -}}
+			{{dot}}{{.}}{{dot}}
+		{{- end -}}
+	{{- end }}"
+}
+
 {{- range $name,$keys := .IndexKeys}}
 func (this *{{$.ModuleName}}) {{$name}}Sql() string {
 	return "select {{range $index,$val := $.SelectFields -}}

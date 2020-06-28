@@ -22,6 +22,7 @@ func AfterHook(f HandleFunc) gin.HandlerFunc {
 			logrus.Error("server error : %s", err.Error())
 			c.ProtoBuf(http.StatusServiceUnavailable, ret)
 		}
+
 		c.ProtoBuf(http.StatusOK, ret)
 	}
 }
@@ -39,7 +40,7 @@ func LocalRecover() gin.HandlerFunc {
 					recv = fmt.Errorf("%v", r)
 				}
 				stack := StackInfo()
-				logrus.Errorf("panic %v\n, statck :%v", recv, strings.Join(stack, " "))
+				logrus.Errorf("panic: %v, statck:\n %v", recv, strings.Join(stack, " "))
 				//SetHttpStatus(c, http.StatusInternalServerError)
 			}
 		}()
@@ -50,8 +51,8 @@ func LocalRecover() gin.HandlerFunc {
 func StackInfo() []string {
 	var pc [8]uintptr
 	sep := "backend/"
-	data := make([]string, 0, 8)
-	n := runtime.Callers(5, pc[:])
+	data := make([]string, 0, 10)
+	n := runtime.Callers(0, pc[:])
 	for _, pc := range pc[:n] {
 		fn := runtime.FuncForPC(pc)
 		if fn == nil {

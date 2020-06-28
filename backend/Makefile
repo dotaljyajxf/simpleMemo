@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT :=$(HOME)/LittleCai
-OUTPATH :=$(HOME)/LittleCai/bin
+PROJECT_ROOT :=$(HOME)/simpleMemo
+OUTPATH :=$(HOME)/simpleMemo/bin
 
 all:build run
 

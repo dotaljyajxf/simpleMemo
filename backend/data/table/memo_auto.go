@@ -51,6 +51,10 @@ func (this *TMemo) SelectSql() (string, []interface{}) {
 	sql := "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `id` = ?"
 	return sql, []interface{}{this.ID}
 }
+
+func (this *TMemo) FieldsStr() string {
+	return "`id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at`"
+}
 func (this *TMemo) SelectByIDSql() string {
 	return "select `id`,`uid`,`year`,`mouth`,`status`,`remind_time`,`text`,`create_at`,`update_at` from memo where `id` = ?"
 }
