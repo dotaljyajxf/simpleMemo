@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/api"
 	"backend/conf"
 	"backend/data"
 	"backend/data/cache"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	_ "net/http/pprof"
 )
 
 func main() {
@@ -31,16 +33,13 @@ func main() {
 
 	r := gin.Default()
 
-	//store := cookie.NewStore([]byte(conf.Config.JwtSecret))
-	//r.Use(sessions.Sessions("mysession", store))
-
 	gin.SetMode(conf.Config.RunMode)
 
 	//r.LoadHTMLGlob(conf.Config.StaticPath + "/views/*")
 	r.LoadHTMLFiles(conf.Config.StaticPath + "/index.html")
 
 	r = routers.CommonRouter(r)
-	r = routers.InitRouter(r)
+	r = api.InitRouter(r)
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", conf.Config.HTTPPort),
 		Handler:        r,
@@ -52,6 +51,13 @@ func main() {
 	go func() {
 		if err := s.ListenAndServe(); err != nil {
 			logrus.Infof("Listen: %s", err)
+		}
+	}()
+
+	go func() {
+		err := http.ListenAndServe(":9909", nil)
+		if err != nil {
+			panic(err)
 		}
 	}()
 

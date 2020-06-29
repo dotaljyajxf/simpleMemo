@@ -120,30 +120,11 @@ func (data *dataManager) QueryTable(ctx context.Context, resp TableHandler) erro
 }
 
 func (data *dataManager) QueryContext(ctx context.Context, resp interface{}, sql string, args ...interface{}) error {
-	singleTable, ok := resp.(TableHandler)
-	if !ok {
-		return queryContext(ctx, data.Slave, nil, resp, sql, args...)
-	}
-	cKey := getCacheKey(singleTable, args)
-	if cKey != singleTable.GetStringKey() {
-		logrus.Infof("ckey %s,% localKey s", cKey, singleTable.GetStringKey())
-		return queryContext(ctx, data.Slave, nil, resp, sql, args...)
-	}
-	d, err := data.Cache.Get(cKey)
-	if err == nil {
-		return singleTable.Decode(d.([]byte))
-	}
-	logrus.Infof("cache miss %s", cKey)
-	err = queryContext(ctx, data.Slave, nil, singleTable, sql, args...)
-	if err != nil {
-		return err
-	}
-	_, _ = data.Cache.Set(cKey, string(singleTable.Encode()))
-	return err
+	return queryContext(ctx, data.Slave, nil, resp, sql, args...)
 }
 
 func (data *dataManager) Query(resp interface{}, sql string, args ...interface{}) error {
-	return data.QueryContext(context.Background(), resp, sql, args...)
+	return queryContext(context.Background(), data.Slave, nil, resp, sql, args...)
 }
 
 func (data *dataManager) Close() {
