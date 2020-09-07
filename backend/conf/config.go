@@ -13,7 +13,6 @@ import (
 var Config = &ConfigIni{}
 
 type ConfigIni struct {
-	RunMode               string        `ini:"RUN_MODE"`
 	JwtSecret             string        `ini:"JWT_SECRET"`
 	HTTPPort              int           `ini:"HTTP_PORT"`
 	ReadTimeout           time.Duration `ini:"READ_TIMEOUT"`
@@ -41,12 +40,14 @@ type ConfigIni struct {
 	ConfPath              string        `ini:"-"`
 	ViewPath              string        `ini:"-"`
 	StaticPath            string        `ini:"-"`
+	RunMode               string        `ini:"-"`
 }
 
 func handleCmdFlag() {
 	flag.StringVar(&Config.ConfPath, "c", "./conf/app.ini", "set confFile path")
 	flag.StringVar(&Config.ViewPath, "v", "./views", "set view path")
 	flag.StringVar(&Config.StaticPath, "s", "./static", "set static path")
+	flag.StringVar(&Config.RunMode, "m", "debug", "run mode")
 	flag.Parse()
 }
 
@@ -58,7 +59,7 @@ func Init() {
 	}
 
 	//TODO mode 来自命令行
-	mode := Cfg.Section("").Key("RUN_MODE").String()
+	mode := Cfg.Section("").Key(Config.RunMode).String()
 	if mode == "debug" {
 		err = Cfg.Section(mode).MapTo(Config)
 		if err != nil {

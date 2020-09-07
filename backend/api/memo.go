@@ -1,32 +1,17 @@
-/**********************************************************************************************************************
- *
- * Copyright (c) 2010 babeltime.com, Inc. All Rights Reserved
- * $
- *
- **********************************************************************************************************************/
-
-/**
- * @file $
- * @author $(liujianyong@babeltime.com)
- * @date $
- * @version $
- * @brief
- *
- **/
 package api
 
 import (
 	"backend/model/auth"
 	"backend/model/memo"
 	"backend/proto/pb"
-	"backend/util"
+	"backend/util/appret"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
+func GetMemo(c *gin.Context) *pb.TAppRet {
 	year, _ := strconv.Atoi(c.PostForm("year"))
 	mouth, _ := strconv.Atoi(c.PostForm("mouth"))
 
@@ -35,7 +20,7 @@ func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
 	memoList := pb.NewTMemoList()
 	memoObj, err := memo.FindMemoByMouth(userSession.Uid, int64(year), int64(mouth))
 	if err != nil {
-		return util.MakeErrRet(ret, http.StatusOK, "GetMemoDbError")
+		return appret.MakeErrRet(http.StatusOK, "GetMemoDbError")
 	}
 	for _, memo := range memoObj {
 		oneMemo := pb.NewTMemo()
@@ -45,10 +30,10 @@ func GetMemo(c *gin.Context, ret *pb.TAppRet) error {
 
 		memoList.Memos = append(memoList.Memos, oneMemo)
 	}
-	return util.MakeSuccessRet(ret, http.StatusOK, memoList)
+	return appret.MakeSuccessRet(http.StatusOK, memoList)
 }
 
-func CreateMemo(c *gin.Context, ret *pb.TAppRet) error {
+func CreateMemo(c *gin.Context) *pb.TAppRet {
 	RemindTime, _ := strconv.Atoi(c.PostForm("remind_time"))
 	text := c.PostForm("text")
 
@@ -56,10 +41,10 @@ func CreateMemo(c *gin.Context, ret *pb.TAppRet) error {
 
 	id, err := memo.CreateMemo(userSession.Uid, text, int64(RemindTime))
 	if err != nil {
-		return util.MakeErrRet(ret, http.StatusOK, "CreateMemoDbError")
+		return appret.MakeErrRet(http.StatusOK, "CreateMemoDbError")
 	}
 	resp := pb.NewTMemoCreateRet()
 	resp.ID = id
 
-	return util.MakeSuccessRet(ret, http.StatusOK, resp)
+	return appret.MakeSuccessRet(http.StatusOK, resp)
 }

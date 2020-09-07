@@ -37,10 +37,12 @@ func InitDataManager() {
 	}
 
 	if err = Manager.Master.Ping(); err != nil {
-		panic(err)
+		logrus.Fatalf("ping master db err %s: %s\n", masterDns, err)
+		return
 	}
 	if err = Manager.Slave.Ping(); err != nil {
-		panic(err)
+		logrus.Fatalf("ping slave db err %s: %s\n", masterDns, err)
+		return
 	}
 
 }

@@ -11,15 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HandleFunc func(c *gin.Context, ret *pb.TAppRet) error
+type HandleFunc func(c *gin.Context) *pb.TAppRet
 
 func AfterHook(f HandleFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ret := pb.NewTAppRet()
+		ret := f(c)
 		defer ret.Put()
-		err := f(c, ret)
-		if err != nil {
-			logrus.Error("server error : %s", err.Error())
+		if len(ret.Msg) != 0 {
+			logrus.Error("server error : %s", ret.Msg)
 			c.ProtoBuf(http.StatusServiceUnavailable, ret)
 		}
 
@@ -40,8 +39,7 @@ func LocalRecover() gin.HandlerFunc {
 					recv = fmt.Errorf("%v", r)
 				}
 				stack := StackInfo()
-				logrus.Errorf("panic: %v, statck:\n %v", recv, strings.Join(stack, " "))
-				//SetHttpStatus(c, http.StatusInternalServerError)
+				logrus.Errorf("panic: %v, stack:\n %v", recv, strings.Join(stack, " "))
 			}
 		}()
 		c.Next()

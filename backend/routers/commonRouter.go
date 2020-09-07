@@ -13,7 +13,7 @@ func CommonRouter(r *gin.Engine) *gin.Engine {
 	//api.Login(r)
 	r.Use(LocalRecover())
 	r.POST("/Login", AfterHook(api.Login))
-	r.POST("/Regist", AfterHook(api.Regist))
+	r.POST("/Register", AfterHook(api.Register))
 
 	LocalStatic("/static", conf.Config.StaticPath, r)
 

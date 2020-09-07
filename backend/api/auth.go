@@ -4,13 +4,14 @@ import (
 	"backend/model/auth"
 	"backend/proto/pb"
 	"backend/util"
+	"backend/util/appret"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
-func Login(c *gin.Context, ret *pb.TAppRet) error {
+func Login(c *gin.Context) *pb.TAppRet {
 	account := c.PostForm("account")
 	password := c.PostForm("password")
 
@@ -18,16 +19,16 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	authObj, err := auth.FindAuthObj(account)
 	defer authObj.Put()
 	if err != nil {
-		return util.MakeErrRet(ret, http.StatusOK, err.Error())
+		return appret.MakeErrRet(http.StatusOK, err.Error())
 	}
 	if authObj.PassWord != password {
-		return util.MakeErrRet(ret, http.StatusOK, "PassWordError")
+		return appret.MakeErrRet(http.StatusOK, "PassWordError")
 	}
 
 	token, err := util.GenerateToken(authObj.Account, authObj.PassWord)
 
 	if err != nil {
-		return util.MakeErrRet(ret, http.StatusOK, "tokenError")
+		return appret.MakeErrRet(http.StatusOK, "tokenError")
 	}
 
 	retAuth.PhoneNum = authObj.PhoneNum
@@ -46,13 +47,14 @@ func Login(c *gin.Context, ret *pb.TAppRet) error {
 	err = auth.SetAuthSession(token, sessionUser)
 	if err != nil {
 		log.Errorf("set session error %s", err.Error())
+		return appret.MakeErrRet(http.StatusOK, "SessionError")
 	}
 
 	c.SetCookie("token", token, 300, "/", "127.0.0.1", false, true)
-	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
+	return appret.MakeSuccessRet(http.StatusOK, retAuth)
 }
 
-func Regist(c *gin.Context, ret *pb.TAppRet) error {
+func Register(c *gin.Context) *pb.TAppRet {
 	account := c.PostForm("account")
 	passWord := c.PostForm("password")
 	mail := c.PostForm("mail")
@@ -63,14 +65,14 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 
 	log.Infof("regist: %s,%s", account, passWord)
 	if account == "" || passWord == "" {
-		return util.MakeErrRet(ret, http.StatusOK, "NeedAccountAndPassWord")
+		return appret.MakeErrRet(http.StatusOK, "NeedAccountAndPassWord")
 	}
 
 	authObj, err := auth.CreateAuth(nickName, passWord, mail, phoneNum, account)
 	defer authObj.Put()
 	if err != nil {
 		log.Infof("create auth failed ret:%s", err.Error())
-		return util.MakeErrRet(ret, http.StatusOK, "CreateFaild")
+		return appret.MakeErrRet(http.StatusOK, "CreateFaild")
 	}
 
 	token, err := util.GenerateToken(authObj.Account, authObj.PassWord)
@@ -96,5 +98,5 @@ func Regist(c *gin.Context, ret *pb.TAppRet) error {
 	sessionUser.Token = token
 	auth.SetAuthSession(token, sessionUser)
 
-	return util.MakeSuccessRet(ret, http.StatusOK, retAuth)
+	return appret.MakeSuccessRet(http.StatusOK, retAuth)
 }

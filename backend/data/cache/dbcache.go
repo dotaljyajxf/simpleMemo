@@ -4,8 +4,9 @@ import (
 	"backend/conf"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/gomodule/redigo/redis"
 )
