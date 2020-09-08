@@ -1,11 +1,9 @@
 package data
 
 import (
-	"backend/conf"
 	"bytes"
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 	"unicode"
@@ -20,7 +18,6 @@ var Manager = &dataManager{}
 type dataManager struct {
 	Master *sql.DB
 	Slave  *sql.DB
-	Cache  CacheHandle
 }
 
 type LocalTx struct {
@@ -68,45 +65,12 @@ func (data *dataManager) Exec(ctx context.Context, sql string, args ...interface
 	return data.Master.ExecContext(ctx, sql, args...)
 }
 
-func (data *dataManager) saveCache(resp TableHandler) {
-	if conf.Config.CacheUse != 1 {
-		return
-	}
-	_, err := data.Cache.Set(resp.GetStringKey(), resp.Encode())
-	if err != nil {
-		logrus.Infof("set cache err %s:%s\n", resp.GetStringKey(), err.Error())
-	}
-}
-
-func (data *dataManager) delCache(resp TableHandler) {
-	if conf.Config.CacheUse != 1 {
-		return
-	}
-	_, err := data.Cache.Del(resp.GetStringKey())
-	if err != nil {
-		logrus.Info("del cache err %s:%s\n", resp.GetStringKey(), err.Error())
-	}
-}
-
-func (data *dataManager) queryCache(resp TableHandler) error {
-	if conf.Config.CacheUse != 1 {
-		return errors.New("not open cache")
-	}
-	cacheKey := resp.GetStringKey()
-	d, err := data.Cache.Get(cacheKey)
-	if err != nil {
-		return err
-	}
-	return resp.Decode(d.([]byte))
-}
-
 func (data *dataManager) InsertTable(ctx context.Context, resp TableHandler) (sql.Result, error) {
 	sql, args := resp.InsertSql()
 	res, err := data.Master.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return res, err
 	}
-	go data.saveCache(resp)
 	return res, err
 }
 
@@ -116,22 +80,16 @@ func (data *dataManager) UpdateTable(ctx context.Context, resp TableHandler) (sq
 	if err != nil {
 		return res, err
 	}
-	go data.delCache(resp)
 	return res, err
 }
 
 func (data *dataManager) QueryTable(ctx context.Context, resp TableHandler) error {
 	sql, args := resp.SelectSql()
 
-	err := data.queryCache(resp)
-	if err == nil {
-		return nil
-	}
-	err = queryContext(ctx, data.Slave, nil, resp, sql, args...)
+	err := queryContext(ctx, data.Slave, nil, resp, sql, args...)
 	if err != nil {
 		return err
 	}
-	go data.saveCache(resp)
 	return err
 }
 
@@ -150,12 +108,12 @@ func (data *dataManager) Close() {
 	}
 }
 
-func MakeSelectSql(selectField string, tableName string, where string) string {
+func MakeSelectSql(selectFields string, fromTable string, where string) string {
 	buffer := bytes.Buffer{}
 	buffer.WriteString("select ")
-	buffer.WriteString(selectField)
+	buffer.WriteString(selectFields)
 	buffer.WriteString(" from ")
-	buffer.WriteString(tableName)
+	buffer.WriteString(fromTable)
 	buffer.WriteString(" ")
 	buffer.WriteString(where)
 
